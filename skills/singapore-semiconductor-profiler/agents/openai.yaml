@@ -1,0 +1,4 @@
+interface:
+  display_name: "Singapore Semiconductor Profiler"
+  short_description: "Profile Singapore semiconductor companies"
+  default_prompt: "Use $singapore-semiconductor-profiler to profile this Singapore semiconductor company URL into data/companies.xlsx."

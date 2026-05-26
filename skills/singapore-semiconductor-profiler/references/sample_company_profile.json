@@ -1,0 +1,14 @@
+{
+  "company_name": "OneSystems Technologies Pte Ltd",
+  "website": "https://www.onesystemstech.com/",
+  "domain": "onesystemstech.com",
+  "business_summary": "OneSystems Technologies provides turnkey infrastructure, cleanroom systems, and smart OT/IT integration for advanced semiconductor facilities.",
+  "semicon_role": "systems_integrator",
+  "products_services": "Turnkey infrastructure; cleanroom systems; smart OT/IT integration; data and communication infrastructure; security systems; engineering and maintenance",
+  "target_customer_type": "Semiconductor fabs; advanced semiconductor facilities; cleanroom operators; manufacturing site owners",
+  "buyer_need": "OT/IT integration; cleanroom infrastructure; facility communications; security systems; turnkey plant infrastructure support",
+  "evidence_url": "https://www.onesystemstech.com/semiconductor",
+  "confidence": "high",
+  "last_checked": "2026-05-26",
+  "notes": "Sample profile for validating and upserting one company row."
+}
