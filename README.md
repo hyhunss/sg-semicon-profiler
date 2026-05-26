@@ -12,6 +12,12 @@ domains, and writes the Excel row.
 
 ## Install
 
+1. Open Codex and click the "Plugins" tab. ![plugins](screenshots/plugins.jpg)
+
+2. Click "Add more". ![addmore](screenshots/addmore.jpg)
+
+3. Paste the GitHub URL into the "Source" and click "Add marketplace". ![addmarketplace](screenshots/addmarketplace.jpg)
+
 ### From Codex using the GitHub repo URL
 
 Use this if Codex asks you to add a plugin or marketplace from a GitHub URL.
