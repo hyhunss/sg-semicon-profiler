@@ -1,0 +1,20 @@
+{
+  "name": "sg-semicon-profiler",
+  "interface": {
+    "displayName": "Singapore Semiconductor Profiler"
+  },
+  "plugins": [
+    {
+      "name": "singapore-semiconductor-profiler",
+      "source": {
+        "source": "local",
+        "path": "."
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
