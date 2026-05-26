@@ -1,7 +1,7 @@
 {
   "name": "singapore-semiconductor-profiler",
   "version": "0.1.1",
-  "description": "Profile Singapore semiconductor and semiconductor-adjacent companies into data/companies.xlsx for downstream US-customer matching.",
+  "description": "Build structured profiles of Singapore semiconductor and adjacent companies for US market-entry research.",
   "author": {
     "name": "Hanyang Hu"
   },
@@ -9,12 +9,12 @@
   "interface": {
     "displayName": "Singapore Semiconductor Profiler",
     "shortDescription": "Profile Singapore semiconductor companies.",
-    "longDescription": "Converts a Singapore semiconductor or semiconductor-adjacent company URL into one validated company profile row in the project-local data/companies.xlsx workbook, with buyer-need fields designed for downstream US-customer matching.",
+    "longDescription": "Researches a company website and turns key business, capability, and buyer-fit details into a structured profile for market-entry analysis.",
     "developerName": "Hanyang Hu",
     "category": "Productivity",
     "capabilities": [
       "skills"
     ],
-    "defaultPrompt": "Use $singapore-semiconductor-profiler to profile this Singapore semiconductor company URL into data/companies.xlsx."
+    "defaultPrompt": "Use $singapore-semiconductor-profiler to profile this Singapore semiconductor company URL. Save the profile to data/companies.xlsx."
   }
 }
