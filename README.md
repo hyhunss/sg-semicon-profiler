@@ -18,9 +18,22 @@ The plugin is intentionally small and production-minded. The AI researches the w
 - Writes only inside the current project root.
 - Saves workbook updates through a temporary file before replacing the final workbook.
 
-## Requirements
+## SBF beta model
 
-Use Python 3.11 or newer. The Python dependencies are declared in `pyproject.toml`:
+Do not ask SBF executives or business reviewers to install Python, uv, or Codex plugins.
+
+For beta testing, use an operator-run, business-reviewed workflow:
+
+1. A project operator runs this plugin in Codex on a prepared machine.
+2. The operator generates or updates `data/companies.xlsx`.
+3. SBF reviewers receive the workbook or a summarized report.
+4. SBF reviewers assess profile quality, evidence quality, confidence labels, and usefulness for US-customer matching.
+
+This beta tests the value and accuracy of the AI-assisted profiling output. It does not require non-technical reviewers to operate the plugin locally.
+
+## Operator requirements
+
+Only the operator machine needs Python 3.11 or newer and uv. The Python dependencies are declared in `pyproject.toml`:
 
 ```bash
 uv sync
