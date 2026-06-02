@@ -19,7 +19,10 @@ COMPANY_COLUMNS = [
     "target_customer_type",
     "buyer_need",
     "evidence_url",
+    "evidence_urls",
+    "evidence_summary",
     "confidence",
+    "research_quality",
     "last_checked",
     "notes",
 ]
@@ -65,7 +68,16 @@ class CompanyProfile(BaseModel):
     target_customer_type: str = Field(min_length=5)
     buyer_need: str = Field(min_length=5)
     evidence_url: HttpUrl
+    evidence_urls: list[HttpUrl] = Field(min_length=1, max_length=5)
+    evidence_summary: str = Field(min_length=20)
     confidence: Literal["high", "medium", "low"]
+    research_quality: Literal[
+        "complete",
+        "limited_site",
+        "thin_evidence",
+        "inaccessible_site",
+        "conflicting_sources",
+    ]
     last_checked: date
     notes: str = ""
 
@@ -78,6 +90,28 @@ class CompanyProfile(BaseModel):
                 f"domain {self.domain!r} does not match website domain {website_domain!r}"
             )
         self.domain = normalized_domain
+
+        evidence_url = str(self.evidence_url).rstrip("/")
+        evidence_urls = {str(url).rstrip("/") for url in self.evidence_urls}
+        if evidence_url not in evidence_urls:
+            raise ValueError("evidence_url must also appear in evidence_urls")
+
+        company_site_count = sum(
+            1 for url in self.evidence_urls if normalize_domain(str(url)) == website_domain
+        )
+
+        if self.confidence == "high":
+            if self.research_quality != "complete":
+                raise ValueError("high confidence requires research_quality='complete'")
+            if len(evidence_urls) < 3:
+                raise ValueError("high confidence requires at least 3 distinct evidence_urls")
+            if company_site_count < 3:
+                raise ValueError("high confidence requires at least 3 company-site evidence_urls")
+
+        if self.research_quality == "complete" and len(evidence_urls) < 3:
+            raise ValueError("research_quality='complete' requires at least 3 evidence_urls")
+        if self.research_quality == "complete" and company_site_count < 3:
+            raise ValueError("research_quality='complete' requires at least 3 company-site evidence_urls")
 
         return self
 

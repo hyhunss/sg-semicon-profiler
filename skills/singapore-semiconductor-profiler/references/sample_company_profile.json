@@ -8,7 +8,14 @@
   "target_customer_type": "Semiconductor fabs; advanced semiconductor facilities; cleanroom operators; manufacturing site owners",
   "buyer_need": "OT/IT integration; cleanroom infrastructure; facility communications; security systems; turnkey plant infrastructure support",
   "evidence_url": "https://www.onesystemstech.com/semiconductor",
+  "evidence_urls": [
+    "https://www.onesystemstech.com/semiconductor",
+    "https://www.onesystemstech.com/turnkey-infrastructure",
+    "https://www.onesystemstech.com/about-us"
+  ],
+  "evidence_summary": "Semiconductor page supports fab infrastructure relevance; turnkey infrastructure page supports OT/IT and cleanroom services; about page supports company context.",
   "confidence": "high",
+  "research_quality": "complete",
   "last_checked": "2026-05-26",
   "notes": "Sample profile for validating and upserting one company row."
 }

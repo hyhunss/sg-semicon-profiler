@@ -12,6 +12,7 @@ import argparse
 import json
 import os
 import sys
+import tempfile
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any
@@ -86,8 +87,27 @@ def _load_existing_workbook() -> tuple[Workbook, Worksheet] | None:
     sheet = workbook[SHEET_NAME]
     changed = _ensure_headers(sheet)
     if changed:
-        workbook.save(path)
+        _save_workbook(workbook)
     return workbook, sheet
+
+
+def _save_workbook(workbook: Workbook) -> None:
+    path = workbook_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            dir=path.parent,
+            prefix=f".{path.stem}-",
+            suffix=path.suffix,
+            delete=False,
+        ) as handle:
+            temp_path = Path(handle.name)
+        workbook.save(temp_path)
+        os.replace(temp_path, path)
+    finally:
+        if temp_path is not None and temp_path.exists():
+            temp_path.unlink()
 
 
 def _ensure_headers(sheet: Worksheet) -> bool:
@@ -126,6 +146,8 @@ def workbook_audit() -> dict[str, Any]:
         "extra_columns": [],
         "row_count": 0,
         "duplicate_domains": [],
+        "research_quality_counts": {},
+        "rows_missing_evidence_urls": [],
     }
     loaded = _load_existing_workbook()
     if loaded is None:
@@ -141,28 +163,47 @@ def workbook_audit() -> dict[str, Any]:
         columns = _header_index(sheet)
         domain_col = columns[PRIMARY_KEY]
         counts: dict[str, int] = {}
+        quality_counts: dict[str, int] = {}
         for row_num in range(2, sheet.max_row + 1):
             value = sheet.cell(row=row_num, column=domain_col).value
             if not value:
                 continue
             domain = str(value).strip().lower()
             counts[domain] = counts.get(domain, 0) + 1
+
+            if "research_quality" in columns:
+                quality = sheet.cell(row=row_num, column=columns["research_quality"]).value
+                quality_key = str(quality).strip() if quality else "missing"
+                quality_counts[quality_key] = quality_counts.get(quality_key, 0) + 1
+
+            if "evidence_urls" in columns:
+                evidence_urls = sheet.cell(row=row_num, column=columns["evidence_urls"]).value
+                if not evidence_urls or not str(evidence_urls).strip():
+                    result["rows_missing_evidence_urls"].append(domain)
+
         result["duplicate_domains"] = [
             domain for domain, count in sorted(counts.items()) if count > 1
         ]
+        result["research_quality_counts"] = dict(sorted(quality_counts.items()))
 
     return result
 
 
 def _find_row(sheet: Worksheet, domain: str) -> int | None:
+    rows = _find_rows(sheet, domain)
+    return rows[0] if rows else None
+
+
+def _find_rows(sheet: Worksheet, domain: str) -> list[int]:
     columns = _header_index(sheet)
     domain_col = columns[PRIMARY_KEY]
     target = domain.strip().lower()
+    rows: list[int] = []
     for row_num in range(2, sheet.max_row + 1):
         value = sheet.cell(row=row_num, column=domain_col).value
         if value and str(value).strip().lower() == target:
-            return row_num
-    return None
+            rows.append(row_num)
+    return rows
 
 
 def _parse_checked_date(value: Any) -> date | None:
@@ -192,6 +233,17 @@ def _row_is_stale(sheet: Worksheet, row_num: int, today: date | None = None) -> 
     return (reference_date - checked).days > STALE_AFTER_DAYS
 
 
+def _row_missing_evidence_fields(sheet: Worksheet, row_num: int) -> bool:
+    columns = _header_index(sheet)
+    for column in ("evidence_url", "evidence_urls", "evidence_summary", "research_quality"):
+        if column not in columns:
+            return True
+        value = sheet.cell(row=row_num, column=columns[column]).value
+        if not value or not str(value).strip():
+            return True
+    return False
+
+
 def _delete_company_row(sheet: Worksheet, domain: str) -> bool:
     row_num = _find_row(sheet, domain)
     if row_num is None:
@@ -209,7 +261,7 @@ def delete_company(domain: str) -> bool:
     workbook, sheet = loaded
     deleted = _delete_company_row(sheet, domain)
     if deleted:
-        workbook.save(workbook_path())
+        _save_workbook(workbook)
     return deleted
 
 
@@ -245,25 +297,56 @@ def validate_company(data: dict[str, Any]) -> CompanyProfile:
         payload["website"] = str(payload["website"])
     if "evidence_url" in payload:
         payload["evidence_url"] = str(payload["evidence_url"])
+    if "evidence_urls" in payload:
+        payload["evidence_urls"] = _normalize_evidence_urls(payload["evidence_urls"])
     return CompanyProfile.model_validate(payload)
+
+
+def _normalize_evidence_urls(value: Any) -> list[str]:
+    if isinstance(value, str):
+        urls = [
+            item.strip()
+            for chunk in value.splitlines()
+            for item in chunk.split(";")
+            if item.strip()
+        ]
+    elif isinstance(value, list):
+        urls = [str(item).strip() for item in value if str(item).strip()]
+    else:
+        raise ValueError("evidence_urls must be a list of URLs or a newline-separated string")
+    return list(dict.fromkeys(urls))
+
+
+def _excel_value(value: Any) -> Any:
+    if isinstance(value, list):
+        return "\n".join(str(item) for item in value)
+    return value
 
 
 def upsert_company(profile: CompanyProfile) -> None:
     workbook, sheet = _load_or_create_workbook()
     columns = _header_index(sheet)
-    row_num = _find_row(sheet, profile.domain)
+
+    row_nums = _find_rows(sheet, profile.domain)
+    row_num = row_nums[0] if row_nums else None
     if row_num is not None and _row_is_stale(sheet, row_num):
-        sheet.delete_rows(row_num, 1)
+        rows_to_delete = row_nums
         row_num = None
+    else:
+        rows_to_delete = row_nums[1:]
+
+    for duplicate_row in sorted(rows_to_delete, reverse=True):
+        sheet.delete_rows(duplicate_row, 1)
+
     if row_num is None:
         row_num = sheet.max_row + 1
 
     row_data = profile.model_dump(mode="json")
     for column in COMPANY_COLUMNS:
-        sheet.cell(row=row_num, column=columns[column], value=row_data.get(column, ""))
+        sheet.cell(row=row_num, column=columns[column], value=_excel_value(row_data.get(column, "")))
 
     sheet.auto_filter.ref = sheet.dimensions
-    workbook.save(workbook_path())
+    _save_workbook(workbook)
 
 
 def check_url(url: str) -> str:
@@ -272,15 +355,14 @@ def check_url(url: str) -> str:
     if loaded is None:
         return f"research required: {domain}"
 
-    workbook, sheet = loaded
+    _, sheet = loaded
     row_num = _find_row(sheet, domain)
     if row_num is None:
         return f"research required: {domain}"
+    if _row_missing_evidence_fields(sheet, row_num):
+        return f"research required: {domain} (missing evidence fields)"
     if _row_is_stale(sheet, row_num):
-        sheet.delete_rows(row_num, 1)
-        sheet.auto_filter.ref = sheet.dimensions
-        workbook.save(workbook_path())
-        return f"research required: {domain} (stale row deleted)"
+        return f"research required: {domain} (stale row retained until replacement)"
     if row_num:
         return "already exists"
     return f"research required: {domain}"

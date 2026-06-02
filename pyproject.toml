@@ -1,0 +1,12 @@
+[project]
+name = "singapore-semiconductor-profiler"
+version = "0.2.0"
+description = "Codex plugin helpers for profiling Singapore semiconductor companies into Excel."
+requires-python = ">=3.11"
+dependencies = [
+    "openpyxl>=3.1.0",
+    "pydantic>=2.7.0",
+]
+
+[tool.uv]
+package = false

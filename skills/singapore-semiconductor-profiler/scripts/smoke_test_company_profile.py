@@ -38,7 +38,14 @@ def main() -> int:
             "target_customer_type": "Semiconductor fabs; advanced manufacturing facilities; cleanroom operators",
             "buyer_need": "OT/IT integration; cleanroom infrastructure; facility communications; security systems",
             "evidence_url": "https://www.onesystemstech.com/semiconductor",
+            "evidence_urls": [
+                "https://www.onesystemstech.com/semiconductor",
+                "https://www.onesystemstech.com/turnkey-infrastructure",
+                "https://www.onesystemstech.com/about-us",
+            ],
+            "evidence_summary": "Semiconductor page supports plant infrastructure relevance; turnkey infrastructure page supports OT/IT and cleanroom services; about page supports company context.",
             "confidence": "high",
+            "research_quality": "complete",
             "last_checked": "2026-05-26",
             "notes": "Direct semiconductor facility infrastructure evidence.",
         },
@@ -52,7 +59,14 @@ def main() -> int:
             "target_customer_type": "Computer manufacturers; cloud providers; electronics OEMs",
             "buyer_need": "Processors; semiconductor components; advanced compute platforms",
             "evidence_url": "https://www.intel.com",
+            "evidence_urls": [
+                "https://www.intel.com",
+                "https://www.intel.com/content/www/us/en/products/details/processors.html",
+                "https://www.intel.com/content/www/us/en/company-overview/company-overview.html",
+            ],
+            "evidence_summary": "Homepage and company overview support Intel identity; processor page supports semiconductor product offerings and customer needs.",
             "confidence": "high",
+            "research_quality": "complete",
             "last_checked": "2026-05-26",
             "notes": "Smoke-test row for the IDM role.",
         },
@@ -77,7 +91,10 @@ def main() -> int:
             "semicon_category",
             "products_services",
             "evidence_url",
+            "evidence_urls",
+            "evidence_summary",
             "confidence",
+            "research_quality",
             "last_checked",
             "status",
             "notes",
@@ -104,22 +121,49 @@ def main() -> int:
         assert audit["row_count"] == 2
         assert audit["duplicate_domains"] == []
         assert audit["missing_columns"] == []
+        assert audit["research_quality_counts"] == {"complete": 2}
+        assert audit["rows_missing_evidence_urls"] == []
         assert "country" in audit["extra_columns"]
         assert "status" in audit["extra_columns"]
 
         stale_profile = profiles[0] | {
             "last_checked": (date.today() - timedelta(days=91)).isoformat(),
-            "notes": "Stale row for deletion test.",
+            "notes": "Stale row for replacement test.",
         }
         excel.upsert_company(excel.validate_company(stale_profile))
         assert excel.check_url("https://www.onesystemstech.com") == (
-            "research required: onesystemstech.com (stale row deleted)"
+            "research required: onesystemstech.com (stale row retained until replacement)"
         )
-        assert not excel.company_exists("onesystemstech.com")
+        assert excel.company_exists("onesystemstech.com")
 
         fresh_profile = profiles[0] | {"last_checked": date.today().isoformat()}
         excel.upsert_company(excel.validate_company(fresh_profile))
         assert excel.check_url("https://www.onesystemstech.com") == "already exists"
+
+        workbook = load_workbook(expected_path)
+        sheet = workbook[excel.SHEET_NAME]
+        duplicate_row = sheet.max_row + 1
+        columns = excel._header_index(sheet)
+        source_row = excel._find_row(sheet, "onesystemstech.com")
+        assert source_row is not None
+        for column in excel.COMPANY_COLUMNS:
+            sheet.cell(
+                row=duplicate_row,
+                column=columns[column],
+                value=sheet.cell(row=source_row, column=columns[column]).value,
+            )
+        workbook.save(expected_path)
+        assert excel.workbook_audit()["duplicate_domains"] == ["onesystemstech.com"]
+
+        excel.upsert_company(excel.validate_company(profiles[0] | {"notes": "Duplicate collapse."}))
+        workbook = load_workbook(expected_path)
+        sheet = workbook[excel.SHEET_NAME]
+        columns = excel._header_index(sheet)
+        domains = [
+            sheet.cell(row=row_num, column=columns[excel.PRIMARY_KEY]).value
+            for row_num in range(2, sheet.max_row + 1)
+        ]
+        assert domains.count("onesystemstech.com") == 1
 
         wrong_domain = profiles[0] | {"domain": "wrong.com.sg"}
         try:
@@ -128,6 +172,52 @@ def main() -> int:
             pass
         else:
             raise AssertionError("mismatched website/domain should fail validation")
+
+        weak_high_confidence = profiles[0] | {
+            "evidence_urls": ["https://www.onesystemstech.com/semiconductor"],
+            "research_quality": "thin_evidence",
+        }
+        try:
+            excel.validate_company(weak_high_confidence)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("high confidence should require complete multi-page evidence")
+
+        limited_profile = profiles[0] | {
+            "confidence": "medium",
+            "research_quality": "limited_site",
+            "evidence_urls": "https://www.onesystemstech.com/semiconductor",
+            "evidence_summary": "Only one relevant semiconductor page was available; role is supported but site coverage is limited.",
+            "notes": "Limited evidence accepted at medium confidence.",
+        }
+        assert excel.validate_company(limited_profile).research_quality == "limited_site"
+
+        external_high_confidence = profiles[0] | {
+            "evidence_urls": [
+                "https://www.onesystemstech.com/semiconductor",
+                "https://example.com/source-a",
+                "https://example.org/source-b",
+            ],
+        }
+        try:
+            excel.validate_company(external_high_confidence)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("complete high-confidence evidence should require company-site URLs")
+
+        workbook = load_workbook(expected_path)
+        sheet = workbook[excel.SHEET_NAME]
+        columns = excel._header_index(sheet)
+        legacy_row = excel._find_row(sheet, "onesystemstech.com")
+        assert legacy_row is not None
+        for column in ("evidence_urls", "evidence_summary", "research_quality"):
+            sheet.cell(row=legacy_row, column=columns[column], value="")
+        workbook.save(expected_path)
+        assert excel.check_url("https://www.onesystemstech.com") == (
+            "research required: onesystemstech.com (missing evidence fields)"
+        )
 
         extra_fields = profiles[0] | {"country": "Singapore", "status": "enriched"}
         try:
