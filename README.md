@@ -1,75 +1,126 @@
 # Singapore Semiconductor Profiler
 
-This Codex plugin turns one Singapore semiconductor or semiconductor-adjacent company URL into one validated row in a project-local workbook:
+Codex plugin for profiling Singapore semiconductor and semiconductor-adjacent companies into one shared Excel workbook.
+
+```text
+Company URL -> researched profile -> validated Excel row
+```
+
+The workbook is written to:
 
 ```text
 data/companies.xlsx
 ```
 
-The plugin is intentionally small and production-minded. The AI researches the website and returns one JSON object. The bundled Python script validates the JSON, normalizes domains, prevents duplicate workbook rows, and writes the Excel file.
-
-## What it does
-
-- Checks whether a company domain already exists before research starts.
-- Keeps stale rows in place until a validated replacement profile is ready.
-- Rejects malformed JSON, mismatched website/domain values, and legacy fields.
-- Requires multi-page evidence for high-confidence company profiles.
-- Records evidence URLs, an evidence summary, and research quality for auditability.
-- Writes only inside the current project root.
-- Saves workbook updates through a temporary file before replacing the final workbook.
-
-## Intended users and beta workflow
+## Who this is for
 
 This repository is intended for business analysts at SBF or Singaporean SMEs who are preparing structured company profiles for market-entry and customer-matching work.
 
-For beta testing, use an analyst-run, stakeholder-reviewed workflow:
+The usual workflow is analyst-run and stakeholder-reviewed:
 
-1. A business analyst runs this plugin in Codex on a prepared project machine.
-2. The analyst generates or updates `data/companies.xlsx`.
-3. Project stakeholders review the workbook or a summarized report.
-4. Reviewers assess profile quality, evidence quality, confidence labels, and usefulness for US-customer matching.
+1. An analyst runs the plugin in Codex on a prepared project machine.
+2. The plugin updates `data/companies.xlsx`.
+3. Stakeholders review the workbook or a summarized report.
+4. Reviewers assess profile quality, evidence quality, confidence, and usefulness for customer matching.
 
-The beta focuses on the value and accuracy of the AI-assisted profiling output. The technical setup is limited to the analyst/operator environment.
+## What it does
 
-## Analyst environment
+- Profiles one company URL at a time.
+- Writes one normalized row per company domain.
+- Prevents duplicate domain rows.
+- Keeps stale rows until a validated replacement is ready.
+- Requires multi-page company-site evidence for high-confidence rows.
+- Records evidence URLs, evidence summary, confidence, and research quality.
+- Validates output before writing Excel.
 
-The analyst machine should have Python 3.11 or newer and uv. The Python dependencies are declared in `pyproject.toml`:
+## Requirements
+
+The analyst machine needs:
+
+- Codex
+- Python 3.11+
+- uv
+
+Install Python dependencies:
 
 ```bash
 uv sync
 ```
 
-The main runtime dependencies are `openpyxl` and `pydantic`.
+Runtime dependencies are declared in `pyproject.toml`.
+
+## Install in Codex
+
+1. Open Codex.
+2. Go to Plugins.
+3. Click Add more.
+4. Add this repository as a plugin source.
+5. Start a new Codex thread after installation.
 
 ## Usage
 
-From a Codex thread in the project you want to update:
+From a Codex thread in the project root:
 
 ```text
 Use $singapore-semiconductor-profiler to profile https://example.com.sg into data/companies.xlsx
 ```
 
-The expected workflow is:
+The plugin will:
 
-1. The skill checks the normalized domain in `data/companies.xlsx`.
-2. If the domain is fresh, it stops with `already exists`.
-3. If the domain is missing or stale, Codex researches the company website.
-4. Codex reviews the most relevant available pages and builds evidence coverage.
-5. Codex emits one schema-valid JSON profile.
-6. The bundled Python script validates and upserts the row.
+1. Normalize the company domain.
+2. Check whether the domain already exists in `data/companies.xlsx`.
+3. Skip fresh complete rows.
+4. Refresh stale or evidence-incomplete rows.
+5. Research relevant company-site pages.
+6. Validate the final JSON profile.
+7. Upsert the row into Excel.
 
-## Evidence quality
+## Output columns
 
-The workbook stores:
+The workbook uses the `companies` sheet with these core columns:
 
-- `evidence_url`: the strongest source URL.
-- `evidence_urls`: 1-5 reviewed URLs, stored as newline-separated links in Excel.
-- `evidence_summary`: a short explanation of what the sources support.
-- `research_quality`: one of `complete`, `limited_site`, `thin_evidence`, `inaccessible_site`, or `conflicting_sources`.
+```text
+company_name
+website
+domain
+business_summary
+semicon_role
+products_services
+target_customer_type
+buyer_need
+evidence_url
+evidence_urls
+evidence_summary
+confidence
+research_quality
+last_checked
+notes
+```
 
-High-confidence rows require at least 3 distinct company-site evidence URLs and `research_quality = complete`. Existing fresh rows that lack the new evidence fields are automatically sent back through research instead of being skipped. If a website is thin, blocked, or contradictory, the profile should use medium or low confidence and explain the limitation.
+## Evidence standard
 
-For local validation:
+High-confidence rows require:
+
+- `confidence = high`
+- `research_quality = complete`
+- at least 3 distinct evidence URLs from the company website
+- `evidence_url` included in `evidence_urls`
+
+If the website is thin, inaccessible, or contradictory, use medium or low confidence and mark the limitation with `research_quality`.
+
+Allowed `research_quality` values:
+
+```text
+complete
+limited_site
+thin_evidence
+inaccessible_site
+conflicting_sources
+```
+
+## Local checks
+
+Run these from the repository root:
 
 ```bash
 export SKILL_DIR="skills/singapore-semiconductor-profiler"
@@ -80,19 +131,18 @@ uv run python "$SKILL_DIR/scripts/company_profile_excel.py" audit
 
 ## Troubleshooting
 
-- `already exists`: the normalized domain is already present and was checked within the last 90 days.
-- `missing evidence fields`: the row exists but predates the evidence-led schema, so it should be refreshed.
-- `stale row retained until replacement`: the existing row is old enough to refresh, but it has not been deleted before replacement.
-- `high confidence requires at least 3 company-site evidence_urls`: collect more relevant company-site pages or lower confidence and mark the appropriate research-quality limitation.
-- Validation errors: remove unsupported keys such as `country`, `semicon_category`, or `status`; they are legacy workbook columns, not accepted JSON fields.
-- Workbook path errors: keep `COMPANIES_XLSX` relative to the project root, such as `data/companies.xlsx`.
+- `already exists`: the domain is present, fresh, and evidence-complete.
+- `missing evidence fields`: the row predates the evidence-led schema and should be refreshed.
+- `stale row retained until replacement`: the row is old, but kept until the new profile validates.
+- `high confidence requires at least 3 company-site evidence_urls`: add more company-site evidence or lower confidence.
+- Validation rejects legacy JSON fields such as `country`, `semicon_category`, and `status`.
+- `COMPANIES_XLSX` must stay inside the project root, such as `data/companies.xlsx`.
 
-## Install
+## Design principles
 
-1. Open Codex and click the "Plugins" tab. ![plugins](screenshots/plugins.jpg)
-
-2. Click "Add more". ![addmore](screenshots/addmore.jpg)
-
-3. Paste the GitHub URL into the "Source" and click "Add marketplace". ![addmarketplace](screenshots/addmarketplace.jpg)
-
-4. Start using the plugin. Use a capable reasoning model because the research step requires judgment about semiconductor relevance and buyer fit.
+- Keep it simple.
+- One URL in, one Excel row out.
+- No crawler.
+- No separate database.
+- Python handles validation and Excel writes.
+- Codex handles company research and profile drafting.
