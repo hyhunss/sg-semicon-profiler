@@ -1,11 +1,11 @@
 {
-  "name": "sg-semicon-profiler",
+  "name": "sg-semicon-expansion-plugin",
   "interface": {
-    "displayName": "Singapore Semiconductor Profiler"
+    "displayName": "Singapore Semiconductor Industry US Expansion Plugin"
   },
   "plugins": [
     {
-      "name": "singapore-semiconductor-profiler",
+      "name": "sg-semicon-expansion-plugin",
       "source": {
         "source": "local",
         "path": "."
