@@ -1,12 +1,18 @@
-# Singapore Semiconductor Profiler
+# SG Semicon US Expansion
 
-Use this Codex plugin to research one Singapore semiconductor or semiconductor-adjacent company website and add a structured profile to:
+Use this Codex plugin to support Singapore semiconductor and semiconductor-adjacent SMEs preparing for US market expansion.
+
+It includes two skills:
+
+- `singapore-semiconductor-profiler`: research one company website and add a structured profile to:
 
 ```text
 data/companies.xlsx
 ```
 
-The output is meant for market-entry, customer-matching, and business-development research. It is designed for analysts who need consistent company profiles, evidence links, and clear confidence levels.
+- `map-sme-capability`: turn an SME website or document into a concise Markdown capability profile with US buyer-intent search queries.
+
+The output is meant for market-entry, customer-matching, and business-development research. It is designed for analysts who need consistent company profiles, evidence links, clear confidence levels, and practical US prospecting angles.
 
 ## Quick Start
 
@@ -16,22 +22,37 @@ From a Codex thread opened in your project folder, ask:
 Use $singapore-semiconductor-profiler to profile https://example.com.sg into data/companies.xlsx
 ```
 
-Replace `https://example.com.sg` with the company website you want to profile.
+Or ask:
 
-The plugin will:
+```text
+Use $map-sme-capability to map https://example.com.sg for US buyer prospecting.
+```
 
-1. Check whether the company website is already in `data/companies.xlsx`.
-2. Skip the company if the existing row is fresh and evidence-complete.
-3. Research the company website if the row is missing, old, or missing evidence fields.
-4. Create a structured company profile.
-5. Validate the profile before writing to Excel.
-6. Add or update one row in the `companies` sheet.
+Replace `https://example.com.sg` with the SME website you want to profile or map.
+
+The profiler workflow will:
+
+1. Check that `data/companies.xlsx` can be opened or created.
+2. Check whether the company website is already in `data/companies.xlsx`.
+3. Skip the company if the existing row is fresh and evidence-complete.
+4. Research the company website if the row is missing, old, or missing evidence fields.
+5. Create a structured company profile.
+6. Check the profile against the workbook field checklist before writing to Excel.
+7. Verify the evidence URLs before writing to Excel.
+8. Add or update one row in the `companies` sheet.
+
+The capability-mapping workflow will:
+
+1. Read a company website or uploaded company-profile document.
+2. Extract the physical technical capabilities and remove marketing language.
+3. Generate three US buyer-intent search queries.
+4. Save an editable Markdown capability profile in the current project folder.
 
 ## Who Should Use This
 
-This plugin is for business analysts at SBF or Singaporean SMEs who are preparing company profiles for international market-entry work.
+This plugin is for business analysts at SBF or Singaporean SMEs who are preparing company profiles, prospecting logic, and US market-entry research.
 
-You do not need to edit JSON or write Python for normal use. A basic Python background helps only when installing dependencies or running local checks.
+You do not need Python, uv, a virtual environment, or local scripts. The plugin is prompt/skill based and uses Codex plus spreadsheet-capable tooling.
 
 ## What The Workbook Contains
 
@@ -150,35 +171,17 @@ In Codex:
 
 ![Add marketplace source](screenshots/addmarketplace.jpg)
 
-The analyst machine should have:
-
-- Codex
-- Python 3.11+
-- uv
-
-Install Python dependencies from the plugin folder:
-
-```bash
-uv sync
-```
+The analyst machine only needs Codex and normal access to the project files. No Python, uv, virtual environment, or lockfile is required.
 
 ## Local Checks
 
-Run these from the plugin folder when you want to verify the plugin is working:
+To verify the plugin source, confirm these files exist:
 
-```bash
-export SKILL_DIR="skills/singapore-semiconductor-profiler"
-uv run python "$SKILL_DIR/scripts/smoke_test_company_profile.py"
-uv run python "$SKILL_DIR/scripts/company_profile_excel.py" validate "$SKILL_DIR/references/sample_company_profile.json"
-uv run python "$SKILL_DIR/scripts/company_profile_excel.py" audit
-```
+- `.codex-plugin/plugin.json`
+- `skills/singapore-semiconductor-profiler/SKILL.md`
+- `skills/map-sme-capability/SKILL.md`
 
-Useful commands:
-
-```bash
-uv run python "$SKILL_DIR/scripts/company_profile_excel.py" check "https://example.com.sg"
-uv run python "$SKILL_DIR/scripts/company_profile_excel.py" read "https://example.com.sg"
-```
+To verify a profiler run, reopen `data/companies.xlsx` and check that the `companies` sheet has exactly one row for the normalized company domain.
 
 ## Common Messages
 
@@ -188,6 +191,7 @@ uv run python "$SKILL_DIR/scripts/company_profile_excel.py" read "https://exampl
 | `missing evidence fields` | The row exists but does not have the newer evidence fields filled in. | Run the profiler again for that company. |
 | `stale row retained until replacement` | The row is more than 90 days old. | Run the profiler again; the old row stays until the new one validates. |
 | `high confidence requires at least 3 company-site evidence_urls` | The row claims high confidence without enough company-site evidence. | Add more company-site evidence or lower confidence. |
+| Evidence link cannot be opened | One or more evidence links could not be verified. | Check the pages in a browser; remove blocked or invalid links, or lower confidence if the pages cannot be verified. |
 
 ## Important Rules
 
@@ -195,13 +199,13 @@ uv run python "$SKILL_DIR/scripts/company_profile_excel.py" read "https://exampl
 - Do not manually add duplicate rows for the same website.
 - Do not create separate workbooks for different SMEs.
 - Use `confidence = low` and a clear `research_quality` value when the evidence is weak.
-- Do not add legacy JSON fields such as `domain`, `country`, `semicon_category`, or `status`.
-- Keep `COMPANIES_XLSX` inside the project folder, usually as `data/companies.xlsx`.
+- Include `domain`, but do not add legacy JSON fields such as `country`, `semicon_category`, or `status`.
+- Keep the company workbook inside the project folder, usually as `data/companies.xlsx`.
 
 ## Design Principles
 
 - One URL in, one Excel row out.
+- One SME source in, one editable capability Markdown file out.
 - The analyst reviews business usefulness and evidence quality.
-- Python handles validation and Excel writing.
-- Codex handles company research and profile drafting.
-- The workbook stays simple enough for downstream customer matching.
+- Codex handles company research, profile drafting, checklist validation, and workbook updates through spreadsheet-capable tooling.
+- The workbook and Markdown files stay simple enough for downstream customer matching and prospecting.

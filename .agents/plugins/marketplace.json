@@ -1,7 +1,7 @@
 {
   "name": "sg-semicon-expansion-plugin",
   "interface": {
-    "displayName": "Singapore Semiconductor Industry US Expansion Plugin"
+    "displayName": "SG Semicon US Expansion"
   },
   "plugins": [
     {

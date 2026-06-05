@@ -1,39 +1,47 @@
 ---
 name: map-sme-capability
-description: Map the capabilities of a Singaporean semiconductor SME
+description: Use when given a Singapore semiconductor SME website or profile document and asked to create a simple capability profile for US prospecting searches.
 ---
 
 # Skill: map-sme-capability
 
 ## Description
-Ingests a Singapore semiconductor SME's profile via a website URL or uploaded document (PDF/Word), extracts core technical capabilities, strips away marketing fluff, injects US buyer-intent search operators, and saves the output as an easily editable Markdown file (.md) tailored for business users.
+Turn one Singapore semiconductor SME source into one editable Markdown capability profile for US prospecting searches.
 
 ## Inputs
 * `source_material`: A URL to the SME's website OR the file path/name of an uploaded PDF or Word document containing the company profile.
 * `sme_name`: The name of the company (used for file naming).
 
+## Output
+* `data/<safe_sme_name>_capabilities.md`: A short Markdown profile with evidence-backed capabilities, confidence labels, and US search queries.
+
 ## Instructions
-1. **Ingest the Source:** Use available tools to either scrape the provided URL or read the text contents of the provided PDF/Word document. Extract all relevant text regarding the company's services and capabilities.
-2. **Analyze and Strip Fluff:** Review the extracted text. Ignore generic marketing adjectives (e.g., "world-class," "premium quality," "customer-centric") and hyper-local geographical context (e.g., "Woodlands-based").
-3. **Extract Noun + Verb Core:** Identify the exact, physical technical action the company performs (e.g., what do they make, machine, test, or assemble?).
-4. **Bake in US Buyer Intent:** Do not generate generic capability phrases (which return competitors). Instead, combine the extracted capabilities with high-intent B2B search triggers, procurement indicators, and US geographic constraints (e.g., using `site:us`, `AND "become a vendor"`, `AND "expanding"`). Generate exactly 3 distinct, search-ready query combinations.
-5. **Write to Markdown File:** Format the final analysis using the clean, human-readable Markdown Template provided below. Use your file system tools to write this text directly to a new file named `<sme_name>_capabilities.md` in the current working directory.
-6. **Confirmation:** Once the file is created, output a brief success message confirming the file name and its location. Do not print the entire text block in the chat.
+1. **Ingest the source:** Read the provided website or document. For websites, check the home page plus obvious capability pages such as Services, Products, Solutions, Industries, Certifications, Quality, Equipment, and About.
+2. **Extract evidence:** Capture 2-5 short source notes that support the capability claims. Prefer concrete nouns and verbs over adjectives. If evidence is thin, say so instead of guessing.
+3. **Strip fluff:** Ignore generic marketing claims (e.g., "world-class," "premium quality," "customer-centric") and local details that do not describe buying relevance.
+4. **Map capabilities:** Identify up to 3 core technical capabilities. Each should be a concise noun + verb phrase describing what the company physically makes, machines, tests, assembles, fabricates, coats, inspects, designs, or supplies.
+5. **Add confidence:** Mark each capability High, Medium, or Low based on how directly the source supports it.
+6. **Suggest US prospecting queries:** Create exactly 3 search-ready queries from the extracted capabilities. Use buyer-intent terms such as `"supplier"`, `"vendor registration"`, `"approved supplier"`, `"contract manufacturer"`, `"new facility"`, `"expanding production"`, and US terms such as `"United States"`, `"USA"`, or `"North America"`. Avoid `site:us` as the only US filter.
+7. **Write the file:** Create `data/` if needed. Save the result as `data/<safe_sme_name>_capabilities.md`, using a lowercase filename with spaces replaced by underscores.
+8. **Confirm only:** Output a brief success message with the file path. Do not print the full Markdown in chat.
 
 ## Output Markdown Template (Content of the generated file)
+
 ```markdown
 # Semiconductor Capability Profile: [Insert SME Name Here]
 
-## 1. Core Technical Capability
-* **Primary Offering:** [Clear, concise technical capability - Max 5 words]
+## 1. Core Technical Capabilities
+1. **[Capability phrase]** - Confidence: [High/Medium/Low]
+2. **[Capability phrase]** - Confidence: [High/Medium/Low]
+3. **[Capability phrase]** - Confidence: [High/Medium/Low]
 
-## 2. Smart Keywords for US Prospecting
+## 2. Evidence Notes
+* [Short source-backed note, with page/file/URL if available]
+* [Short source-backed note, with page/file/URL if available]
+
+## 3. Smart Keywords for US Prospecting
 *Feel free to edit, add, or delete these search terms before passing them to the search engine. The current operators are optimized to find buyers rather than competitors:*
-* **Search Query 1 (Procurement/Vendor):** [Capability Keywords] AND ("supplier directory" OR "become a vendor" OR "vendor registration") site:us
-* **Search Query 2 (Expansion/Growth):** [Capability Keywords] AND ("new facility" OR "expanding production" OR "R&D hub") site:us
-* **Search Query 3 (Target Sector Fit):** [Capability Keywords] AND "[Insert Target US Sector 1]" site:us
-
-## 3. Target US Sectors
-*Primary industries in the United States to look for prospects:*
-1. [US Industry/Sector 1]
-2. [US Industry/Sector 2]
+* **Search Query 1 (Procurement/Vendor):** [Capability Keywords] AND ("supplier" OR "vendor registration" OR "approved supplier") AND ("United States" OR USA)
+* **Search Query 2 (Expansion/Growth):** [Capability Keywords] AND ("new facility" OR "expanding production" OR "R&D hub") AND ("United States" OR "North America")
+* **Search Query 3 (Buyer Need):** [Capability Keywords] AND ("outsourcing" OR "contract manufacturer" OR "supplier needed") AND ("United States" OR USA)
+```
