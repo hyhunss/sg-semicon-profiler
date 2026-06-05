@@ -1,6 +1,8 @@
 # SG Semicon US Expansion
 
-Use this Codex plugin to help Singapore semiconductor and semiconductor-adjacent SMEs prepare for US prospecting.
+This plugin helps business users quickly understand what a Singapore semiconductor SME actually does.
+
+It takes a company website or company profile and creates a short capability summary that can be used for US prospecting work.
 
 This README covers only one skill:
 
@@ -8,73 +10,114 @@ This README covers only one skill:
 map-sme-capability
 ```
 
-## What This Skill Does
+## What You Can Use It For
 
-`map-sme-capability` turns one Singapore SME website or company profile document into a short, editable Markdown capability profile.
+Use this skill when you have a Singapore semiconductor or semiconductor-adjacent SME and want to answer:
 
-The profile helps an analyst understand:
+- What does this company actually do?
+- What technical capabilities are supported by evidence?
+- How confident should we be in those claims?
+- What starting keywords could help a later Google Search step find US prospects?
 
-- what the SME actually does
-- which claims are supported by source evidence
-- how confident the agent is in the extracted capabilities
-- which smart keyword seeds can guide the next interactive Google Search step
+The output is not a final prospect list. It is a clean starting point for the next research step.
 
-The keyword seeds are not final search queries. They are starting vocabulary for the next skill or analyst to adapt while searching live Google results.
+## What You Need Before Starting
 
-## Quick Start
+You need:
 
-From a Codex thread opened in your project folder, ask:
+1. Codex installed and open.
+2. This plugin installed in Codex.
+3. A company website, such as:
 
 ```text
-Use $map-sme-capability to map https://example.com.sg for US prospecting.
+https://www.example.com.sg
 ```
 
-Replace `https://example.com.sg` with the SME website you want to map.
+Or a company profile document, such as a PDF or Word file.
 
-You can also provide a company profile document:
+You do not need to know Python, Git, spreadsheets, or programming.
+
+## Install The Plugin
+
+In Codex:
+
+1. Open **Plugins**.
+2. Open the marketplace dropdown.
+3. Click **Add more**.
+4. Add the plugin link or folder provided by the project lead.
+5. Start a new Codex chat after installation.
+
+Screenshots:
+
+![Open Plugins](screenshots/plugins.jpg)
+
+![Click Add more](screenshots/addmore.png)
+
+![Add marketplace source](screenshots/addmarketplace.jpg)
+
+You know installation worked if Codex lets you use:
+
+```text
+$map-sme-capability
+```
+
+## First Test Run
+
+Open a new Codex chat in the folder where you want the output saved. Then type:
+
+```text
+Use $map-sme-capability to map https://www.example.com.sg for US prospecting.
+```
+
+Replace the example website with the SME website you want to analyze.
+
+If you have a company profile document instead, upload it and type:
 
 ```text
 Use $map-sme-capability on this uploaded company profile for [Company Name].
 ```
 
-## Output
+## What The Skill Creates
 
-The skill creates one Markdown file:
+The skill creates one plain-text Markdown file in your chosen folder:
 
 ```text
-data/<safe_sme_name>_capabilities.md
+data/<company_name>_capabilities.md
 ```
 
-The file contains:
+For example:
 
-1. Core technical capabilities
-2. Evidence notes
-3. Smart keyword seeds for US prospecting
+```text
+data/cantier_systems_capabilities.md
+```
 
-## Workflow
+Markdown is just a plain text format. You can open it like a normal document.
 
-The skill will:
+## What Is Inside The Output
 
-1. Read the SME website or company profile document.
-2. Check obvious capability pages such as Services, Products, Solutions, Industries, Certifications, Quality, Equipment, and About.
-3. Extract 2 to 5 evidence notes that support the capability claims.
-4. Remove generic marketing language.
-5. Map up to 3 core technical capabilities.
-6. Add confidence labels: High, Medium, or Low.
-7. Generate exactly 5 smart keyword seeds for the next interactive Google Search skill.
-8. Critique and improve the seeds so they are close to the SME's real capability.
-9. Save the Markdown profile in `data/`.
+The output has three sections:
+
+1. **Core Technical Capabilities**
+   - Up to three short descriptions of what the SME actually does.
+
+2. **Evidence Notes**
+   - Short notes showing which source pages support the claims.
+
+3. **Smart Keywords for US Prospecting**
+   - Five keyword seeds for the next interactive Google Search step.
+
+The keyword seeds are not final Google searches. They are starting vocabulary. The next research step should adapt them based on live search results.
 
 ## How To Review The Output
 
-Review these parts first:
+Check these items:
 
-- **Core Technical Capabilities:** Are they specific and technically accurate?
-- **Evidence Notes:** Do the source pages support the claims?
-- **Confidence Labels:** Are weak or thin claims marked Medium or Low?
-- **Smart Keyword Seeds:** Are they close enough to guide live Google Search without pretending to be final queries?
+1. Are the capabilities specific?
+2. Do the evidence notes support the claims?
+3. Are weak claims marked with Medium or Low confidence?
+4. Are the keyword seeds close to what the company actually does?
 
-Good capability phrases are concrete:
+Good capability examples:
 
 ```text
 Machines tight-tolerance components
@@ -83,7 +126,7 @@ Installs fab process tools
 Builds fab communication networks
 ```
 
-Weak capability phrases are vague:
+Weak capability examples:
 
 ```text
 Provides world-class solutions
@@ -91,9 +134,9 @@ Supports advanced industries
 Offers premium engineering services
 ```
 
-## Keyword Seeds
+## About The Keyword Seeds
 
-The skill produces 5 keyword seeds:
+The skill creates five keyword seed types:
 
 1. Procurement
 2. Production ramp
@@ -101,66 +144,57 @@ The skill produces 5 keyword seeds:
 4. Funding or new facility
 5. Buyer pain
 
-These are intentionally not perfect Google queries. They are useful starting points for the next interactive search step, where the agent or analyst should test live results and adapt the wording.
+These are meant to help the next Google Search step start in the right direction.
 
-For example:
+Example keyword seed:
 
 ```text
 semiconductor tool transport + cleanroom + new fab + USA
 ```
 
-The next search skill may turn that into several live Google searches depending on what results appear.
+The next search step may change the wording after seeing real Google results.
 
-## When The Skill Works Best
+## When Results Are Good
 
-The skill works best when the SME source includes:
+The result is usually good when the SME website has:
 
+- clear services or products pages
 - semiconductor-specific pages
-- services or products pages
 - equipment, cleanroom, automation, software, quality, or certification details
-- concrete terms such as `WIP tracking`, `SECS/GEM`, `MES`, `SPC`, `AMHS`, `cleanroom rigging`, `precision machining`, or `fab tool installation`
+- concrete technical terms such as `MES`, `AMHS`, `SECS/GEM`, `precision machining`, `cleanroom rigging`, or `fab tool installation`
 
-If the website is thin, the skill should say so through lower confidence or evidence notes.
+## When Results Need Review
 
-## Installation
+Review more carefully when:
 
-In Codex:
+- the website is very short
+- the website uses mostly marketing language
+- there is no semiconductor-specific page
+- the company appears to serve many industries but does not explain its semiconductor work clearly
 
-1. Open Codex.
-2. Go to Plugins.
-3. Open the marketplace dropdown and click Add more.
-4. Add this repository as a plugin source.
-5. Start a new Codex thread after installation.
+In these cases, Medium or Low confidence is acceptable.
 
-![Open Plugins](screenshots/plugins.jpg)
+## Simple Workflow
 
-![Click Add more](screenshots/addmore.png)
-
-![Add marketplace source](screenshots/addmarketplace.jpg)
-
-## Local Checks
-
-To verify the plugin source, confirm these files exist:
-
-- `.codex-plugin/plugin.json`
-- `skills/map-sme-capability/SKILL.md`
-
-To verify a run, check that a new file appears under:
+Use this plugin as Phase 1:
 
 ```text
-data/
+SME website -> capability profile -> keyword seeds
 ```
 
-## Design Principle
-
-This skill is Phase 1 of the workflow:
+Use another research step as Phase 2:
 
 ```text
-SME source -> capability profile -> keyword seeds
+keyword seeds -> interactive Google Search -> possible US prospects
 ```
 
-The next skill should handle Phase 2:
+## Need Help?
 
-```text
-keyword seeds -> interactive Google Search -> real US prospect candidates
-```
+If the skill creates a weak profile, try again with a better source:
+
+- a company brochure
+- a capabilities page
+- a product or services page
+- a semiconductor-specific page
+
+Better source material usually produces a better capability profile.
