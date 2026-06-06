@@ -1,12 +1,20 @@
 ---
 name: us-prospect-discovery
-description: Use after map-sme-capability when given a capability profile with smart keyword seeds and asked to run iterative Google Search to identify up to 20 possible US semiconductor prospects with only lightweight filtering.
+description: Second skill in the SG Semicon US Expansion workflow. Use only after the user has reviewed a map-sme-capability output. Given a capability profile with smart keyword seeds, run iterative Google Search to identify up to 20 possible US semiconductor prospects with only lightweight filtering. Stop after writing the broad prospect file, tell the user what to review, and provide the exact next copy-paste prompt for qualify-us-prospects.
 ---
 
 # Skill: us-prospect-discovery
 
 ## Description
 Use one SME capability profile to run iterative live Google Search, refine the search strategy, and create a broad list of possible US prospects for later qualification. This skill discovers candidates; it should not do heavy filtering or deep buyer-path reasoning.
+
+This is step 2 of a three-skill human-in-the-loop workflow:
+
+```text
+map-sme-capability -> user reviews capability profile -> us-prospect-discovery -> user reviews prospect pool -> qualify-us-prospects
+```
+
+Assume the user has already reviewed the capability profile. Do not continue into qualification automatically. The user should check this skill's output before invoking the next skill. Make that easy by ending with the exact next copy-paste prompt.
 
 ## Inputs
 * `capability_profile`: Path to a Markdown file created by `map-sme-capability`, usually `data/<safe_sme_name>_capabilities.md`.
@@ -37,7 +45,24 @@ Capability profile -> search -> reflect -> revised search -> lightly filtered pr
 8. **Stop at a useful pool:** Stop once there are enough plausible candidates or after 4 total search rounds. Do not force 20 prospects; 10-15 decent candidates is better than 20 weak ones.
 9. **Order the list simply:** Put the most capability-relevant and timely candidates first, but do not use scoring. Heavy ranking belongs to `qualify-us-prospects`.
 10. **Write the file:** Create `data/` if needed. Save as `data/<safe_sme_name>_prospects.md`, using the same safe SME name as the capability profile.
-11. **Confirm only:** Output a brief success message with the file path and the number of prospects. Do not print the full Markdown in chat unless the user asks.
+11. **Confirm only:** Output a brief success message with the file path and the number of prospects. Tell the user to review the broad prospect pool before running `qualify-us-prospects`. Include the exact next copy-paste prompt using the real capability-profile path and real prospect-discovery output path. Do not print the full Markdown in chat unless the user asks.
+
+## Confirmation Message Template
+
+```text
+Created: data/<safe_sme_name>_prospects.md with <N> possible prospects.
+
+Please review this broad prospect pool before continuing.
+
+Check:
+1. Are the prospects visibly related to the SME capability?
+2. Are the evidence links credible enough for first-pass discovery?
+3. Are caveats clear where the buyer path is uncertain?
+
+When ready, paste this next prompt:
+
+Use $qualify-us-prospects with <capability_profile_path> and data/<safe_sme_name>_prospects.md
+```
 
 ## Output Markdown Template
 

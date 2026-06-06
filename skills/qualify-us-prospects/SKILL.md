@@ -1,12 +1,20 @@
 ---
 name: qualify-us-prospects
-description: Use after us-prospect-discovery when given an SME capability profile and broad prospect-discovery file, to filter the list into the most likely US prospects for deeper analysis or outreach.
+description: Third skill in the SG Semicon US Expansion workflow. Use only after the user has reviewed the us-prospect-discovery output. Given an SME capability profile and broad prospect-discovery file, filter the list into the most likely US prospects for deeper analysis or outreach. Stop after writing the qualified shortlist and tell the user what to review before using it.
 ---
 
 # Skill: qualify-us-prospects
 
 ## Description
 Read the outputs from both earlier skills and reduce a broad US prospect list into a smaller, qualified shortlist. This skill owns the heavy filtering, buyer-path reasoning, ranking, and tradeoff explanation. It should not restart broad discovery.
+
+This is step 3 of a three-skill human-in-the-loop workflow:
+
+```text
+map-sme-capability -> user reviews capability profile -> us-prospect-discovery -> user reviews prospect pool -> qualify-us-prospects -> user reviews qualified shortlist
+```
+
+Assume the user has already reviewed both earlier files. This skill produces the final shortlist for human review; it should not restart the earlier stages.
 
 ## Inputs
 * `capability_profile`: Path to the first skill output, usually `data/<safe_sme_name>_capabilities.md`.
@@ -49,7 +57,20 @@ capabilities.md + prospects.md -> buyer-path qualification -> top 5-8 likely pro
 9. **Filter aggressively:** Prefer 5-8 strong qualified prospects over a full list. Do not pad the shortlist. If fewer than 5 are credible, write fewer and explain why.
 10. **Explain exclusions:** Group non-finalists into short reason categories such as weak buyer path, timing too early, too large/locked supplier base, indirect fit, likely competitor/channel target, or insufficient evidence.
 11. **Write the file:** Save as `data/<safe_sme_name>_qualified_prospects.md`, using the same safe SME name as the input files.
-12. **Confirm only:** Output a brief success message with the file path and number of qualified prospects. Do not print the full Markdown in chat unless the user asks.
+12. **Confirm only:** Output a brief success message with the file path and number of qualified prospects. Tell the user to review the qualified shortlist before using it for deeper research or outreach. Do not give another workflow command. Do not print the full Markdown in chat unless the user asks.
+
+## Confirmation Message Template
+
+```text
+Created: data/<safe_sme_name>_qualified_prospects.md with <N> qualified prospects.
+
+Please review this shortlist before using it for deeper research or outreach.
+
+Check:
+1. Are the top prospects worth investigating next?
+2. Is each buyer path specific enough to act on?
+3. Are watchlist and exclusion decisions reasonable?
+```
 
 ## Output Markdown Template
 

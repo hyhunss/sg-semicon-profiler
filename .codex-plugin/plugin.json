@@ -1,24 +1,30 @@
 {
   "name": "sg-semicon-expansion-plugin",
   "version": "0.2.0+codex.20260606045807",
-  "description": "Support Singapore semiconductor SMEs with US expansion research: capability mapping, broad US prospect discovery, and qualified prospect filtering.",
+  "description": "Step-by-step US prospecting for Singapore semiconductor SMEs using three review-gated skills.",
   "author": {
-    "name": "Hanyang Hu"
+    "name": "Hanyang Hu",
+    "email": "hanyang.hu.2026@anderson.ucla.edu"
   },
+  "repository": "https://github.com/hyhunss/sg-semicon-profiler",
   "skills": "./skills/",
+  "keywords": [
+    "semiconductor",
+    "prospecting",
+    "market-research"
+  ],
   "interface": {
     "displayName": "SG Semicon US Expansion",
-    "shortDescription": "Map SME capabilities and find US prospects.",
-    "longDescription": "Helps business users turn a Singapore semiconductor SME website or profile into a capability profile, a broad list of possible US prospects, and a smaller qualified shortlist for deeper research or outreach.",
+    "shortDescription": "Start here for step-by-step US prospecting.",
+    "longDescription": "Start with $map-sme-capability. It explains the three-step workflow, creates the first capability profile, and tells you exactly what to review before moving on. After that, use the copy-paste prompts it provides to discover possible US prospects and then qualify the strongest ones.",
     "developerName": "Hanyang Hu",
     "category": "Productivity",
     "capabilities": [
-      "skills"
+      "Skills", "Read", "Write"
     ],
+    "websiteURL": "https://github.com/hyhunss/sg-semicon-profiler",
     "defaultPrompt": [
-      "Profile this Singapore semiconductor SME for US expansion.",
-      "Discover possible US prospects from this capability profile.",
-      "Qualify these US prospects for deeper analysis."
+      "Use $map-sme-capability to start US expansion research. Ask me for the SME website or company profile if needed."
     ]
   }
 }

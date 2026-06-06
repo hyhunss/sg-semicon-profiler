@@ -2,21 +2,35 @@
 
 This plugin helps business users research Singapore semiconductor and semiconductor-adjacent SMEs for US market expansion.
 
-It turns an SME website or company profile into:
+It has three research skills, each with a different job:
 
 1. A clear capability profile.
 2. A broad list of possible US prospects.
 3. A smaller qualified shortlist for deeper analysis or outreach.
 
+The skills are designed for a human-in-the-loop workflow. Run one skill, review its output file, then use the copy-paste prompt it gives you for the next skill. Do not treat the plugin as one automatic end-to-end agent.
+
 You do not need to know Python, Git, spreadsheets, or programming to use the main workflow.
 
 ## Main Workflow
 
-Use the three skills in order:
+Start with `$map-sme-capability`. It is the front door for the workflow: it explains the three-step process, says what information it needs, then creates the first output.
+
+Use the three research skills separately and in order:
 
 ```text
 SME website -> capability profile -> possible US prospects -> qualified shortlist
 ```
+
+The review gates are part of the workflow:
+
+1. Run `$map-sme-capability`, then review `data/<company_name>_capabilities.md`.
+2. If the capability profile looks accurate, run `$us-prospect-discovery`, then review `data/<company_name>_prospects.md`.
+3. If the broad prospect pool looks useful, run `$qualify-us-prospects`, then review `data/<company_name>_qualified_prospects.md`.
+
+If an output is weak, incomplete, or based on the wrong interpretation of the SME, revise that stage before moving forward.
+
+Each skill should make the next step obvious in chat. Users should not need to remember the workflow or come back to this README during normal use.
 
 ### 1. Understand The SME
 
@@ -27,6 +41,8 @@ $map-sme-capability
 ```
 
 Use this when you have an SME website or company profile and want to understand what the company actually does.
+
+This is also the instructional first step. It should briefly explain that the plugin will proceed in three review-gated stages before it creates the capability profile.
 
 Output:
 
@@ -45,6 +61,18 @@ Example prompt:
 
 ```text
 Use $map-sme-capability to map https://www.example.com.sg for US prospecting.
+```
+
+Review before continuing:
+
+- Are the capabilities specific to what the SME actually sells?
+- Are weak or indirect claims labeled Medium or Low confidence?
+- Are the keyword seeds close enough to guide prospect discovery?
+
+The skill will then give you the next copy-paste prompt, for example:
+
+```text
+Use $us-prospect-discovery with data/example_capabilities.md
 ```
 
 ### 2. Discover Possible US Prospects
@@ -79,6 +107,18 @@ Use $us-prospect-discovery with data/example_capabilities.md.
 ```
 
 Important: this step is intentionally broad. It finds possible prospects, not final targets. Heavy filtering and buyer-path reasoning happen in the next skill.
+
+Review before continuing:
+
+- Do the prospects have a visible link to the SME's capabilities?
+- Are the sources credible enough for a first-pass candidate pool?
+- Are the caveats clear, especially where the buyer path is uncertain?
+
+The skill will then give you the next copy-paste prompt, for example:
+
+```text
+Use $qualify-us-prospects with data/example_capabilities.md and data/example_prospects.md
+```
 
 ### 3. Qualify The Best Prospects
 
@@ -118,6 +158,12 @@ Example prompt:
 Use $qualify-us-prospects with data/example_capabilities.md and data/example_prospects.md.
 ```
 
+Final review:
+
+- Are the top prospects worth deeper research or outreach?
+- Is each buyer path specific enough to investigate?
+- Are exclusions and watchlist decisions reasonable?
+
 ## What The Plugin Is Good At
 
 Use this plugin when you want to answer:
@@ -150,39 +196,23 @@ A good prospect should have:
 
 ## Recommended Usage Pattern
 
-Run the full workflow like this:
+Start here:
 
 ```text
 Use $map-sme-capability for https://www.example.com.sg
 ```
 
-Then:
+After reviewing the capability profile, paste the next prompt shown by the skill. It will look like:
 
 ```text
 Use $us-prospect-discovery with data/example_capabilities.md
 ```
 
-Then:
+After reviewing the broad prospect pool, paste the next prompt shown by the skill. It will look like:
 
 ```text
 Use $qualify-us-prospects with data/example_capabilities.md and data/example_prospects.md
 ```
-
-## Optional Workbook Skill
-
-This plugin also includes:
-
-```text
-$singapore-semiconductor-profiler
-```
-
-Use it when you want to profile a Singapore semiconductor or semiconductor-adjacent company into a shared workbook:
-
-```text
-data/companies.xlsx
-```
-
-This is separate from the three-step prospecting workflow.
 
 ## Install The Plugin
 
