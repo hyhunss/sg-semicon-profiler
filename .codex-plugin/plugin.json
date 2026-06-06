@@ -1,20 +1,24 @@
 {
   "name": "sg-semicon-expansion-plugin",
-  "version": "0.2.0+codex.20260605180000",
-  "description": "Support Singapore semiconductor SMEs with US expansion research, company profiling, and capability-to-buyer mapping.",
+  "version": "0.2.0+codex.20260606045807",
+  "description": "Support Singapore semiconductor SMEs with US expansion research: capability mapping, broad US prospect discovery, and qualified prospect filtering.",
   "author": {
     "name": "Hanyang Hu"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "SG Semicon US Expansion",
-    "shortDescription": "Profile SMEs and map US buyer fit.",
-    "longDescription": "Profiles Singapore semiconductor and adjacent companies into a structured workbook, and maps SME capabilities into search-ready US prospecting angles for market-entry research.",
+    "shortDescription": "Map SME capabilities and find US prospects.",
+    "longDescription": "Helps business users turn a Singapore semiconductor SME website or profile into a capability profile, a broad list of possible US prospects, and a smaller qualified shortlist for deeper research or outreach.",
     "developerName": "Hanyang Hu",
     "category": "Productivity",
     "capabilities": [
       "skills"
     ],
-    "defaultPrompt": "Use this plugin to profile a Singapore semiconductor SME URL into data/companies.xlsx, or map an SME capability into US buyer-search queries."
+    "defaultPrompt": [
+      "Profile this Singapore semiconductor SME for US expansion.",
+      "Discover possible US prospects from this capability profile.",
+      "Qualify these US prospects for deeper analysis."
+    ]
   }
 }

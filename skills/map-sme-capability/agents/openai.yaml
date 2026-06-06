@@ -1,0 +1,4 @@
+interface:
+  display_name: "Map SME Capability"
+  short_description: "Create an SME capability profile"
+  default_prompt: "Use $map-sme-capability to profile this Singapore semiconductor SME for US prospecting."
