@@ -1,4 +1,0 @@
-interface:
-  display_name: "Singapore Semiconductor Profiler"
-  short_description: "Profile a company into the workbook"
-  default_prompt: "Use $singapore-semiconductor-profiler to profile this Singapore semiconductor company into data/companies.xlsx."
