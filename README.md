@@ -32,6 +32,8 @@ If an output is weak, incomplete, or based on the wrong interpretation of the SM
 
 Each skill should make the next step obvious in chat. Users should not need to remember the workflow or come back to this README during normal use.
 
+If you click or select the next prompt and send it with an otherwise blank message, the next skill should treat that selected prompt as the instruction. You should not need to retype it.
+
 ### 1. Understand The SME
 
 Skill:
@@ -85,6 +87,8 @@ $us-prospect-discovery
 
 Use this after the capability profile is created. It reads the keyword seeds, runs iterative Google Search, reflects on noisy results, and creates a broad list of plausible US prospects.
 
+This skill searches for both end customers and practical route-to-market candidates. For many Singapore SMEs, the realistic path may be through EPC/EPCM firms, cleanroom contractors, facility integrators, construction managers, equipment OEMs, approved supplier routes, public consortia, or regional partner ecosystems.
+
 Output:
 
 ```text
@@ -97,6 +101,7 @@ This file includes:
 - possible prospects ordered by apparent relevance
 - evidence links
 - buying triggers
+- route type, such as direct owner, channel/EPC, partner ecosystem, or watchlist
 - why each prospect showed up
 - caveats for the qualification step
 
@@ -112,6 +117,7 @@ Review before continuing:
 
 - Do the prospects have a visible link to the SME's capabilities?
 - Are the sources credible enough for a first-pass candidate pool?
+- Does the list include plausible route-to-market candidates, not only large fab owners?
 - Are the caveats clear, especially where the buyer path is uncertain?
 
 The skill will then give you the next copy-paste prompt, for example:
@@ -149,6 +155,7 @@ This file includes:
 - buyer-path reasoning
 - timing and accessibility assessment
 - evidence strength
+- key evidence links for timing signals and new verification facts
 - what to verify next
 - deprioritized or excluded prospects
 
@@ -162,6 +169,7 @@ Final review:
 
 - Are the top prospects worth deeper research or outreach?
 - Is each buyer path specific enough to investigate?
+- Are new verification facts backed by source links?
 - Are exclusions and watchlist decisions reasonable?
 
 ## What The Plugin Is Good At
@@ -171,6 +179,7 @@ Use this plugin when you want to answer:
 - What does this Singapore SME actually sell?
 - Which capability claims are supported by evidence?
 - What US companies or projects might need this capability?
+- Which EPCs, contractors, integrators, or partner routes might help reach those projects?
 - Which of those prospects are most realistic to pursue?
 - What buyer path should we investigate next?
 
@@ -193,6 +202,8 @@ A good prospect should have:
 2. A concrete timing signal, such as a new facility, production ramp, modernization, pilot line, tool install, or supplier-development need.
 3. A plausible buyer path, such as an equipment OEM, EPC, cleanroom contractor, factory automation owner, MES owner, approved supplier route, or local partner.
 4. Evidence that supports the fit, or at least a strong and clearly labeled inference.
+
+For many SMEs, an EPC, cleanroom contractor, facility integrator, or local partner can be a better first prospect than the fab owner itself.
 
 ## Recommended Usage Pattern
 
@@ -251,8 +262,9 @@ After running the workflow, check:
 1. Are the SME capabilities specific and evidence-backed?
 2. Are unsupported claims marked Medium or Low confidence?
 3. Does the prospect list explain why each candidate showed up?
-4. Does the qualified shortlist avoid prospects that are only large but not reachable?
-5. Are buyer paths and next verification questions concrete enough for follow-up research?
+4. Does the prospect list include route types, including channel/EPC or partner routes where relevant?
+5. Does the qualified shortlist avoid prospects that are only large but not reachable?
+6. Are buyer paths, evidence links, and next verification questions concrete enough for follow-up research?
 
 ## When Results Need Review
 

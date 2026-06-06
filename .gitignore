@@ -2,3 +2,4 @@
 .codex-marketplace-install.json
 *.tmp
 *.bak
+data/

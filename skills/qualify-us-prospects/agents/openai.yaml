@@ -1,4 +1,4 @@
 interface:
   display_name: "Qualify US Prospects"
-  short_description: "Filter prospects into a qualified shortlist"
-  default_prompt: "Use $qualify-us-prospects with the capability profile and prospect list to qualify the best targets."
+  short_description: "Filter prospects into an evidence-backed shortlist"
+  default_prompt: "Use $qualify-us-prospects with data/<company_name>_capabilities.md and data/<company_name>_prospects.md."

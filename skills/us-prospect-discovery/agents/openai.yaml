@@ -1,4 +1,4 @@
 interface:
   display_name: "US Prospect Discovery"
-  short_description: "Find possible US semiconductor prospects"
-  default_prompt: "Use $us-prospect-discovery with this capability profile to find possible US prospects."
+  short_description: "Find possible US prospects and partner routes"
+  default_prompt: "Use $us-prospect-discovery with data/<company_name>_capabilities.md."

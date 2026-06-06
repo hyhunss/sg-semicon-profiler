@@ -16,7 +16,7 @@
   "interface": {
     "displayName": "SG Semicon US Expansion",
     "shortDescription": "Start here for step-by-step US prospecting.",
-    "longDescription": "Start with $map-sme-capability. It explains the three-step workflow, creates the first capability profile, and tells you exactly what to review before moving on. After that, use the copy-paste prompts it provides to discover possible US prospects and then qualify the strongest ones.",
+    "longDescription": "Start with $map-sme-capability. It explains the three-step workflow, creates the first capability profile, and tells you exactly what to review before moving on. After that, use the copy-paste prompts it provides to discover possible US prospects, including channel/EPC routes, then qualify the strongest evidence-backed targets.",
     "developerName": "Hanyang Hu",
     "category": "Productivity",
     "capabilities": [
