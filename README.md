@@ -1,41 +1,188 @@
 # SG Semicon US Expansion
 
-This plugin helps business users quickly understand what a Singapore semiconductor SME actually does.
+This plugin helps business users research Singapore semiconductor and semiconductor-adjacent SMEs for US market expansion.
 
-It takes a company website or company profile and creates a short capability summary that can be used for US prospecting work.
+It turns an SME website or company profile into:
 
-This README covers only one skill:
+1. A clear capability profile.
+2. A broad list of possible US prospects.
+3. A smaller qualified shortlist for deeper analysis or outreach.
 
-```text
-map-sme-capability
-```
+You do not need to know Python, Git, spreadsheets, or programming to use the main workflow.
 
-## What You Can Use It For
+## Main Workflow
 
-Use this skill when you have a Singapore semiconductor or semiconductor-adjacent SME and want to answer:
-
-- What does this company actually do?
-- What technical capabilities are supported by evidence?
-- How confident should we be in those claims?
-- What starting keywords could help a later Google Search step find US prospects?
-
-The output is not a final prospect list. It is a clean starting point for the next research step.
-
-## What You Need Before Starting
-
-You need:
-
-1. Codex installed and open.
-2. This plugin installed in Codex.
-3. A company website, such as:
+Use the three skills in order:
 
 ```text
-https://www.example.com.sg
+SME website -> capability profile -> possible US prospects -> qualified shortlist
 ```
 
-Or a company profile document, such as a PDF or Word file.
+### 1. Understand The SME
 
-You do not need to know Python, Git, spreadsheets, or programming.
+Skill:
+
+```text
+$map-sme-capability
+```
+
+Use this when you have an SME website or company profile and want to understand what the company actually does.
+
+Output:
+
+```text
+data/<company_name>_capabilities.md
+```
+
+This file includes:
+
+- core technical capabilities
+- source-backed evidence notes
+- confidence labels
+- five keyword seeds for US prospecting
+
+Example prompt:
+
+```text
+Use $map-sme-capability to map https://www.example.com.sg for US prospecting.
+```
+
+### 2. Discover Possible US Prospects
+
+Skill:
+
+```text
+$us-prospect-discovery
+```
+
+Use this after the capability profile is created. It reads the keyword seeds, runs iterative Google Search, reflects on noisy results, and creates a broad list of plausible US prospects.
+
+Output:
+
+```text
+data/<company_name>_prospects.md
+```
+
+This file includes:
+
+- search-round notes
+- possible prospects ordered by apparent relevance
+- evidence links
+- buying triggers
+- why each prospect showed up
+- caveats for the qualification step
+
+Example prompt:
+
+```text
+Use $us-prospect-discovery with data/example_capabilities.md.
+```
+
+Important: this step is intentionally broad. It finds possible prospects, not final targets. Heavy filtering and buyer-path reasoning happen in the next skill.
+
+### 3. Qualify The Best Prospects
+
+Skill:
+
+```text
+$qualify-us-prospects
+```
+
+Use this after the broad prospect list is created. It reads both earlier outputs and filters the list down to the most likely prospects for deeper research or outreach.
+
+Inputs:
+
+```text
+data/<company_name>_capabilities.md
+data/<company_name>_prospects.md
+```
+
+Output:
+
+```text
+data/<company_name>_qualified_prospects.md
+```
+
+This file includes:
+
+- top 5-8 qualified prospects
+- buyer-path reasoning
+- timing and accessibility assessment
+- evidence strength
+- what to verify next
+- deprioritized or excluded prospects
+
+Example prompt:
+
+```text
+Use $qualify-us-prospects with data/example_capabilities.md and data/example_prospects.md.
+```
+
+## What The Plugin Is Good At
+
+Use this plugin when you want to answer:
+
+- What does this Singapore SME actually sell?
+- Which capability claims are supported by evidence?
+- What US companies or projects might need this capability?
+- Which of those prospects are most realistic to pursue?
+- What buyer path should we investigate next?
+
+The plugin is especially useful for SMEs in areas such as:
+
+- semiconductor MES and factory software
+- fab tool moving and cleanroom rigging
+- precision machining and tooling
+- semiconductor equipment services
+- OT/IT and facility systems integration
+- advanced packaging, test, and manufacturing support
+
+## What Counts As A Good Prospect
+
+A good prospect is not just a large semiconductor company.
+
+A good prospect should have:
+
+1. A real capability fit.
+2. A concrete timing signal, such as a new facility, production ramp, modernization, pilot line, tool install, or supplier-development need.
+3. A plausible buyer path, such as an equipment OEM, EPC, cleanroom contractor, factory automation owner, MES owner, approved supplier route, or local partner.
+4. Evidence that supports the fit, or at least a strong and clearly labeled inference.
+
+## Recommended Usage Pattern
+
+Run the full workflow like this:
+
+```text
+Use $map-sme-capability for https://www.example.com.sg
+```
+
+Then:
+
+```text
+Use $us-prospect-discovery with data/example_capabilities.md
+```
+
+Then:
+
+```text
+Use $qualify-us-prospects with data/example_capabilities.md and data/example_prospects.md
+```
+
+## Optional Workbook Skill
+
+This plugin also includes:
+
+```text
+$singapore-semiconductor-profiler
+```
+
+Use it when you want to profile a Singapore semiconductor or semiconductor-adjacent company into a shared workbook:
+
+```text
+data/companies.xlsx
+```
+
+This is separate from the three-step prospecting workflow.
 
 ## Install The Plugin
 
@@ -55,146 +202,46 @@ Screenshots:
 
 ![Add marketplace source](screenshots/addmarketplace.jpg)
 
-You know installation worked if Codex lets you use:
+## Output Files
 
-```text
-$map-sme-capability
-```
-
-## First Test Run
-
-Open a new Codex chat in the folder where you want the output saved. Then type:
-
-```text
-Use $map-sme-capability to map https://www.example.com.sg for US prospecting.
-```
-
-Replace the example website with the SME website you want to analyze.
-
-If you have a company profile document instead, upload it and type:
-
-```text
-Use $map-sme-capability on this uploaded company profile for [Company Name].
-```
-
-## What The Skill Creates
-
-The skill creates one plain-text Markdown file in your chosen folder:
+The main workflow creates Markdown files in your current project folder:
 
 ```text
 data/<company_name>_capabilities.md
+data/<company_name>_prospects.md
+data/<company_name>_qualified_prospects.md
 ```
 
-For example:
+Markdown is plain text. You can open these files like normal documents.
 
-```text
-data/cantier_systems_capabilities.md
-```
+## Review Checklist
 
-Markdown is just a plain text format. You can open it like a normal document.
+After running the workflow, check:
 
-## What Is Inside The Output
-
-The output has three sections:
-
-1. **Core Technical Capabilities**
-   - Up to three short descriptions of what the SME actually does.
-
-2. **Evidence Notes**
-   - Short notes showing which source pages support the claims.
-
-3. **Smart Keywords for US Prospecting**
-   - Five keyword seeds for the next interactive Google Search step.
-
-The keyword seeds are not final Google searches. They are starting vocabulary. The next research step should adapt them based on live search results.
-
-## How To Review The Output
-
-Check these items:
-
-1. Are the capabilities specific?
-2. Do the evidence notes support the claims?
-3. Are weak claims marked with Medium or Low confidence?
-4. Are the keyword seeds close to what the company actually does?
-
-Good capability examples:
-
-```text
-Machines tight-tolerance components
-Deploys semiconductor MES workflows
-Installs fab process tools
-Builds fab communication networks
-```
-
-Weak capability examples:
-
-```text
-Provides world-class solutions
-Supports advanced industries
-Offers premium engineering services
-```
-
-## About The Keyword Seeds
-
-The skill creates five keyword seed types:
-
-1. Procurement
-2. Production ramp
-3. Tier 1 collaboration
-4. Funding or new facility
-5. Buyer pain
-
-These are meant to help the next Google Search step start in the right direction.
-
-Example keyword seed:
-
-```text
-semiconductor tool transport + cleanroom + new fab + USA
-```
-
-The next search step may change the wording after seeing real Google results.
-
-## When Results Are Good
-
-The result is usually good when the SME website has:
-
-- clear services or products pages
-- semiconductor-specific pages
-- equipment, cleanroom, automation, software, quality, or certification details
-- concrete technical terms such as `MES`, `AMHS`, `SECS/GEM`, `precision machining`, `cleanroom rigging`, or `fab tool installation`
+1. Are the SME capabilities specific and evidence-backed?
+2. Are unsupported claims marked Medium or Low confidence?
+3. Does the prospect list explain why each candidate showed up?
+4. Does the qualified shortlist avoid prospects that are only large but not reachable?
+5. Are buyer paths and next verification questions concrete enough for follow-up research?
 
 ## When Results Need Review
 
 Review more carefully when:
 
-- the website is very short
-- the website uses mostly marketing language
-- there is no semiconductor-specific page
-- the company appears to serve many industries but does not explain its semiconductor work clearly
+- the SME website is very short
+- the SME serves many industries but does not explain semiconductor work clearly
+- search results mostly find competitors or supplier directories
+- prospects are large fabs with unclear access routes
+- evidence shows a facility project but not a direct buying need
 
-In these cases, Medium or Low confidence is acceptable.
+In these cases, the qualification skill should lower confidence or move the prospect to watchlist.
 
-## Simple Workflow
+## Practical Rule
 
-Use this plugin as Phase 1:
-
-```text
-SME website -> capability profile -> keyword seeds
-```
-
-Use another research step as Phase 2:
+The plugin should help you move from broad curiosity to focused action:
 
 ```text
-keyword seeds -> interactive Google Search -> possible US prospects
+What does the SME sell?
+Who might need it?
+Who is most worth investigating next?
 ```
-
-## Need Help?
-
-If the skill creates a weak profile, try again with a better source:
-
-- a company brochure
-- a capabilities page
-- a product or services page
-- a semiconductor-specific page
-
-Better source material usually produces a better capability profile.
