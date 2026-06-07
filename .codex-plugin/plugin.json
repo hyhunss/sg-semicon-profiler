@@ -1,6 +1,6 @@
 {
   "name": "sg-semicon-expansion-plugin",
-  "version": "0.2.0+codex.20260606045807",
+  "version": "0.2.0+codex.20260607150448",
   "description": "Step-by-step US prospecting for Singapore semiconductor SMEs using three review-gated skills.",
   "author": {
     "name": "Hanyang Hu",
@@ -16,11 +16,13 @@
   "interface": {
     "displayName": "SG Semicon US Expansion",
     "shortDescription": "Start here for step-by-step US prospecting.",
-    "longDescription": "Start with $map-sme-capability. It explains the three-step workflow, creates the first capability profile, and tells you exactly what to review before moving on. After that, use the copy-paste prompts it provides to discover possible US prospects, including channel/EPC routes, then qualify the strongest evidence-backed targets.",
+    "longDescription": "Start with $map-sme-capability. It explains the three-step workflow, creates the first capability profile, and tells you what to review before moving on. After that, click the no-argument skill buttons to discover possible US prospects, including channel/EPC routes, then qualify the strongest evidence-backed targets.",
     "developerName": "Hanyang Hu",
     "category": "Productivity",
     "capabilities": [
-      "Skills", "Read", "Write"
+      "Skills",
+      "Read",
+      "Write"
     ],
     "websiteURL": "https://github.com/hyhunss/sg-semicon-profiler",
     "defaultPrompt": [

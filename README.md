@@ -8,7 +8,7 @@ It has three research skills, each with a different job:
 2. A broad list of possible US prospects.
 3. A smaller qualified shortlist for deeper analysis or outreach.
 
-The skills are designed for a human-in-the-loop workflow. Run one skill, review its output file, then use the copy-paste prompt it gives you for the next skill. Do not treat the plugin as one automatic end-to-end agent.
+The skills are designed for a human-in-the-loop workflow. Run one skill, review its output file, then click the next skill button in the Codex plugin sidebar. The next skill automatically looks in `data/` for the right previous output file.
 
 You do not need to know Python, Git, spreadsheets, or programming to use the main workflow.
 
@@ -24,15 +24,13 @@ SME website -> capability profile -> possible US prospects -> qualified shortlis
 
 The review gates are part of the workflow:
 
-1. Run `$map-sme-capability`, then review `data/<company_name>_capabilities.md`.
-2. If the capability profile looks accurate, run `$us-prospect-discovery`, then review `data/<company_name>_prospects.md`.
-3. If the broad prospect pool looks useful, run `$qualify-us-prospects`, then review `data/<company_name>_qualified_prospects.md`.
+1. Run `$map-sme-capability`, then review the new `data/*_capabilities.md` file.
+2. If the capability profile looks accurate, click **US Prospect Discovery** or type `$us-prospect-discovery`, then review the new `data/*_prospects.md` file.
+3. If the broad prospect pool looks useful, click **Qualify US Prospects** or type `$qualify-us-prospects`, then review the new `data/*_qualified_prospects.md` file.
 
 If an output is weak, incomplete, or based on the wrong interpretation of the SME, revise that stage before moving forward.
 
-Each skill should make the next step obvious in chat. Users should not need to remember the workflow or come back to this README during normal use.
-
-If you click or select the next prompt and send it with an otherwise blank message, the next skill should treat that selected prompt as the instruction. You should not need to retype it.
+Each skill should make the next step obvious in chat. Users should not need to copy file paths, remember filenames, or come back to this README during normal use.
 
 ### 1. Understand The SME
 
@@ -49,7 +47,7 @@ This is also the instructional first step. It should briefly explain that the pl
 Output:
 
 ```text
-data/<company_name>_capabilities.md
+data/*_capabilities.md
 ```
 
 This file includes:
@@ -71,10 +69,10 @@ Review before continuing:
 - Are weak or indirect claims labeled Medium or Low confidence?
 - Are the keyword seeds close enough to guide prospect discovery?
 
-The skill will then give you the next copy-paste prompt, for example:
+When ready, click **US Prospect Discovery** in the plugin sidebar, or type:
 
 ```text
-Use $us-prospect-discovery with data/example_capabilities.md
+$us-prospect-discovery
 ```
 
 ### 2. Discover Possible US Prospects
@@ -92,7 +90,7 @@ This skill searches for both end customers and practical route-to-market candida
 Output:
 
 ```text
-data/<company_name>_prospects.md
+data/*_prospects.md
 ```
 
 This file includes:
@@ -105,13 +103,13 @@ This file includes:
 - why each prospect showed up
 - caveats for the qualification step
 
-Example prompt:
+Button prompt:
 
 ```text
-Use $us-prospect-discovery with data/example_capabilities.md.
+$us-prospect-discovery
 ```
 
-Important: this step is intentionally broad. It finds possible prospects, not final targets. Heavy filtering and buyer-path reasoning happen in the next skill.
+Important: this step is intentionally broad. It finds possible prospects, not final targets. Heavy filtering and buyer-path reasoning happen in the next skill. If you do not provide a file path, the skill automatically uses the most recent `data/*_capabilities.md` file.
 
 Review before continuing:
 
@@ -120,10 +118,10 @@ Review before continuing:
 - Does the list include plausible route-to-market candidates, not only large fab owners?
 - Are the caveats clear, especially where the buyer path is uncertain?
 
-The skill will then give you the next copy-paste prompt, for example:
+When ready, click **Qualify US Prospects** in the plugin sidebar, or type:
 
 ```text
-Use $qualify-us-prospects with data/example_capabilities.md and data/example_prospects.md
+$qualify-us-prospects
 ```
 
 ### 3. Qualify The Best Prospects
@@ -136,17 +134,17 @@ $qualify-us-prospects
 
 Use this after the broad prospect list is created. It reads both earlier outputs and filters the list down to the most likely prospects for deeper research or outreach.
 
-Inputs:
+Inputs are auto-detected from `data/` when you use the sidebar button or type `$qualify-us-prospects`:
 
 ```text
-data/<company_name>_capabilities.md
-data/<company_name>_prospects.md
+data/*_capabilities.md
+data/*_prospects.md
 ```
 
 Output:
 
 ```text
-data/<company_name>_qualified_prospects.md
+data/*_qualified_prospects.md
 ```
 
 This file includes:
@@ -159,10 +157,10 @@ This file includes:
 - what to verify next
 - deprioritized or excluded prospects
 
-Example prompt:
+Button prompt:
 
 ```text
-Use $qualify-us-prospects with data/example_capabilities.md and data/example_prospects.md.
+$qualify-us-prospects
 ```
 
 Final review:
@@ -213,16 +211,16 @@ Start here:
 Use $map-sme-capability for https://www.example.com.sg
 ```
 
-After reviewing the capability profile, paste the next prompt shown by the skill. It will look like:
+After reviewing the capability profile, click **US Prospect Discovery** in the plugin sidebar, or type:
 
 ```text
-Use $us-prospect-discovery with data/example_capabilities.md
+$us-prospect-discovery
 ```
 
-After reviewing the broad prospect pool, paste the next prompt shown by the skill. It will look like:
+After reviewing the broad prospect pool, click **Qualify US Prospects** in the plugin sidebar, or type:
 
 ```text
-Use $qualify-us-prospects with data/example_capabilities.md and data/example_prospects.md
+$qualify-us-prospects
 ```
 
 ## Install The Plugin
@@ -248,9 +246,9 @@ Screenshots:
 The main workflow creates Markdown files in your current project folder:
 
 ```text
-data/<company_name>_capabilities.md
-data/<company_name>_prospects.md
-data/<company_name>_qualified_prospects.md
+data/*_capabilities.md
+data/*_prospects.md
+data/*_qualified_prospects.md
 ```
 
 Markdown is plain text. You can open these files like normal documents.

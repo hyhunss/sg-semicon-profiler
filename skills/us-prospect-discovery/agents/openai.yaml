@@ -1,4 +1,4 @@
 interface:
   display_name: "US Prospect Discovery"
   short_description: "Find possible US prospects and partner routes"
-  default_prompt: "Use $us-prospect-discovery with data/<company_name>_capabilities.md."
+  default_prompt: "Use $us-prospect-discovery"

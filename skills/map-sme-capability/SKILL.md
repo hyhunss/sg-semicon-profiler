@@ -1,6 +1,6 @@
 ---
 name: map-sme-capability
-description: Front-door and first skill in the SG Semicon US Expansion workflow. Use when given a Singapore semiconductor SME website or company profile document and asked to start US expansion research or create a capability profile. Briefly explain the three-step human-in-the-loop workflow, then create the capability profile. Stop after writing the profile, tell the user what to review, and provide the exact next copy-paste prompt for us-prospect-discovery.
+description: Front-door and first skill in the SG Semicon US Expansion workflow. Use when given a Singapore semiconductor SME website or company profile document and asked to start US expansion research or create a capability profile. Briefly explain the three-step human-in-the-loop workflow, then create the capability profile. Stop after writing the profile, tell the user what to review, and point them to the no-argument us-prospect-discovery button or command.
 ---
 
 # Skill: map-sme-capability
@@ -22,7 +22,7 @@ When this skill is used to start the workflow, briefly orient the user before do
 4. The user reviews that broad prospect pool.
 5. If it looks useful, `qualify-us-prospects` filters the strongest prospects.
 
-Do not continue into prospect discovery automatically. The user should check this skill's output before invoking the next skill. Make that easy by ending with the exact next copy-paste prompt.
+Do not continue into prospect discovery automatically. The user should check this skill's output before invoking the next skill. Make that easy by ending with the no-argument `us-prospect-discovery` button or command.
 
 ## Inputs
 * `source_material`: A URL to the SME's website or the file path/name of an uploaded PDF or Word document containing the company profile.
@@ -43,7 +43,7 @@ Do not continue into prospect discovery automatically. The user should check thi
 9. **Write smart keyword seeds:** These are suggested starting points for the next interactive Google Search skill, not final searches that must be used exactly. Create exactly 5 short keyword seeds. Each seed should combine one exact capability term, one likely buyer pain or timing signal, and optional US/company context. Prefer phrases a buyer or press release would actually use. For equipment logistics SMEs, use the specific tool or fab action, not generic logistics. Avoid generic phrases that are far from the SME's real capability.
 10. **Critique and improve the seeds:** Before writing the file, review each seed and ask: Is it close to the SME's real capability? Could it help the next skill find buyers after live Google iteration? Is it too broad, too crowded, or likely to only find competitors? Revise weak seeds, but do not over-optimize; the next skill will adapt them during interactive search.
 11. **Write the file:** Create `data/` if needed. Save the result as `data/<safe_sme_name>_capabilities.md`, using a lowercase filename with spaces replaced by underscores.
-12. **Confirm only:** Output a brief success message with the file path. Tell the user to review the capability profile before running `us-prospect-discovery`. Include the exact next copy-paste prompt using the real output path. Do not print the full Markdown in chat.
+12. **Confirm only:** Output a brief success message with the file path. Tell the user to review the capability profile before running `us-prospect-discovery`. Point them to the no-argument sidebar button or `$us-prospect-discovery`. Do not print the full Markdown in chat.
 
 ## Opening Explanation Template
 
@@ -72,9 +72,9 @@ Check:
 2. Are weak or indirect claims marked Medium or Low confidence?
 3. Do the keyword seeds look relevant for US prospecting?
 
-When ready, paste this next prompt:
+When ready, simply click the **US Prospect Discovery** button in your plugin sidebar, or type:
 
-Use $us-prospect-discovery with data/<safe_sme_name>_capabilities.md
+$us-prospect-discovery
 ```
 
 ## Output Markdown Template (Content of the generated file)
