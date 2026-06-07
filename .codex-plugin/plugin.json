@@ -16,7 +16,7 @@
   "interface": {
     "displayName": "SG Semicon US Expansion",
     "shortDescription": "Start here for step-by-step US prospecting.",
-    "longDescription": "Start with $map-sme-capability. It explains the three-step workflow, creates the first capability profile, and tells you what to review before moving on. After that, click the no-argument skill buttons to discover possible US prospects, including channel/EPC routes, then qualify the strongest evidence-backed targets.",
+    "longDescription": "Start with $map-sme-capability. It explains the three-step workflow, creates the first capability profile, and tells you what to review before moving on. After each step, the skill prints the exact next command to type. In Codex, users can also press $ in the thread and select the next skill. Later steps auto-detect the latest matching files in data/.",
     "developerName": "Hanyang Hu",
     "category": "Productivity",
     "capabilities": [
@@ -26,7 +26,7 @@
     ],
     "websiteURL": "https://github.com/hyhunss/sg-semicon-profiler",
     "defaultPrompt": [
-      "Use $map-sme-capability to start US expansion research. Ask me for the SME website or company profile if needed."
+      "Use $map-sme-capability for [SME website or company profile]."
     ]
   }
 }

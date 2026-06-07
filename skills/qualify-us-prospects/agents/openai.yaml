@@ -1,4 +1,4 @@
 interface:
-  display_name: "Qualify US Prospects"
-  short_description: "Filter prospects into an evidence-backed shortlist"
+  display_name: "Step 3 - Qualify US Prospects"
+  short_description: "Run after Step 2: qualify the strongest prospects."
   default_prompt: "Use $qualify-us-prospects"

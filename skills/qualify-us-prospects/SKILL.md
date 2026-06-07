@@ -24,6 +24,7 @@ Assume the user has already reviewed both earlier files. This skill produces the
 
 ## Output
 * `data/<safe_sme_name>_qualified_prospects.md`: A compact Markdown shortlist of the most likely prospects, plus deprioritized/excluded prospects and targeted verification questions.
+* `data/_latest_workflow.md`: Optional convenience state file for the latest workflow. The workflow must not depend on this file; this skill should still auto-detect the matching `data/*_capabilities.md` and `data/*_prospects.md` pair as a fallback.
 
 ## Core Rule
 Treat the second skill's output as a candidate pool, not as a qualified list. Do not confuse "large semiconductor project" with "qualified prospect":
@@ -35,45 +36,64 @@ capabilities.md + prospects.md -> buyer-path qualification -> top 5-8 likely pro
 ## Instructions
 1. **Accept selected-prompt invocations:** If the user's message body is blank but selected text contains a prompt for this skill, treat the selected text as the user's instruction and proceed from it. Do not ask the user to paste it again.
 2. **Auto-detect input files:** If invoked without file paths, use Read access to scan the current workspace's `data/` directory. Identify Markdown files ending with `_capabilities.md` and `_prospects.md` that share the exact same SME prefix. Use the most recently modified valid pair as the inputs. If no matching pair exists, ask the user to run `us-prospect-discovery` first or provide both file paths. If more than one recent pair could be intended, list the likely pairs and ask the user to choose.
-3. **Read both inputs:** Use the capability profile to understand what the SME can credibly sell. Use the prospect-discovery file as the candidate pool. Do not evaluate prospects using capabilities that are not supported in the first file.
-4. **Extract constraints from the capability profile:** Capture the SME name, 1-3 core capabilities, confidence labels, evidence caveats, and any terms the SME should avoid over-claiming.
-5. **Extract candidates from the prospect-discovery file:** Capture prospect name, prospect type, route type if present, matched capability, buying trigger or context, evidence URL, `Why this showed up`, caveats, and any recommended next analysis. If the prospect file includes older fields such as score, confidence, or likely buyer path, treat them as helpful notes only, not final qualification.
-6. **Remove weak candidates first:** Drop candidates that only match because they are generally large semiconductor companies, have no clear link to the SME capability, are likely competitors, or look unreachable without a realistic route.
-7. **Do targeted verification only when needed:** If a top candidate's buyer path, timing, or evidence is unclear, run a narrow search for that candidate. Do not run broad discovery searches. Limit verification to likely top candidates or candidates where one fact would change the ranking.
-8. **Source every new verification fact:** Any fact introduced during targeted verification must have a source URL in the final output. This includes named EPCs, contractors, construction managers, cleanroom square footage, groundbreaking dates, procurement routes, funding status, project phase, partnerships, or facility scope. If a new fact cannot be sourced, label it as an inference or leave it out.
-9. **Prefer realistic go-to-market routes:** For Singapore SMEs, explicitly compare direct-owner outreach with channel/EPC/contractor/partner routes. Do not rank megafab owners highly unless the buyer path is specific enough to investigate.
-10. **Apply the qualification test:** A qualified prospect should pass most of these questions:
+3. **Handle revision requests:** If the user asks to revise this step's output, read the current qualified shortlist, apply the requested edits, rewrite the same file unless the user asks for a new file, update `data/_latest_workflow.md`, and confirm briefly. Do not rerun the whole workflow unless the user explicitly asks.
+4. **Read both inputs:** Use the capability profile to understand what the SME can credibly sell. Use the prospect-discovery file as the candidate pool. Do not evaluate prospects using capabilities that are not supported in the first file.
+5. **Extract constraints from the capability profile:** Capture the SME name, 1-3 core capabilities, confidence labels, evidence caveats, and any terms the SME should avoid over-claiming.
+6. **Extract candidates from the prospect-discovery file:** Capture prospect name, prospect type, route type if present, matched capability, buying trigger or context, evidence URL, `Why this showed up`, caveats, and any recommended next analysis. If the prospect file includes older fields such as score, confidence, or likely buyer path, treat them as helpful notes only, not final qualification.
+7. **Remove weak candidates first:** Drop candidates that only match because they are generally large semiconductor companies, have no clear link to the SME capability, are likely competitors, or look unreachable without a realistic route.
+8. **Do targeted verification only when needed:** If a top candidate's buyer path, timing, or evidence is unclear, run a narrow search for that candidate. Do not run broad discovery searches. Limit verification to likely top candidates or candidates where one fact would change the ranking.
+9. **Source every new verification fact:** Any fact introduced during targeted verification must have a source URL in the final output. This includes named EPCs, contractors, construction managers, cleanroom square footage, groundbreaking dates, procurement routes, funding status, project phase, partnerships, or facility scope. If a new fact cannot be sourced, label it as an inference or leave it out.
+10. **Prefer realistic go-to-market routes:** For Singapore SMEs, explicitly compare direct-owner outreach with channel/EPC/contractor/partner routes. Do not rank megafab owners highly unless the buyer path is specific enough to investigate.
+11. **Apply the qualification test:** A qualified prospect should pass most of these questions:
    * Does the prospect need the SME's real capability?
    * Is there a concrete timing signal, such as new facility, ramp, modernization, tool install, pilot line, hiring, or supplier development?
    * Is the likely buyer path specific and plausible?
    * Is the prospect reachable for a Singapore SME through a direct buyer, partner, OEM, EPC, integrator, contractor, approved supplier, or public consortium route?
    * Is the evidence direct or a strong inference rather than a weak inference?
-11. **Score with a practical 20-point rubric:**
+12. **Score with a practical 20-point rubric:**
    * Capability fit: 0-5
    * Timing / urgency: 0-4
    * Buyer-path clarity: 0-5
    * Accessibility for Singapore SME: 0-4
    * Evidence strength: 0-2
-12. **Classify each finalist:** Use one of these labels:
+13. **Classify each finalist:** Use one of these labels:
    * `Priority`: strong fit, plausible buyer path, worth deeper analysis now.
    * `Watchlist`: good fit but timing, access, or evidence is not ready.
    * `Strategic`: large or important account, but likely long-cycle or partner-led.
-13. **Filter aggressively:** Prefer 5-8 strong qualified prospects over a full list. Do not pad the shortlist. If fewer than 5 are credible, write fewer and explain why.
-14. **Explain exclusions:** Group non-finalists into short reason categories such as weak buyer path, timing too early, too large/locked supplier base, indirect fit, likely competitor/channel target, or insufficient evidence.
-15. **Write the file:** Save as `data/<safe_sme_name>_qualified_prospects.md`, using the same safe SME name as the input files.
-16. **Confirm only:** Output a brief success message with the file path and number of qualified prospects. Tell the user to review the qualified shortlist before using it for deeper research or outreach. Do not give another workflow command. Do not print the full Markdown in chat unless the user asks.
+14. **Filter aggressively:** Prefer 5-8 strong qualified prospects over a full list. Do not pad the shortlist. If fewer than 5 are credible, write fewer and explain why.
+15. **Explain exclusions:** Group non-finalists into short reason categories such as weak buyer path, timing too early, too large/locked supplier base, indirect fit, likely competitor/channel target, or insufficient evidence.
+16. **Write the file:** Save as `data/<safe_sme_name>_qualified_prospects.md`, using the same safe SME name as the input files.
+17. **Write convenience workflow state:** Also write or update `data/_latest_workflow.md` with SME name, current step completed, capability file path, prospects file path, qualified file path, and next recommended command `Final review complete; use, revise, or stop`. This file is only a convenience; do not require it for later work.
+18. **Confirm only:** Output a brief success message with the created file path, the number of qualified prospects, what to review, how to use it, how to revise, and how to stop. Do not print the full Markdown in chat unless the user asks. The confirmation message must end with the three explicit choices in the template below.
 
 ## Confirmation Message Template
 
 ```text
 Created: data/<safe_sme_name>_qualified_prospects.md with <N> qualified prospects.
 
-Please review this shortlist before using it for deeper research or outreach.
-
-Check:
-1. Are the top prospects worth investigating next?
-2. Is each buyer path specific enough to act on?
+Final review:
+1. Are the top prospects worth investigating?
+2. Is each buyer path specific enough?
 3. Are watchlist and exclusion decisions reasonable?
+
+Next:
+A. Use this shortlist for outreach or deeper research.
+B. Revise: type
+Revise the qualified shortlist: [what to change]
+C. Stop here.
+```
+
+## Workflow State Template
+
+```markdown
+# Latest SG Semicon Expansion Workflow
+
+* SME name: [SME Name]
+* Current step completed: Step 3 - Qualify US Prospects
+* Capability file: data/<safe_sme_name>_capabilities.md
+* Prospects file: data/<safe_sme_name>_prospects.md
+* Qualified file: data/<safe_sme_name>_qualified_prospects.md
+* Next recommended command: Final review complete; use, revise, or stop
 ```
 
 ## Output Markdown Template

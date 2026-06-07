@@ -8,9 +8,26 @@ It has three research skills, each with a different job:
 2. A broad list of possible US prospects.
 3. A smaller qualified shortlist for deeper analysis or outreach.
 
-The skills are designed for a human-in-the-loop workflow. Run one skill, review its output file, then click the next skill button in the Codex plugin sidebar. The next skill automatically looks in `data/` for the right previous output file.
+The skills are designed for a human-in-the-loop workflow. Run one skill, review its output file, then run the next skill in the Codex thread. The next skill automatically looks in `data/` for the right previous output file.
 
 You do not need to know Python, Git, spreadsheets, or programming to use the main workflow.
+
+## Quick Start
+
+1. Start:
+```text
+$map-sme-capability for [SME website or company profile]
+```
+
+2. If the capability profile looks right:
+```text
+$us-prospect-discovery
+```
+
+3. If the prospect pool looks right:
+```text
+$qualify-us-prospects
+```
 
 ## Main Workflow
 
@@ -19,18 +36,22 @@ Start with `$map-sme-capability`. It is the front door for the workflow: it expl
 Use the three research skills separately and in order:
 
 ```text
-SME website -> capability profile -> possible US prospects -> qualified shortlist
+Step 1: $map-sme-capability
+Step 2: $us-prospect-discovery
+Step 3: $qualify-us-prospects
 ```
 
 The review gates are part of the workflow:
 
 1. Run `$map-sme-capability`, then review the new `data/*_capabilities.md` file.
-2. If the capability profile looks accurate, click **US Prospect Discovery** or type `$us-prospect-discovery`, then review the new `data/*_prospects.md` file.
-3. If the broad prospect pool looks useful, click **Qualify US Prospects** or type `$qualify-us-prospects`, then review the new `data/*_qualified_prospects.md` file.
+2. If the capability profile looks accurate, press `$` in the thread and select `$us-prospect-discovery`, or type `$us-prospect-discovery`, then review the new `data/*_prospects.md` file.
+3. If the broad prospect pool looks useful, press `$` in the thread and select `$qualify-us-prospects`, or type `$qualify-us-prospects`, then review the new `data/*_qualified_prospects.md` file.
 
 If an output is weak, incomplete, or based on the wrong interpretation of the SME, revise that stage before moving forward.
 
 Each skill should make the next step obvious in chat. Users should not need to copy file paths, remember filenames, or come back to this README during normal use.
+
+In Codex, press `$` in the thread and select the next skill, or type the skill command directly.
 
 ### 1. Understand The SME
 
@@ -69,7 +90,7 @@ Review before continuing:
 - Are weak or indirect claims labeled Medium or Low confidence?
 - Are the keyword seeds close enough to guide prospect discovery?
 
-When ready, click **US Prospect Discovery** in the plugin sidebar, or type:
+When ready, press `$` in the thread and select `$us-prospect-discovery`, or type:
 
 ```text
 $us-prospect-discovery
@@ -103,7 +124,7 @@ This file includes:
 - why each prospect showed up
 - caveats for the qualification step
 
-Button prompt:
+Thread command:
 
 ```text
 $us-prospect-discovery
@@ -118,7 +139,7 @@ Review before continuing:
 - Does the list include plausible route-to-market candidates, not only large fab owners?
 - Are the caveats clear, especially where the buyer path is uncertain?
 
-When ready, click **Qualify US Prospects** in the plugin sidebar, or type:
+When ready, press `$` in the thread and select `$qualify-us-prospects`, or type:
 
 ```text
 $qualify-us-prospects
@@ -134,7 +155,7 @@ $qualify-us-prospects
 
 Use this after the broad prospect list is created. It reads both earlier outputs and filters the list down to the most likely prospects for deeper research or outreach.
 
-Inputs are auto-detected from `data/` when you use the sidebar button or type `$qualify-us-prospects`:
+Inputs are auto-detected from `data/` when you type `$qualify-us-prospects` or select it after pressing `$` in the thread:
 
 ```text
 data/*_capabilities.md
@@ -157,7 +178,7 @@ This file includes:
 - what to verify next
 - deprioritized or excluded prospects
 
-Button prompt:
+Thread command:
 
 ```text
 $qualify-us-prospects
@@ -211,13 +232,13 @@ Start here:
 Use $map-sme-capability for https://www.example.com.sg
 ```
 
-After reviewing the capability profile, click **US Prospect Discovery** in the plugin sidebar, or type:
+After reviewing the capability profile, press `$` in the thread and select `$us-prospect-discovery`, or type:
 
 ```text
 $us-prospect-discovery
 ```
 
-After reviewing the broad prospect pool, click **Qualify US Prospects** in the plugin sidebar, or type:
+After reviewing the broad prospect pool, press `$` in the thread and select `$qualify-us-prospects`, or type:
 
 ```text
 $qualify-us-prospects
@@ -229,7 +250,7 @@ In Codex:
 
 1. Open **Plugins**.
 2. Open the marketplace dropdown.
-3. Click **Add more**.
+3. Choose **Add more**.
 4. Add the plugin link or folder provided by the project lead.
 5. Start a new Codex chat after installation.
 
@@ -237,7 +258,7 @@ Screenshots:
 
 ![Open Plugins](screenshots/plugins.jpg)
 
-![Click Add more](screenshots/addmore.png)
+![Add more](screenshots/addmore.png)
 
 ![Add marketplace source](screenshots/addmarketplace.jpg)
 
@@ -249,9 +270,12 @@ The main workflow creates Markdown files in your current project folder:
 data/*_capabilities.md
 data/*_prospects.md
 data/*_qualified_prospects.md
+data/_latest_workflow.md
 ```
 
 Markdown is plain text. You can open these files like normal documents.
+
+`data/_latest_workflow.md` is only a convenience record of the latest run. The workflow does not depend on it; Step 2 and Step 3 still auto-detect the right files from `data/`.
 
 ## Review Checklist
 
