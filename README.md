@@ -2,38 +2,149 @@
 
 This plugin helps business users research Singapore semiconductor and semiconductor-adjacent SMEs for US market expansion.
 
-It has three research skills, each with a different job:
+It has three separate skills:
 
-1. A clear capability profile.
-2. A broad list of possible US prospects.
-3. A smaller qualified shortlist for deeper analysis or outreach.
+1. Map the SME's capabilities.
+2. Discover a broad pool of possible US prospects.
+3. Qualify the strongest prospects for deeper research or outreach.
 
-The skills are designed for a human-in-the-loop workflow. Run one skill, review its output file, then run the next skill in the Codex thread. The next skill automatically looks in `data/` for the right previous output file.
-
-You do not need to know Python, Git, spreadsheets, or programming to use the main workflow.
+You do not need to know Python, Git, spreadsheets, or programming. In Codex, press `$` in the thread and select the next skill, or type the skill command directly.
 
 ## Quick Start
 
-1. Start:
+1. Start with an SME website or company profile:
+
 ```text
 $map-sme-capability for [SME website or company profile]
 ```
 
 2. If the capability profile looks right:
+
 ```text
 $us-prospect-discovery
 ```
 
 3. If the prospect pool looks right:
+
 ```text
 $qualify-us-prospects
 ```
 
+You do not need to copy file paths. Step 2 and Step 3 automatically find the files created by earlier steps.
+
+## First-Time User Example
+
+Suppose you want to research a Singapore SME called ABC Precision.
+
+In Codex, type:
+
+```text
+$map-sme-capability for https://www.abcprecision.sg
+```
+
+Codex will create a file like:
+
+```text
+data/abc_precision_capabilities.md
+```
+
+Open that file and check only three things:
+
+1. Does it correctly describe what the company sells?
+2. Are uncertain claims marked Medium or Low confidence?
+3. Do the keyword seeds look relevant for US prospecting?
+
+If it looks right, type:
+
+```text
+$us-prospect-discovery
+```
+
+Codex will create a file like:
+
+```text
+data/abc_precision_prospects.md
+```
+
+Open that file and check only three things:
+
+1. Do the prospects seem related to the SME's capabilities?
+2. Are the evidence links credible enough?
+3. Are there clear caveats where the buyer path is uncertain?
+
+If it looks right, type:
+
+```text
+$qualify-us-prospects
+```
+
+Codex will create a file like:
+
+```text
+data/abc_precision_qualified_prospects.md
+```
+
+This final file is the shortlist for deeper research, validation, or outreach.
+
+## If Something Goes Wrong
+
+If Codex asks for a website or company profile:
+- Paste the SME website URL or upload the company profile.
+
+If Step 2 cannot find a capability file:
+- Run Step 1 first:
+
+```text
+$map-sme-capability for [SME website or company profile]
+```
+
+If Step 3 cannot find matching files:
+
+* Run Step 2 first:
+
+```text
+$us-prospect-discovery
+```
+
+If the output is wrong, do not restart the whole workflow. Ask Codex to revise the current file:
+
+```text
+Revise the capability profile: [what to fix]
+```
+
+or:
+
+```text
+Revise the prospect discovery: [what to fix]
+```
+
+or:
+
+```text
+Revise the qualified shortlist: [what to fix]
+```
+
+If the SME website is vague:
+
+* Expect more Medium or Low confidence labels.
+* Do not treat the output as final.
+* Add more source material if available.
+
+## What Review Means
+
+Review does not mean you need to rewrite the file.
+
+For Step 1, check whether Codex understood the SME correctly.
+
+For Step 2, check whether the prospects are at least plausibly relevant.
+
+For Step 3, check whether the final shortlist has realistic buyer paths.
+
+If something is wrong, tell Codex what to revise in plain English.
+
 ## Main Workflow
 
-Start with `$map-sme-capability`. It is the front door for the workflow: it explains the three-step process, says what information it needs, then creates the first output.
-
-Use the three research skills separately and in order:
+Use the three skills separately and in order:
 
 ```text
 Step 1: $map-sme-capability
@@ -44,152 +155,10 @@ Step 3: $qualify-us-prospects
 The review gates are part of the workflow:
 
 1. Run `$map-sme-capability`, then review the new `data/*_capabilities.md` file.
-2. If the capability profile looks accurate, press `$` in the thread and select `$us-prospect-discovery`, or type `$us-prospect-discovery`, then review the new `data/*_prospects.md` file.
-3. If the broad prospect pool looks useful, press `$` in the thread and select `$qualify-us-prospects`, or type `$qualify-us-prospects`, then review the new `data/*_qualified_prospects.md` file.
+2. If the capability profile looks accurate, run `$us-prospect-discovery`, then review the new `data/*_prospects.md` file.
+3. If the broad prospect pool looks useful, run `$qualify-us-prospects`, then review the new `data/*_qualified_prospects.md` file.
 
-If an output is weak, incomplete, or based on the wrong interpretation of the SME, revise that stage before moving forward.
-
-Each skill should make the next step obvious in chat. Users should not need to copy file paths, remember filenames, or come back to this README during normal use.
-
-In Codex, press `$` in the thread and select the next skill, or type the skill command directly.
-
-### 1. Understand The SME
-
-Skill:
-
-```text
-$map-sme-capability
-```
-
-Use this when you have an SME website or company profile and want to understand what the company actually does.
-
-This is also the instructional first step. It should briefly explain that the plugin will proceed in three review-gated stages before it creates the capability profile.
-
-Output:
-
-```text
-data/*_capabilities.md
-```
-
-This file includes:
-
-- core technical capabilities
-- source-backed evidence notes
-- confidence labels
-- five keyword seeds for US prospecting
-
-Example prompt:
-
-```text
-Use $map-sme-capability to map https://www.example.com.sg for US prospecting.
-```
-
-Review before continuing:
-
-- Are the capabilities specific to what the SME actually sells?
-- Are weak or indirect claims labeled Medium or Low confidence?
-- Are the keyword seeds close enough to guide prospect discovery?
-
-When ready, press `$` in the thread and select `$us-prospect-discovery`, or type:
-
-```text
-$us-prospect-discovery
-```
-
-### 2. Discover Possible US Prospects
-
-Skill:
-
-```text
-$us-prospect-discovery
-```
-
-Use this after the capability profile is created. It reads the keyword seeds, runs iterative Google Search, reflects on noisy results, and creates a broad list of plausible US prospects.
-
-This skill searches for both end customers and practical route-to-market candidates. For many Singapore SMEs, the realistic path may be through EPC/EPCM firms, cleanroom contractors, facility integrators, construction managers, equipment OEMs, approved supplier routes, public consortia, or regional partner ecosystems.
-
-Output:
-
-```text
-data/*_prospects.md
-```
-
-This file includes:
-
-- search-round notes
-- possible prospects ordered by apparent relevance
-- evidence links
-- buying triggers
-- route type, such as direct owner, channel/EPC, partner ecosystem, or watchlist
-- why each prospect showed up
-- caveats for the qualification step
-
-Thread command:
-
-```text
-$us-prospect-discovery
-```
-
-Important: this step is intentionally broad. It finds possible prospects, not final targets. Heavy filtering and buyer-path reasoning happen in the next skill. If you do not provide a file path, the skill automatically uses the most recent `data/*_capabilities.md` file.
-
-Review before continuing:
-
-- Do the prospects have a visible link to the SME's capabilities?
-- Are the sources credible enough for a first-pass candidate pool?
-- Does the list include plausible route-to-market candidates, not only large fab owners?
-- Are the caveats clear, especially where the buyer path is uncertain?
-
-When ready, press `$` in the thread and select `$qualify-us-prospects`, or type:
-
-```text
-$qualify-us-prospects
-```
-
-### 3. Qualify The Best Prospects
-
-Skill:
-
-```text
-$qualify-us-prospects
-```
-
-Use this after the broad prospect list is created. It reads both earlier outputs and filters the list down to the most likely prospects for deeper research or outreach.
-
-Inputs are auto-detected from `data/` when you type `$qualify-us-prospects` or select it after pressing `$` in the thread:
-
-```text
-data/*_capabilities.md
-data/*_prospects.md
-```
-
-Output:
-
-```text
-data/*_qualified_prospects.md
-```
-
-This file includes:
-
-- top 5-8 qualified prospects
-- buyer-path reasoning
-- timing and accessibility assessment
-- evidence strength
-- key evidence links for timing signals and new verification facts
-- what to verify next
-- deprioritized or excluded prospects
-
-Thread command:
-
-```text
-$qualify-us-prospects
-```
-
-Final review:
-
-- Are the top prospects worth deeper research or outreach?
-- Is each buyer path specific enough to investigate?
-- Are new verification facts backed by source links?
-- Are exclusions and watchlist decisions reasonable?
+Each skill prints the exact next command to type. Step 2 and Step 3 automatically look in `data/` for the right previous output file.
 
 ## What The Plugin Is Good At
 
@@ -223,26 +192,6 @@ A good prospect should have:
 4. Evidence that supports the fit, or at least a strong and clearly labeled inference.
 
 For many SMEs, an EPC, cleanroom contractor, facility integrator, or local partner can be a better first prospect than the fab owner itself.
-
-## Recommended Usage Pattern
-
-Start here:
-
-```text
-Use $map-sme-capability for https://www.example.com.sg
-```
-
-After reviewing the capability profile, press `$` in the thread and select `$us-prospect-discovery`, or type:
-
-```text
-$us-prospect-discovery
-```
-
-After reviewing the broad prospect pool, press `$` in the thread and select `$qualify-us-prospects`, or type:
-
-```text
-$qualify-us-prospects
-```
 
 ## Install The Plugin
 
@@ -299,13 +248,3 @@ Review more carefully when:
 - evidence shows a facility project but not a direct buying need
 
 In these cases, the qualification skill should lower confidence or move the prospect to watchlist.
-
-## Practical Rule
-
-The plugin should help you move from broad curiosity to focused action:
-
-```text
-What does the SME sell?
-Who might need it?
-Who is most worth investigating next?
-```
