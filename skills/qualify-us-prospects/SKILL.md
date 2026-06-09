@@ -56,31 +56,33 @@ capabilities.md + prospects.md -> buyer-path qualification -> top 5-8 likely pro
 6. **Extract candidates from the prospect-discovery file:** Capture prospect name, prospect type, route type if present, matched capability, buying trigger or context, evidence URL, `Why this showed up`, caveats, and any recommended next analysis. If the prospect file includes older fields such as score, confidence, or likely buyer path, treat them as helpful notes only, not final qualification.
 7. **Remove weak candidates first:** Drop candidates that only match because they are generally large semiconductor companies, have no clear link to the SME capability, are likely competitors, or look unreachable without a realistic route.
 8. **Do targeted verification only when needed:** If a top candidate's buyer path, timing, or evidence is unclear, run a narrow search for that candidate. Do not run broad discovery searches. Limit verification to likely top candidates or candidates where one fact would change the ranking.
-9. **Source every new verification fact:** Any fact introduced during targeted verification must have a source URL in the final output. This includes named EPCs, contractors, construction managers, cleanroom square footage, groundbreaking dates, procurement routes, funding status, project phase, partnerships, or facility scope. If a new fact cannot be sourced, label it as an inference or leave it out.
-10. **Prefer realistic go-to-market routes:** For Singapore SMEs, explicitly compare direct-owner outreach with channel/EPC/contractor/partner routes. Do not rank megafab owners highly unless the buyer path is specific enough to investigate.
-11. **Apply the qualification test:** A qualified prospect should pass most of these questions:
+9. **Source every new verification fact with evidence detail:** Any fact introduced during targeted verification must have a structured evidence item in the final output. This includes named EPCs, contractors, construction managers, cleanroom square footage, groundbreaking dates, procurement routes, funding status, project phase, partnerships, or facility scope. Each finalist must include evidence with evidence role, source focus, source title, source type, source date when available, URL, supported claim, and a short evidence excerpt. If a new fact cannot be sourced, label it as an inference or leave it out. Do not use bare URLs as final evidence.
+10. **Cover the evidence roles required by the classification:** `Priority` finalists must include evidence for `Timing signal`, `Capability fit`, and either `Buyer path` or `Accessibility`. `Strategic` finalists must include evidence for `Timing signal`, `Capability fit`, and either `Buyer path` or `Risk / caveat`. `Watchlist` finalists must include evidence for `Capability fit` and `Risk / caveat`. Do not promote a prospect to `Priority` unless all three Priority evidence roles are present.
+11. **Apply the higher Priority evidence standard:** Every `Priority` finalist must use at least two distinct source URLs across its evidence items, and at least one evidence item must have `source_focus: "Project/timing-specific"`. A generic company capability page alone is not enough for `Priority`, even if it mentions semiconductor work. If the two-source or project/timing-specific standard is not met, classify the prospect as `Strategic` or `Watchlist` instead.
+12. **Prefer realistic go-to-market routes:** For Singapore SMEs, explicitly compare direct-owner outreach with channel/EPC/contractor/partner routes. Do not rank megafab owners highly unless the buyer path is specific enough to investigate.
+13. **Apply the qualification test:** A qualified prospect should pass most of these questions:
    * Does the prospect need the SME's real capability?
    * Is there a concrete timing signal, such as new facility, ramp, modernization, tool install, pilot line, hiring, or supplier development?
    * Is the likely buyer path specific and plausible?
    * Is the prospect reachable for a Singapore SME through a direct buyer, partner, OEM, EPC, integrator, contractor, approved supplier, or public consortium route?
    * Is the evidence direct or a strong inference rather than a weak inference?
-12. **Score with a practical 20-point rubric:**
+14. **Score with a practical 20-point rubric:**
    * Capability fit: 0-5
    * Timing / urgency: 0-4
    * Buyer-path clarity: 0-5
    * Accessibility for Singapore SME: 0-4
    * Evidence strength: 0-2
-13. **Classify each finalist:** Use one of these labels:
+15. **Classify each finalist:** Use one of these labels:
    * `Priority`: strong fit, plausible buyer path, worth deeper analysis now.
    * `Watchlist`: good fit but timing, access, or evidence is not ready.
    * `Strategic`: large or important account, but likely long-cycle or partner-led.
-14. **Filter aggressively:** Prefer 5-8 strong qualified prospects over a full list. Do not pad the shortlist. If fewer than 5 are credible, write fewer and explain why.
-15. **Explain exclusions:** Group non-finalists into short reason categories such as weak buyer path, timing too early, too large/locked supplier base, indirect fit, likely competitor/channel target, or insufficient evidence.
-16. **Write the canonical JSON file:** Save as `data/<safe_sme_name>_qualified_prospects.json`, using the same safe SME name as the input files.
-17. **Validate the qualified JSON:** Validate or carefully self-check against `schema/qualified-prospects.schema.json`. The JSON must have 1-10 finalists, valid classification and evidence-strength enum values, integer scores from 0-20, source URL arrays for every finalist, one verification question per finalist, and no extra top-level fields. The order of the `qualified_shortlist` array is the ranking; do not add a separate rank field.
-18. **Render the Markdown review file:** Save `data/<safe_sme_name>_qualified_prospects.md` from the validated JSON. Do not add finalists, evidence, exclusions, or next steps in Markdown that are absent from the JSON.
-19. **Write convenience workflow state:** Also write or update `data/_latest_workflow.json` with SME name, current step completed, capability JSON path, prospects JSON path, qualified JSON path, and next recommended command `Final review complete; use, revise, or stop`. Self-check that the expected workflow fields are present, then render `data/_latest_workflow.md`. These files are only a convenience; do not require them for later work.
-20. **Confirm only:** Output a business-friendly success message with the readable review report path, the AI background record path, the number of qualified prospects, what to review, how to use it, how to revise, and how to stop. Do not print the full file contents in chat unless the user asks. The confirmation message must end with the three explicit choices in the template below.
+16. **Filter aggressively:** Prefer 5-8 strong qualified prospects over a full list. Do not pad the shortlist. If fewer than 5 are credible, write fewer and explain why.
+17. **Explain exclusions:** Group non-finalists into short reason categories such as weak buyer path, timing too early, too large/locked supplier base, indirect fit, likely competitor/channel target, or insufficient evidence.
+18. **Write the canonical JSON file:** Save as `data/<safe_sme_name>_qualified_prospects.json`, using the same safe SME name as the input files.
+19. **Validate the qualified JSON:** Validate or carefully self-check against `schema/qualified-prospects.schema.json`. The JSON must have 1-10 finalists, valid classification and evidence-strength enum values, integer scores from 0-20, structured evidence items for every finalist, required evidence-role coverage for each classification, one verification question per finalist, and no extra top-level fields. Additionally, for every `Priority` finalist, count distinct URLs in `key_evidence` and confirm there are at least two. The order of the `qualified_shortlist` array is the ranking; do not add a separate rank field.
+20. **Render the Markdown review file:** Save `data/<safe_sme_name>_qualified_prospects.md` from the validated JSON. Do not add finalists, evidence, exclusions, or next steps in Markdown that are absent from the JSON.
+21. **Write convenience workflow state:** Also write or update `data/_latest_workflow.json` with SME name, current step completed, capability JSON path, prospects JSON path, qualified JSON path, and next recommended command `Final review complete; use, revise, or stop`. Self-check that the expected workflow fields are present, then render `data/_latest_workflow.md`. These files are only a convenience; do not require them for later work.
+22. **Confirm only:** Output a business-friendly success message with the readable review report path, the AI background record path, the number of qualified prospects, what to review, how to use it, how to revise, and how to stop. Do not print the full file contents in chat unless the user asks. The confirmation message must end with the three explicit choices in the template below.
 
 ## Confirmation Message Template
 
@@ -140,10 +142,10 @@ Write this canonical file first as `data/<safe_sme_name>_qualified_prospects.jso
   "schema_version": "1.0.0",
   "schema_name": "qualified_prospects",
   "sme_name": "[Insert SME Name Here]",
-  "safe_sme_name": "<safe_sme_name>",
+  "safe_sme_name": "sample_sme",
   "generated_at": "[ISO 8601 timestamp]",
-  "source_capability_profile_path": "data/<safe_sme_name>_capabilities.json",
-  "source_prospect_discovery_path": "data/<safe_sme_name>_prospects.json",
+  "source_capability_profile_path": "data/sample_sme_capabilities.json",
+  "source_prospect_discovery_path": "data/sample_sme_prospects.json",
   "qualification_scope": "[scope or default]",
   "qualification_logic": {
     "sme_capabilities_used": [
@@ -164,7 +166,38 @@ Write this canonical file first as `data/<safe_sme_name>_qualified_prospects.jso
       "why_this_prospect": "[Concise reason]",
       "timing_signal": "[Trigger]",
       "evidence_strength": "Direct",
-      "key_evidence_urls": ["[Source URL]"],
+      "key_evidence": [
+        {
+          "evidence_role": "Timing signal",
+          "source_focus": "Project/timing-specific",
+          "source_title": "[Source page or document title]",
+          "source_type": "Press release",
+          "source_date": "Not stated",
+          "url": "https://example.com/project-source",
+          "supported_claim": "[Specific claim this source supports]",
+          "evidence_excerpt": "[Short exact phrase or tightly paraphrased excerpt from the source]"
+        },
+        {
+          "evidence_role": "Capability fit",
+          "source_focus": "Capability/background",
+          "source_title": "[Source page or document title]",
+          "source_type": "Company page",
+          "source_date": "Not stated",
+          "url": "https://example.com/capability-source",
+          "supported_claim": "[Specific claim this source supports]",
+          "evidence_excerpt": "[Short exact phrase or tightly paraphrased excerpt from the source]"
+        },
+        {
+          "evidence_role": "Buyer path",
+          "source_focus": "Route/access",
+          "source_title": "[Source page or document title]",
+          "source_type": "Company page",
+          "source_date": "Not stated",
+          "url": "https://example.com/capability-source",
+          "supported_claim": "[Specific claim this source supports]",
+          "evidence_excerpt": "[Short exact phrase or tightly paraphrased excerpt from the source]"
+        }
+      ],
       "score": 18,
       "what_to_verify_next": "[Next verification question]"
     }
@@ -207,7 +240,7 @@ Render this human-readable file from the validated JSON as `data/<safe_sme_name>
 ## 3. Qualified Shortlist
 | Rank | Prospect | Classification | Best Buyer Path | Why This Prospect | Timing Signal | Evidence Strength | Key Evidence | Score | What To Verify Next |
 |---:|---|---|---|---|---|---|---|---:|---|
-| 1 | [Prospect] | [Priority/Watchlist/Strategic] | [Specific path] | [Concise reason] | [Trigger] | [Direct/Strong inference/Weak inference] | [Source URL(s), including URLs for any new verification facts] | [0-20] | [Next verification question] |
+| 1 | [Prospect] | [Priority/Watchlist/Strategic] | [Specific path] | [Concise reason] | [Trigger] | [Direct/Strong inference/Weak inference] | [Evidence role; source focus; source title; date if available; supported claim; short excerpt; URL] | [0-20] | [Next verification question] |
 
 ## 4. Deprioritized or Excluded
 | Prospect / Group | Reason |
@@ -224,7 +257,10 @@ Render this human-readable file from the validated JSON as `data/<safe_sme_name>
 * The final shortlist should usually contain 5-8 prospects and never more than 10.
 * Every finalist must have a specific buyer path.
 * Every finalist must include one targeted verification question.
-* Every finalist must include source URL(s) for the timing signal and for any new verification facts introduced during qualification.
+* Every finalist must include structured evidence for the timing signal and for any new verification facts introduced during qualification. Do not use bare URLs as final evidence.
+* Each structured evidence item must include evidence role, source focus, source title, source type, source date or `Not stated`, URL, supported claim, and a short excerpt.
+* Evidence role coverage is mandatory: `Priority` needs timing, fit, and access-route evidence; `Strategic` needs timing, fit, and route or caveat evidence; `Watchlist` needs fit and caveat evidence.
+* Every `Priority` prospect must have at least two distinct source URLs and at least one `Project/timing-specific` source. A generic company capability page alone cannot support a `Priority` classification.
 * Do not include a prospect only because it is a large semiconductor company.
 * Use `Priority` only when the buyer path is specific and timing is actionable.
 * Clearly separate evidence from inference.
