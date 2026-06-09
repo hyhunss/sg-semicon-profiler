@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/hyhunss/sg-semicon-us-expansion-plugin/skills/map-sme-capability/schema/capability-profile.schema.json",
+  "title": "SG Semicon Capability Profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "schema_name",
+    "sme_name",
+    "safe_sme_name",
+    "source_references",
+    "generated_at",
+    "core_capabilities",
+    "evidence_notes",
+    "smart_keyword_seeds",
+    "caveats"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "schema_name": {
+      "type": "string",
+      "const": "capability_profile"
+    },
+    "sme_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "safe_sme_name": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+    },
+    "source_references": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 500
+      }
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "core_capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["capability", "confidence"],
+        "properties": {
+          "capability": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 220
+          },
+          "confidence": {
+            "type": "string",
+            "enum": ["High", "Medium", "Low"]
+          }
+        }
+      }
+    },
+    "evidence_notes": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["note", "source"],
+        "properties": {
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 600
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        }
+      }
+    },
+    "smart_keyword_seeds": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label", "keyword_seed"],
+        "properties": {
+          "label": {
+            "type": "string",
+            "enum": ["Procurement", "Production Ramp", "Tier 1 Collaboration", "Funding/New Facility", "Buyer Pain"]
+          },
+          "keyword_seed": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 250
+          }
+        }
+      }
+    },
+    "caveats": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 400
+      }
+    }
+  }
+}

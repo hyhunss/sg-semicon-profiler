@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/hyhunss/sg-semicon-us-expansion-plugin/skills/qualify-us-prospects/schema/qualified-prospects.schema.json",
+  "title": "SG Semicon Qualified Prospects",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "schema_name",
+    "sme_name",
+    "safe_sme_name",
+    "generated_at",
+    "source_capability_profile_path",
+    "source_prospect_discovery_path",
+    "qualification_scope",
+    "qualification_logic",
+    "qualified_shortlist",
+    "deprioritized_or_excluded",
+    "recommended_next_steps"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "schema_name": {
+      "type": "string",
+      "const": "qualified_prospects"
+    },
+    "sme_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "safe_sme_name": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source_capability_profile_path": {
+      "type": "string",
+      "pattern": "^data/[a-z0-9]+(?:_[a-z0-9]+)*_capabilities\\.(json|md)$"
+    },
+    "source_prospect_discovery_path": {
+      "type": "string",
+      "pattern": "^data/[a-z0-9]+(?:_[a-z0-9]+)*_prospects\\.(json|md)$"
+    },
+    "qualification_scope": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "qualification_logic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sme_capabilities_used", "must_not_overclaim_caveats", "best_buyer_paths"],
+      "properties": {
+        "sme_capabilities_used": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 220
+          }
+        },
+        "must_not_overclaim_caveats": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 400
+          }
+        },
+        "best_buyer_paths": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 400
+          }
+        }
+      }
+    },
+    "qualified_shortlist": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "prospect",
+          "classification",
+          "best_buyer_path",
+          "why_this_prospect",
+          "timing_signal",
+          "evidence_strength",
+          "key_evidence_urls",
+          "score",
+          "what_to_verify_next"
+        ],
+        "properties": {
+          "prospect": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "classification": {
+            "type": "string",
+            "enum": ["Priority", "Watchlist", "Strategic"]
+          },
+          "best_buyer_path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "why_this_prospect": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 600
+          },
+          "timing_signal": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 400
+          },
+          "evidence_strength": {
+            "type": "string",
+            "enum": ["Direct", "Strong inference", "Weak inference"]
+          },
+          "key_evidence_urls": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^https?://.+"
+            }
+          },
+          "score": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 20
+          },
+          "what_to_verify_next": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 400
+          }
+        }
+      }
+    },
+    "deprioritized_or_excluded": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["prospect_or_group", "reason"],
+        "properties": {
+          "prospect_or_group": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        }
+      }
+    },
+    "recommended_next_steps": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 500
+      }
+    }
+  }
+}

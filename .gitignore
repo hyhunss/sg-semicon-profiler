@@ -3,4 +3,4 @@
 *.tmp
 *.bak
 data/
-repomix-output.xml
+repomix-output*.xml

@@ -1,250 +1,73 @@
-# SG Semicon US Expansion
+# 🇸🇬 SG Semicon US Expansion Assistant
 
-This plugin helps business users research Singapore semiconductor and semiconductor-adjacent SMEs for US market expansion.
+This intelligent tool helps Singapore semiconductor and precision engineering SMEs (such as precision machining, cleanroom contractors, logistics, equipment services, and factory software vendors) discover and qualify commercial opportunities in the United States.
 
-It has three separate skills:
+**💡 Our Promise:** You do not need to know anything about coding, databases, or complex spreadsheets. You only need to type three simple "chat commands" in the conversation box, following the step-by-step workflow.
 
-1. Map the SME's capabilities.
-2. Discover a broad pool of possible US prospects.
-3. Qualify the strongest prospects for deeper research or outreach.
+---
 
-You do not need to know Python, Git, spreadsheets, or programming. In Codex, press `$` in the thread and select the next skill, or type the skill command directly.
+## 🚀 Quick Start (The 3-Step Growth Pipeline)
 
-## Quick Start
+### Step 1: Map Your Company's Capabilities
 
-1. Start with an SME website or company profile:
+Type this command in the chat box (replace the bracket with your company's website or upload your corporate profile PDF/Word document):
 
 ```text
-$map-sme-capability for [SME website or company profile]
+$map-sme-capability for [Your Website or Uploaded File Name]
 ```
 
-2. If the capability profile looks right:
+* **What AI Does:** Automatically analyzes your business offerings and extracts your top 1-3 technical strengths, supporting evidence, and optimized target keywords.
+* **What You Need to Do:** Once finished, an easy-to-read report ending in `_capabilities.md` will appear in your left folder tree. Double-click to open it and verify:
+
+1. Are the identified technical strengths accurate?
+2. Are unverified claims correctly marked as "Medium" or "Low" confidence?
+3. Do the suggested prospecting keywords make business sense?
+
+### Step 2: Discover US Prospects & Partners
+
+If the capability report is accurate, you do not need to copy any file paths. Simply type the next command directly into the chat:
 
 ```text
 $us-prospect-discovery
 ```
 
-3. If the prospect pool looks right:
+* **What AI Does:** Automatically retrieves your capability data in the background and performs multiple rounds of live US web searches to find matching buyers and projects.
+* **What You Need to Do:** A broad "Market Prospect Pool" report ending in `_prospects.md` will be created in your left folder tree. Double-click it and verify:
+
+1. Are the discovered US companies and facility projects relevant to your business?
+2. Do the provided news and website links open correctly?
+3. For massive accounts, did the AI list realistic indirect routes (like major EPC contractors or cleanroom builders) instead of just the factory owners?
+
+### Step 3: Generate Your 20-Point Strategic Roadmap
+
+If the broad prospect pool looks promising, type the final command into the chat:
 
 ```text
 $qualify-us-prospects
 ```
 
-You do not need to copy file paths. Step 2 and Step 3 automatically find the files created by earlier steps.
+* **What AI Does:** Applies a strict, practical 20-point scoring rubric (assessing technical fit, timing urgency, buyer-path clarity, and accessibility for a Singapore firm) to filter the broad list down to the most actionable 5-8 targets.
+* **Your Final Output:** A final roadmap report ending in `_qualified_prospects.md` will be generated. You can print or export this document to back up your internal strategic meetings, share it with your SBF internationalization advisor, or use it as core supporting evidence when applying for Enterprise Singapore global expansion grants (such as the MRA or EDG grants).
 
-## First-Time User Example
+---
 
-Suppose you want to research a Singapore SME called ABC Precision.
+## 💡 Frequently Asked Questions (For Business Users)
 
-In Codex, type:
+* **Q: I see both .json and .md files in my folder. Which one should I open?**
+* **A:** Please **completely ignore the .json files**. Those are automated records used by the AI background engine to pass data securely between steps. As a business user, **only open the files ending in .md**. They open as cleanly formatted, easy-to-read text documents.
 
-```text
-$map-sme-capability for https://www.abcprecision.sg
-```
-
-Codex will create a file like:
-
-```text
-data/abc_precision_capabilities.md
-```
-
-Open that file and check only three things:
-
-1. Does it correctly describe what the company sells?
-2. Are uncertain claims marked Medium or Low confidence?
-3. Do the keyword seeds look relevant for US prospecting?
-
-If it looks right, type:
+* **Q: What if I have data for multiple companies in my project folder?**
+* **A:** If you are a senior consultant managing multiple accounts and the AI asks you to clarify which company you are targeting, you can override the automatic detection by typing the explicit file paths like this:
 
 ```text
-$us-prospect-discovery
+$us-prospect-discovery with data/company_a_capabilities.json
+$qualify-us-prospects with data/company_a_capabilities.json and data/company_a_prospects.json
 ```
 
-Codex will create a file like:
+* **Q: How do I correct the AI if a report contains an error?**
+* **A:** Never restart the entire pipeline. Simply tell the AI what to fix in plain English, and it will update the documents together:
 
 ```text
-data/abc_precision_prospects.md
+Revise the capability profile: Add our ultra-precision cleanroom rigging capability to the list.
+Revise the qualified shortlist: Move the third company to the excluded list because they are a direct competitor.
 ```
-
-Open that file and check only three things:
-
-1. Do the prospects seem related to the SME's capabilities?
-2. Are the evidence links credible enough?
-3. Are there clear caveats where the buyer path is uncertain?
-
-If it looks right, type:
-
-```text
-$qualify-us-prospects
-```
-
-Codex will create a file like:
-
-```text
-data/abc_precision_qualified_prospects.md
-```
-
-This final file is the shortlist for deeper research, validation, or outreach.
-
-## If Something Goes Wrong
-
-If Codex asks for a website or company profile:
-- Paste the SME website URL or upload the company profile.
-
-If Step 2 cannot find a capability file:
-- Run Step 1 first:
-
-```text
-$map-sme-capability for [SME website or company profile]
-```
-
-If Step 3 cannot find matching files:
-
-* Run Step 2 first:
-
-```text
-$us-prospect-discovery
-```
-
-If the output is wrong, do not restart the whole workflow. Ask Codex to revise the current file:
-
-```text
-Revise the capability profile: [what to fix]
-```
-
-or:
-
-```text
-Revise the prospect discovery: [what to fix]
-```
-
-or:
-
-```text
-Revise the qualified shortlist: [what to fix]
-```
-
-If the SME website is vague:
-
-* Expect more Medium or Low confidence labels.
-* Do not treat the output as final.
-* Add more source material if available.
-
-## What Review Means
-
-Review does not mean you need to rewrite the file.
-
-For Step 1, check whether Codex understood the SME correctly.
-
-For Step 2, check whether the prospects are at least plausibly relevant.
-
-For Step 3, check whether the final shortlist has realistic buyer paths.
-
-If something is wrong, tell Codex what to revise in plain English.
-
-## Main Workflow
-
-Use the three skills separately and in order:
-
-```text
-Step 1: $map-sme-capability
-Step 2: $us-prospect-discovery
-Step 3: $qualify-us-prospects
-```
-
-The review gates are part of the workflow:
-
-1. Run `$map-sme-capability`, then review the new `data/*_capabilities.md` file.
-2. If the capability profile looks accurate, run `$us-prospect-discovery`, then review the new `data/*_prospects.md` file.
-3. If the broad prospect pool looks useful, run `$qualify-us-prospects`, then review the new `data/*_qualified_prospects.md` file.
-
-Each skill prints the exact next command to type. Step 2 and Step 3 automatically look in `data/` for the right previous output file.
-
-## What The Plugin Is Good At
-
-Use this plugin when you want to answer:
-
-- What does this Singapore SME actually sell?
-- Which capability claims are supported by evidence?
-- What US companies or projects might need this capability?
-- Which EPCs, contractors, integrators, or partner routes might help reach those projects?
-- Which of those prospects are most realistic to pursue?
-- What buyer path should we investigate next?
-
-The plugin is especially useful for SMEs in areas such as:
-
-- semiconductor MES and factory software
-- fab tool moving and cleanroom rigging
-- precision machining and tooling
-- semiconductor equipment services
-- OT/IT and facility systems integration
-- advanced packaging, test, and manufacturing support
-
-## What Counts As A Good Prospect
-
-A good prospect is not just a large semiconductor company.
-
-A good prospect should have:
-
-1. A real capability fit.
-2. A concrete timing signal, such as a new facility, production ramp, modernization, pilot line, tool install, or supplier-development need.
-3. A plausible buyer path, such as an equipment OEM, EPC, cleanroom contractor, factory automation owner, MES owner, approved supplier route, or local partner.
-4. Evidence that supports the fit, or at least a strong and clearly labeled inference.
-
-For many SMEs, an EPC, cleanroom contractor, facility integrator, or local partner can be a better first prospect than the fab owner itself.
-
-## Install The Plugin
-
-In Codex:
-
-1. Open **Plugins**.
-2. Open the marketplace dropdown.
-3. Choose **Add more**.
-4. Add the plugin link or folder provided by the project lead.
-5. Start a new Codex chat after installation.
-
-Screenshots:
-
-![Open Plugins](screenshots/plugins.jpg)
-
-![Add more](screenshots/addmore.png)
-
-![Add marketplace source](screenshots/addmarketplace.jpg)
-
-## Output Files
-
-The main workflow creates Markdown files in your current project folder:
-
-```text
-data/*_capabilities.md
-data/*_prospects.md
-data/*_qualified_prospects.md
-data/_latest_workflow.md
-```
-
-Markdown is plain text. You can open these files like normal documents.
-
-`data/_latest_workflow.md` is only a convenience record of the latest run. The workflow does not depend on it; Step 2 and Step 3 still auto-detect the right files from `data/`.
-
-## Review Checklist
-
-After running the workflow, check:
-
-1. Are the SME capabilities specific and evidence-backed?
-2. Are unsupported claims marked Medium or Low confidence?
-3. Does the prospect list explain why each candidate showed up?
-4. Does the prospect list include route types, including channel/EPC or partner routes where relevant?
-5. Does the qualified shortlist avoid prospects that are only large but not reachable?
-6. Are buyer paths, evidence links, and next verification questions concrete enough for follow-up research?
-
-## When Results Need Review
-
-Review more carefully when:
-
-- the SME website is very short
-- the SME serves many industries but does not explain semiconductor work clearly
-- search results mostly find competitors or supplier directories
-- prospects are large fabs with unclear access routes
-- evidence shows a facility project but not a direct buying need
-
-In these cases, the qualification skill should lower confidence or move the prospect to watchlist.
