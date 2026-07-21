@@ -8,7 +8,7 @@ description: Second skill in the SG Semicon US Expansion workflow. Use after the
 ## Description
 Use one SME capability profile to confirm the search vocabulary with the user, run iterative live Google Search, refine the search strategy, and create a broad list of possible US prospects for later qualification. This skill discovers candidates; it should not do heavy filtering or deep buyer-path reasoning.
 
-Read `../../references/sbf-project-scope.md` before applying the default project scope. Preserve Skill 2's discovery role: label broadly, but leave heavy judgment to Skill 3.
+Apply the default SBF scope defined in this skill. Preserve Skill 2's discovery role: label broadly, but leave heavy judgment to Skill 3.
 
 This is step 2 of a three-skill human-in-the-loop workflow:
 

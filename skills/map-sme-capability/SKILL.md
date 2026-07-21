@@ -8,7 +8,7 @@ description: Front-door and first skill in the SG Semicon US Expansion workflow.
 ## Description
 Turn one Singapore semiconductor-supply-chain SME source into a structured capability profile for SBF-supported US prospecting.
 
-Read `../../references/sbf-project-scope.md` before applying the default project scope. Preserve the three-step workflow; this skill adds scope context, not another step.
+Apply the SBF project scope defined in this skill. Preserve the three-step workflow; this skill adds scope context, not another step.
 
 This is the front door and step 1 of a three-skill human-in-the-loop workflow:
 

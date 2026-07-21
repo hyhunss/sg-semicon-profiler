@@ -8,7 +8,7 @@ description: Third skill in the SG Semicon US Expansion workflow. Use after the 
 ## Description
 Read the outputs from both earlier skills and reduce a broad US prospect list into a smaller, qualified shortlist. This skill owns the heavy filtering, buyer-path reasoning, ranking, and tradeoff explanation. It should not restart broad discovery.
 
-Read `../../references/sbf-project-scope.md` before applying the default project scope. This output supports the broader SBF playbook; do not describe the company shortlist itself as SBF's complete 3-to-5-year strategic roadmap.
+Apply the default SBF scope defined in this skill. This output supports the broader SBF playbook; do not describe the company shortlist itself as SBF's complete 3-to-5-year strategic roadmap.
 
 This is step 3 of a three-skill human-in-the-loop workflow:
 
