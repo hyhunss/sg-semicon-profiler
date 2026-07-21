@@ -55,7 +55,9 @@ $us-prospect-discovery
 
 ### Step 2 - Discover US Prospects
 
-The skill automatically continues from the capability record identified by the latest workflow state and runs iterative live searches. It creates a broad pool of up to 20 possible candidates with only lightweight filtering.
+The skill automatically continues from the capability record identified by the latest workflow state. Before searching, it shows the exact technical and buyer-signal terms in chat and waits for the user to confirm, add, remove, or replace terms. It then runs iterative live searches and creates a broad pool of up to 20 possible candidates with only lightweight filtering.
+
+Terms suggested by AI or added by the user are recorded separately from terms supported by the company profile. This lets company experts add missing vocabulary such as a process or packaging term without silently turning it into a verified capability claim.
 
 Candidates are labeled as:
 

@@ -1,4 +1,4 @@
 interface:
   display_name: "Step 2 - Discover US Prospects"
-  short_description: "Find US commercial routes and cluster connectors."
+  short_description: "Confirm search terms, then find US prospects."
   default_prompt: "Use $us-prospect-discovery"

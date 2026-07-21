@@ -96,6 +96,7 @@ Please double-click to open 'data/<safe_sme_name>_capabilities.md' from the left
 Next Steps:
 A. If accurate, type the next command to discover US prospects:
    $us-prospect-discovery
+   The next skill will show its planned search terms for your confirmation before searching.
 
 B. To revise, type:
    Revise the capability profile: [describe your changes]

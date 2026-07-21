@@ -21,7 +21,7 @@
   "properties": {
     "schema_version": {
       "type": "string",
-      "enum": ["1.0.0", "1.1.0"]
+      "enum": ["1.0.0", "1.1.0", "1.2.0"]
     },
     "schema_name": {
       "type": "string",
@@ -48,6 +48,43 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 300
+    },
+    "search_term_plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_supported_terms",
+        "ai_suggested_terms",
+        "user_added_terms",
+        "user_removed_terms",
+        "buyer_timing_terms",
+        "confirmed_technical_terms",
+        "confirmation_status"
+      ],
+      "properties": {
+        "profile_supported_terms": {
+          "$ref": "#/$defs/nonempty_term_list"
+        },
+        "ai_suggested_terms": {
+          "$ref": "#/$defs/term_list"
+        },
+        "user_added_terms": {
+          "$ref": "#/$defs/term_list"
+        },
+        "user_removed_terms": {
+          "$ref": "#/$defs/term_list"
+        },
+        "buyer_timing_terms": {
+          "$ref": "#/$defs/nonempty_term_list"
+        },
+        "confirmed_technical_terms": {
+          "$ref": "#/$defs/nonempty_term_list"
+        },
+        "confirmation_status": {
+          "type": "string",
+          "const": "Confirmed by user"
+        }
+      }
     },
     "priority_clusters_searched": {
       "type": "array",
@@ -217,7 +254,7 @@
     {
       "if": {
         "properties": {
-          "schema_version": {"const": "1.1.0"}
+          "schema_version": {"enum": ["1.1.0", "1.2.0"]}
         },
         "required": ["schema_version"]
       },
@@ -231,9 +268,36 @@
           }
         }
       }
+    },
+    {
+      "if": {
+        "properties": {
+          "schema_version": {"const": "1.2.0"}
+        },
+        "required": ["schema_version"]
+      },
+      "then": {
+        "required": ["search_term_plan"]
+      }
     }
   ],
   "$defs": {
+    "term_list": {
+      "type": "array",
+      "maxItems": 15,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      }
+    },
+    "nonempty_term_list": {
+      "allOf": [
+        {"$ref": "#/$defs/term_list"},
+        {"minItems": 1}
+      ]
+    },
     "route_type": {
       "type": "string",
       "enum": ["Direct owner", "Channel/EPC", "Partner ecosystem", "Watchlist"]
