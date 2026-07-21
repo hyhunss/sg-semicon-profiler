@@ -19,7 +19,7 @@
   "properties": {
     "schema_version": {
       "type": "string",
-      "const": "1.0.0"
+      "enum": ["1.0.0", "1.1.0"]
     },
     "schema_name": {
       "type": "string",
@@ -47,6 +47,46 @@
     "generated_at": {
       "type": "string",
       "format": "date-time"
+    },
+    "sbf_scope_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "singapore_ownership_status",
+        "sme_size_status",
+        "supporting_industry_fit",
+        "sbf_support_stage",
+        "notes"
+      ],
+      "properties": {
+        "singapore_ownership_status": {
+          "type": "string",
+          "enum": ["Confirmed", "Likely", "Unknown", "Does not meet"]
+        },
+        "sme_size_status": {
+          "type": "string",
+          "enum": ["Confirmed", "Likely", "Unknown", "Does not meet"]
+        },
+        "supporting_industry_fit": {
+          "type": "string",
+          "enum": ["In scope", "Adjacent", "Out of scope", "Unknown"]
+        },
+        "sbf_support_stage": {
+          "type": "string",
+          "enum": ["Learn", "Lead Generation", "Land", "Localize", "Unknown"]
+        },
+        "notes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 400
+          }
+        }
+      }
     },
     "core_capabilities": {
       "type": "array",
@@ -121,5 +161,18 @@
         "maxLength": 400
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "schema_version": {"const": "1.1.0"}
+        },
+        "required": ["schema_version"]
+      },
+      "then": {
+        "required": ["sbf_scope_assessment"]
+      }
+    }
+  ]
 }

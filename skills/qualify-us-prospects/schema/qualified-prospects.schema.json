@@ -21,7 +21,7 @@
   "properties": {
     "schema_version": {
       "type": "string",
-      "const": "1.0.0"
+      "enum": ["1.0.0", "1.1.0"]
     },
     "schema_name": {
       "type": "string",
@@ -117,6 +117,23 @@
           "classification": {
             "type": "string",
             "enum": ["Priority", "Watchlist", "Strategic"]
+          },
+          "engagement_role": {
+            "type": "string",
+            "enum": ["Commercial prospect", "Route-to-market partner", "Ecosystem connector"]
+          },
+          "us_cluster": {
+            "type": "string",
+            "enum": ["Central Texas", "Arizona", "New York", "California", "Other US"]
+          },
+          "recommended_sbf_stage": {
+            "type": "string",
+            "enum": ["Learn", "Lead Generation", "Land", "Localize"]
+          },
+          "recommended_sbf_action": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
           },
           "best_buyer_path": {
             "type": "string",
@@ -402,5 +419,29 @@
         "maxLength": 500
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "schema_version": {"const": "1.1.0"}
+        },
+        "required": ["schema_version"]
+      },
+      "then": {
+        "properties": {
+          "qualified_shortlist": {
+            "items": {
+              "required": [
+                "engagement_role",
+                "us_cluster",
+                "recommended_sbf_stage",
+                "recommended_sbf_action"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
 }

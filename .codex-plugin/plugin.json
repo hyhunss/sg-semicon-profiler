@@ -1,23 +1,27 @@
 {
   "name": "sg-semicon-expansion-plugin",
-  "version": "0.2.0+codex.20260607150448",
-  "description": "Step-by-step US prospecting for Singapore semiconductor SMEs using three review-gated skills.",
+  "version": "0.2.0+codex.20260721010618",
+  "description": "SBF-aligned US market-entry prospecting for Singapore semiconductor-supply-chain SMEs using three review-gated skills.",
   "author": {
     "name": "Hanyang Hu",
     "email": "hanyang.hu.2026@anderson.ucla.edu"
   },
-  "repository": "https://github.com/hyhunss/sg-semicon-profiler",
+  "repository": "https://github.com/hyhunss/sg-semicon-us-expansion-plugin",
   "skills": "./skills/",
   "keywords": [
     "semiconductor",
     "prospecting",
     "market-research",
-    "crm"
+    "market-entry",
+    "SBF",
+    "Central-Texas",
+    "Arizona",
+    "New-York"
   ],
   "interface": {
     "displayName": "SG Semicon US Expansion",
-    "shortDescription": "Start here for step-by-step US prospecting.",
-    "longDescription": "An intelligent text-driven market expansion assistant tailored for Singapore semiconductor SMEs. It seamlessly guides business users through a 3-step review-gated pipeline ($map-sme-capability, $us-prospect-discovery, $qualify-us-prospects) to discover, route-map, and qualify high-probability US buyers and EPC partners without requiring any technical file manipulation or technical background.",
+    "shortDescription": "Map SME capabilities to practical US entry routes.",
+    "longDescription": "Supports SBF and Singapore semiconductor-supply-chain SMEs through a three-step, review-gated workflow: assess SME capabilities and project fit, discover commercial prospects and ecosystem connectors across priority US clusters, then qualify the strongest candidates and recommend practical SBF support actions.",
     "developerName": "Hanyang Hu",
     "category": "Productivity",
     "capabilities": [

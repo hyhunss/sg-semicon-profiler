@@ -1,4 +1,4 @@
 interface:
   display_name: "Step 1 - Map SME Capability"
-  short_description: "Start here: create an evidence-backed SME capability profile."
+  short_description: "Assess SME capabilities and SBF project fit."
   default_prompt: "Use $map-sme-capability for [SME website or company profile]."

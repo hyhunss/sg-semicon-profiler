@@ -21,7 +21,7 @@
   "properties": {
     "schema_version": {
       "type": "string",
-      "const": "1.0.0"
+      "enum": ["1.0.0", "1.1.0"]
     },
     "schema_name": {
       "type": "string",
@@ -48,6 +48,16 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 300
+    },
+    "priority_clusters_searched": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": ["Central Texas", "Arizona", "New York", "California", "Other US"]
+      }
     },
     "fit_rules": {
       "type": "array",
@@ -130,8 +140,20 @@
               "Defense microelectronics",
               "Compound semiconductor",
               "Partner ecosystem",
+              "Economic development organization",
+              "Chamber / trade association",
+              "University / research consortium",
+              "Public-sector initiative",
               "Other"
             ]
+          },
+          "engagement_role": {
+            "type": "string",
+            "enum": ["Commercial prospect", "Route-to-market partner", "Ecosystem connector"]
+          },
+          "us_cluster": {
+            "type": "string",
+            "enum": ["Central Texas", "Arizona", "New York", "California", "Other US"]
           },
           "route_type": {
             "$ref": "#/$defs/route_type"
@@ -191,6 +213,26 @@
       }
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "schema_version": {"const": "1.1.0"}
+        },
+        "required": ["schema_version"]
+      },
+      "then": {
+        "required": ["priority_clusters_searched"],
+        "properties": {
+          "prospects": {
+            "items": {
+              "required": ["engagement_role", "us_cluster"]
+            }
+          }
+        }
+      }
+    }
+  ],
   "$defs": {
     "route_type": {
       "type": "string",

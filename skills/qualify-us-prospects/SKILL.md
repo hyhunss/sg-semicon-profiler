@@ -1,12 +1,14 @@
 ---
 name: qualify-us-prospects
-description: Third skill in the SG Semicon US Expansion workflow. Use only after the user has reviewed the us-prospect-discovery output. Given an SME capability profile and broad prospect-discovery file, or invoked with no paths after matching files exist in data/, filter the list into the most likely US prospects for deeper analysis or outreach. Stop after writing the qualified shortlist and tell the user what to review before using it.
+description: Third skill in the SG Semicon US Expansion workflow. Use after the user reviews the broad discovery output. Heavily filter and reason over commercial prospects, route-to-market partners, and ecosystem connectors; account for SBF priority clusters and recommend a Learn, Lead Generation, Land, or Localize action for each finalist. Produce a 5-8 target decision-support shortlist, then stop for review.
 ---
 
 # Skill: qualify-us-prospects
 
 ## Description
 Read the outputs from both earlier skills and reduce a broad US prospect list into a smaller, qualified shortlist. This skill owns the heavy filtering, buyer-path reasoning, ranking, and tradeoff explanation. It should not restart broad discovery.
+
+Read `../../references/sbf-project-scope.md` before applying the default project scope. This output supports the broader SBF playbook; do not describe the company shortlist itself as SBF's complete 3-to-5-year strategic roadmap.
 
 This is step 3 of a three-skill human-in-the-loop workflow:
 
@@ -31,11 +33,11 @@ Assume the user has already reviewed both earlier files. This skill produces the
 ## Data Contract
 The qualified prospects JSON file is the source of truth for automation, deeper research, CRM import, and outreach planning. Markdown is only for human review.
 
-Use `schema_version: "1.0.0"` and `schema_name: "qualified_prospects"` in the qualified JSON. Before confirming completion:
+Use `schema_version: "1.1.0"` and `schema_name: "qualified_prospects"` in new qualified JSON files. Version `1.0.0` remains valid for older files. Before confirming completion:
 
 1. Read the previous skills' JSON files and treat them as authoritative.
 2. Write the qualified prospects JSON.
-3. Validate or carefully self-check it against `schema/qualified-prospects.schema.json`.
+3. Run the bundled `scripts/validate_output.py` against it, resolving the script path from this skill's plugin root.
 4. Fix any schema mismatch before continuing.
 5. Render the Markdown review file from the validated JSON.
 6. Update `data/_latest_workflow.json`, self-check that the expected workflow fields are present, then render `data/_latest_workflow.md`.
@@ -49,17 +51,17 @@ capabilities.md + prospects.md -> buyer-path qualification -> top 5-8 likely pro
 
 ## Instructions
 1. **Accept selected-prompt invocations:** If the user's message body is blank but selected text contains a prompt for this skill, treat the selected text as the user's instruction and proceed from it. Do not ask the user to paste it again.
-2. **Auto-detect input files:** If invoked without file paths, use Read access to scan the current workspace's `data/` directory. Identify JSON files ending with `_capabilities.json` and `_prospects.json` that share the exact same SME prefix. Use the most recently modified valid pair as the inputs. If no JSON pair exists, fall back to matching Markdown files ending with `_capabilities.md` and `_prospects.md` and rebuild the needed fields into the qualified JSON. If no matching pair exists, ask the user to run `us-prospect-discovery` first or provide both file paths. If more than one recent pair could be intended, list the likely pairs and ask the user to choose.
+2. **Auto-detect input files:** If invoked without file paths, first read `data/_latest_workflow.json`. Use its `capability_json` and `prospects_json` only when both files exist, share the exact SME prefix, and agree with `safe_sme_name`. If that state file is missing, malformed, incomplete, or stale, scan `data/` for JSON files ending with `_capabilities.json` and `_prospects.json` that share the exact SME prefix, then use the most recently modified valid pair. If no JSON pair exists, fall back to a matching Markdown pair and rebuild the needed fields into the qualified JSON. If no matching pair exists, ask the user to run `us-prospect-discovery` first or provide both file paths. If more than one recent pair could be intended, list the likely pairs and ask the user to choose.
 3. **Handle revision requests:** If the user asks to revise this step's output, read the current qualified shortlist JSON first. If only Markdown exists from an older run, read the Markdown as fallback and rebuild the JSON. Apply the requested edits, then reconstruct the entire JSON object perfectly according to `schema/qualified-prospects.schema.json` before touching Markdown. Never truncate the JSON output. Rewrite the Markdown only by mirroring the validated JSON changes. Rewrite the same JSON and Markdown files unless the user asks for a new file, update both workflow state files, and confirm briefly. Do not rerun the whole workflow unless the user explicitly asks.
 4. **Read both inputs:** Use the capability JSON to understand what the SME can credibly sell. Use the prospect-discovery JSON as the candidate pool. If using Markdown fallback, convert the extracted fields into the same internal structure before qualifying. Do not evaluate prospects using capabilities that are not supported in the first file.
-5. **Extract constraints from the capability profile:** Capture the SME name, 1-3 core capabilities, confidence labels, evidence caveats, and any terms the SME should avoid over-claiming.
-6. **Extract candidates from the prospect-discovery file:** Capture prospect name, prospect type, route type if present, matched capability, buying trigger or context, evidence URL, `Why this showed up`, caveats, and any recommended next analysis. If the prospect file includes older fields such as score, confidence, or likely buyer path, treat them as helpful notes only, not final qualification.
+5. **Extract constraints from the capability profile:** Capture the SME name, 1-3 core capabilities, confidence labels, SBF scope assessment when present, evidence caveats, and any terms the SME should avoid over-claiming. Unknown ownership or size is a verification gap, not an automatic rejection.
+6. **Extract candidates from the prospect-discovery file:** Capture candidate name, prospect type, engagement role, US cluster, route type, matched capability, buying trigger or context, evidence URL, `Why this showed up`, caveats, and recommended next analysis. For older files without role or cluster fields, infer cautiously and label the inference.
 7. **Remove weak candidates first:** Drop candidates that only match because they are generally large semiconductor companies, have no clear link to the SME capability, are likely competitors, or look unreachable without a realistic route.
 8. **Do targeted verification only when needed:** If a top candidate's buyer path, timing, or evidence is unclear, run a narrow search for that candidate. Do not run broad discovery searches. Limit verification to likely top candidates or candidates where one fact would change the ranking.
 9. **Source every new verification fact with evidence detail:** Any fact introduced during targeted verification must have a structured evidence item in the final output. This includes named EPCs, contractors, construction managers, cleanroom square footage, groundbreaking dates, procurement routes, funding status, project phase, partnerships, or facility scope. Each finalist must include evidence with evidence role, source focus, source title, source type, source date when available, URL, supported claim, and a short evidence excerpt. If a new fact cannot be sourced, label it as an inference or leave it out. Do not use bare URLs as final evidence.
 10. **Cover the evidence roles required by the classification:** `Priority` finalists must include evidence for `Timing signal`, `Capability fit`, and either `Buyer path` or `Accessibility`. `Strategic` finalists must include evidence for `Timing signal`, `Capability fit`, and either `Buyer path` or `Risk / caveat`. `Watchlist` finalists must include evidence for `Capability fit` and `Risk / caveat`. Do not promote a prospect to `Priority` unless all three Priority evidence roles are present.
 11. **Apply the higher Priority evidence standard:** Every `Priority` finalist must use at least two distinct source URLs across its evidence items, and at least one evidence item must have `source_focus: "Project/timing-specific"`. A generic company capability page alone is not enough for `Priority`, even if it mentions semiconductor work. If the two-source or project/timing-specific standard is not met, classify the prospect as `Strategic` or `Watchlist` instead.
-12. **Prefer realistic go-to-market routes:** For Singapore SMEs, explicitly compare direct-owner outreach with channel/EPC/contractor/partner routes. Do not rank megafab owners highly unless the buyer path is specific enough to investigate.
+12. **Prefer realistic go-to-market routes:** Explicitly compare direct-owner outreach with channel/EPC/contractor/partner routes and ecosystem connectors. Keep commercial prospects, route partners, and connectors clearly labeled. Do not rank megafab owners highly unless the buyer path is specific enough to investigate.
 13. **Apply the qualification test:** A qualified prospect should pass most of these questions:
    * Does the prospect need the SME's real capability?
    * Is there a concrete timing signal, such as new facility, ramp, modernization, tool install, pilot line, hiring, or supplier development?
@@ -69,32 +71,35 @@ capabilities.md + prospects.md -> buyer-path qualification -> top 5-8 likely pro
 14. **Score with a practical 20-point rubric:**
    * Capability fit: 0-5
    * Timing / urgency: 0-4
-   * Buyer-path clarity: 0-5
-   * Accessibility for Singapore SME: 0-4
+   * Buyer-path clarity: 0-4
+   * Accessibility and practical SBF support route: 0-4
+   * Priority-cluster fit: 0-1
    * Evidence strength: 0-2
 15. **Classify each finalist:** Use one of these labels:
    * `Priority`: strong fit, plausible buyer path, worth deeper analysis now.
    * `Watchlist`: good fit but timing, access, or evidence is not ready.
    * `Strategic`: large or important account, but likely long-cycle or partner-led.
-16. **Filter aggressively:** Prefer 5-8 strong qualified prospects over a full list. Do not pad the shortlist. If fewer than 5 are credible, write fewer and explain why.
-17. **Explain exclusions:** Group non-finalists into short reason categories such as weak buyer path, timing too early, too large/locked supplier base, indirect fit, likely competitor/channel target, or insufficient evidence.
-18. **Write the canonical JSON file:** Save as `data/<safe_sme_name>_qualified_prospects.json`, using the same safe SME name as the input files.
-19. **Validate the qualified JSON:** Validate or carefully self-check against `schema/qualified-prospects.schema.json`. The JSON must have 1-10 finalists, valid classification and evidence-strength enum values, integer scores from 0-20, structured evidence items for every finalist, required evidence-role coverage for each classification, one verification question per finalist, and no extra top-level fields. Additionally, for every `Priority` finalist, count distinct URLs in `key_evidence` and confirm there are at least two. The order of the `qualified_shortlist` array is the ranking; do not add a separate rank field.
-20. **Render the Markdown review file:** Save `data/<safe_sme_name>_qualified_prospects.md` from the validated JSON. Do not add finalists, evidence, exclusions, or next steps in Markdown that are absent from the JSON.
-21. **Write convenience workflow state:** Also write or update `data/_latest_workflow.json` with SME name, current step completed, capability JSON path, prospects JSON path, qualified JSON path, and next recommended command `Final review complete; use, revise, or stop`. Self-check that the expected workflow fields are present, then render `data/_latest_workflow.md`. These files are only a convenience; do not require them for later work.
-22. **Confirm only:** Output a business-friendly success message with the readable review report path, the AI background record path, the number of qualified prospects, what to review, how to use it, how to revise, and how to stop. Do not print the full file contents in chat unless the user asks. The confirmation message must end with the three explicit choices in the template below.
+16. **Recommend the SBF intervention:** For every finalist, assign one stage and one concrete action: `Learn`, `Lead Generation`, `Land`, or `Localize`. Match the action to the SME's readiness and the finalist's role. Examples include a cluster briefing, warm introduction, mission meeting, procurement-route validation, site-selection support, incentive navigation, local partner search, or supplier-localization support.
+17. **Apply cluster priority without making it absolute:** Prefer Central Texas, Arizona, and New York when other factors are comparable. California or Other US candidates can outrank them when fit, timing, and access evidence are materially stronger. State the reason.
+18. **Filter aggressively:** Prefer 5-8 strong qualified candidates over a full list. Do not pad the shortlist or force a quota by cluster or engagement role. If fewer than 5 are credible, write fewer and explain why.
+19. **Explain exclusions:** Group non-finalists into short reason categories such as weak buyer path, timing too early, too large/locked supplier base, indirect fit, connector without a practical route, likely competitor, or insufficient evidence.
+20. **Write the canonical JSON file:** Save as `data/<safe_sme_name>_qualified_prospects.json`, using the same safe SME name as the input files.
+21. **Validate the qualified JSON:** Run the plugin's bundled `scripts/validate_output.py data/<safe_sme_name>_qualified_prospects.json`, resolving the script path from this SKILL.md location. Fix every reported error. Only if the validator cannot run because `jsonschema` is unavailable, carefully self-check against `schema/qualified-prospects.schema.json` and disclose that fallback in the confirmation. New version 1.1 files must include engagement role, US cluster, recommended SBF stage, and recommended SBF action for every finalist. Confirm valid enum values, scores from 0-20, structured evidence, classification evidence coverage, one verification question per finalist, and at least two distinct URLs for every Priority finalist.
+22. **Render the Markdown review file:** Save `data/<safe_sme_name>_qualified_prospects.md` from the validated JSON. Do not add finalists, evidence, exclusions, or next steps in Markdown that are absent from the JSON.
+23. **Write convenience workflow state:** Also write or update `data/_latest_workflow.json` with SME name, current step completed, capability JSON path, prospects JSON path, qualified JSON path, and next recommended command `Final review complete; use, revise, or stop`. Self-check that the expected workflow fields are present, then render `data/_latest_workflow.md`. These files are only a convenience; do not require them for later work.
+24. **Confirm only:** Output a business-friendly success message with the readable review report path, the AI background record path, the number of qualified candidates, what to review, how to use it, how to revise, and how to stop. Describe the output as a company-level SBF decision-support shortlist, not the complete SBF strategic roadmap. The confirmation message must end with the three explicit choices in the template below.
 
 ## Confirmation Message Template
 
 ```text
 Created successfully:
 - Final Structured Shortlist (AI Record): data/<safe_sme_name>_qualified_prospects.json
-- Final Outbound Roadmap Report: data/<safe_sme_name>_qualified_prospects.md
+- SBF Decision-Support Shortlist: data/<safe_sme_name>_qualified_prospects.md
 
-Qualified <N> prospects using the 20-point practical rubric. Please double-click to open 'data/<safe_sme_name>_qualified_prospects.md' to review your final strategic roadmap.
+Qualified <N> candidates using the 20-point practical rubric. Please open 'data/<safe_sme_name>_qualified_prospects.md' to review the recommended commercial routes, connectors, and SBF support actions.
 
 Next Steps:
-A. Export/Print the report for strategic outbound actions or SBF/Enterprise Singapore grant applications.
+A. Use the shortlist to plan deeper diligence, introductions, mission meetings, or other SBF support.
 
 B. To revise, type:
    Revise the qualified shortlist: [describe your changes]
@@ -107,7 +112,7 @@ Use this structure for `data/_latest_workflow.json`:
 
 ```json
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "schema_name": "workflow_state",
   "sme_name": "[SME Name]",
   "safe_sme_name": "<safe_sme_name>",
@@ -139,7 +144,7 @@ Write this canonical file first as `data/<safe_sme_name>_qualified_prospects.jso
 
 ```json
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "schema_name": "qualified_prospects",
   "sme_name": "[Insert SME Name Here]",
   "safe_sme_name": "sample_sme",
@@ -162,6 +167,10 @@ Write this canonical file first as `data/<safe_sme_name>_qualified_prospects.jso
     {
       "prospect": "[Prospect]",
       "classification": "Priority",
+      "engagement_role": "Commercial prospect",
+      "us_cluster": "Central Texas",
+      "recommended_sbf_stage": "Lead Generation",
+      "recommended_sbf_action": "Arrange a warm introduction and validate the procurement route before a mission meeting.",
       "best_buyer_path": "[Specific path]",
       "why_this_prospect": "[Concise reason]",
       "timing_signal": "[Trigger]",
@@ -238,9 +247,9 @@ Render this human-readable file from the validated JSON as `data/<safe_sme_name>
   * [Buyer path 2]
 
 ## 3. Qualified Shortlist
-| Rank | Prospect | Classification | Best Buyer Path | Why This Prospect | Timing Signal | Evidence Strength | Key Evidence | Score | What To Verify Next |
-|---:|---|---|---|---|---|---|---|---:|---|
-| 1 | [Prospect] | [Priority/Watchlist/Strategic] | [Specific path] | [Concise reason] | [Trigger] | [Direct/Strong inference/Weak inference] | [Evidence role; source focus; source title; date if available; supported claim; short excerpt; URL] | [0-20] | [Next verification question] |
+| Rank | Candidate | Role | US Cluster | Classification | Best Route | SBF Stage and Action | Why This Candidate | Timing | Evidence | Score | Verify Next |
+|---:|---|---|---|---|---|---|---|---|---|---:|---|
+| 1 | [Candidate] | [Commercial prospect / Route-to-market partner / Ecosystem connector] | [Cluster] | [Priority/Watchlist/Strategic] | [Specific path] | [Stage: concrete action] | [Concise reason] | [Trigger] | [Structured evidence summary] | [0-20] | [Next verification question] |
 
 ## 4. Deprioritized or Excluded
 | Prospect / Group | Reason |
@@ -257,6 +266,8 @@ Render this human-readable file from the validated JSON as `data/<safe_sme_name>
 * The final shortlist should usually contain 5-8 prospects and never more than 10.
 * Every finalist must have a specific buyer path.
 * Every finalist must include one targeted verification question.
+* New version 1.1 outputs must include engagement role, US cluster, recommended SBF stage, and a concrete SBF action for every finalist.
+* Treat the shortlist as company-level decision support for the broader SBF playbook, not as the complete 3-to-5-year roadmap.
 * Every finalist must include structured evidence for the timing signal and for any new verification facts introduced during qualification. Do not use bare URLs as final evidence.
 * Each structured evidence item must include evidence role, source focus, source title, source type, source date or `Not stated`, URL, supported claim, and a short excerpt.
 * Evidence role coverage is mandatory: `Priority` needs timing, fit, and access-route evidence; `Strategic` needs timing, fit, and route or caveat evidence; `Watchlist` needs fit and caveat evidence.

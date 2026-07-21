@@ -1,12 +1,14 @@
 ---
 name: map-sme-capability
-description: Front-door and first skill in the SG Semicon US Expansion workflow. Use when given a Singapore semiconductor SME website or company profile document and asked to start US expansion research or create a capability profile. Briefly explain the three-step human-in-the-loop workflow, then create the capability profile. Stop after writing the profile, tell the user what to review, and give explicit Continue, Revise, or Stop choices.
+description: Front-door and first skill in the SG Semicon US Expansion workflow. Use when given a Singapore semiconductor-supply-chain SME website or company profile and asked to start SBF-supported US expansion research. Create an evidence-backed capability profile, assess fit with the SBF project scope without guessing missing ownership or size facts, then stop for user review with Continue, Revise, or Stop choices.
 ---
 
 # Skill: map-sme-capability
 
 ## Description
-Turn one Singapore semiconductor SME source into one editable Markdown capability profile for US prospecting.
+Turn one Singapore semiconductor-supply-chain SME source into a structured capability profile for SBF-supported US prospecting.
+
+Read `../../references/sbf-project-scope.md` before applying the default project scope. Preserve the three-step workflow; this skill adds scope context, not another step.
 
 This is the front door and step 1 of a three-skill human-in-the-loop workflow:
 
@@ -37,12 +39,12 @@ Do not continue into prospect discovery automatically. The user should check thi
 ## Data Contract
 The JSON file is the source of truth for downstream skills. Markdown is only for human review.
 
-Use `schema_version: "1.0.0"` and `schema_name: "capability_profile"` in the capability JSON. Use `schema_name: "workflow_state"` in the convenience workflow state JSON.
+Use `schema_version: "1.1.0"` and `schema_name: "capability_profile"` in new capability JSON files. Version `1.0.0` remains valid for older files. Use `schema_name: "workflow_state"` in the convenience workflow state JSON.
 
 Before confirming completion:
 
 1. Write the capability JSON.
-2. Validate or carefully self-check it against `schema/capability-profile.schema.json`.
+2. Run the bundled `scripts/validate_output.py` against it, resolving the script path from this skill's plugin root.
 3. Fix any schema mismatch before continuing.
 4. Render the Markdown review file from the validated JSON.
 5. Write `data/_latest_workflow.json` and self-check that the expected workflow fields are present.
@@ -54,17 +56,18 @@ Before confirming completion:
 3. **Ask for missing source material:** If the user has not provided an SME website, uploaded company profile, or other source material, stop and ask for it. Do not create a profile from memory or guess the company.
 4. **Handle revision requests:** If the user asks to revise this step's output, read the current capability JSON first. If only Markdown exists from an older run, read the Markdown as a fallback and rebuild the JSON. Apply the requested edits, then reconstruct the entire JSON object perfectly according to `schema/capability-profile.schema.json` before touching Markdown. Never truncate the JSON output. Rewrite the Markdown only by mirroring the validated JSON changes. Rewrite the same JSON and Markdown files unless the user asks for a new file, update both workflow state files, and confirm briefly. Do not rerun the whole workflow unless the user explicitly asks.
 5. **Ingest the source:** Read the provided website or document. For websites, check the home page plus obvious capability pages such as Services, Products, Solutions, Industries, Certifications, Quality, Equipment, and About.
-6. **Extract evidence:** Capture 2-5 short source notes that support the capability claims. Prefer semiconductor-specific pages and terms over generic company pages. Do not use office locations or company age as capability evidence. If evidence is thin, say so instead of guessing.
-7. **Strip fluff:** Ignore generic marketing claims (e.g., "world-class," "premium quality," "customer-centric") and local details that do not describe buying relevance.
-8. **Map capabilities:** Identify up to 3 core technical capabilities. Use precise semiconductor operating terms when supported, such as WIP tracking, SECS/GEM, MES implementation, SPC, recipe management, OEE, yield monitoring, advanced packaging, wafer inspection, or production ramp. For software SMEs, describe the manufacturing workflow they enable. For equipment logistics SMEs, prefer tool-specific phrases such as fab tool installation, photolithography tool relocation, metrology tool relocation, AMHS installation, cleanroom rigging, and semiconductor tool transport.
-9. **Add confidence:** Mark each capability High, Medium, or Low based on how directly the source supports it.
-10. **Write smart keyword seeds:** These are suggested starting points for the next interactive Google Search skill, not final searches that must be used exactly. Create exactly 5 short keyword seeds. Each seed should combine one exact capability term, one likely buyer pain or timing signal, and optional US/company context. Prefer phrases a buyer or press release would actually use. For equipment logistics SMEs, use the specific tool or fab action, not generic logistics. Avoid generic phrases that are far from the SME's real capability.
-11. **Critique and improve the seeds:** Before writing the file, review each seed and ask: Is it close to the SME's real capability? Could it help the next skill find buyers after live Google iteration? Is it too broad, too crowded, or likely to only find competitors? Revise weak seeds, but do not over-optimize; the next skill will adapt them during interactive search.
-12. **Write the canonical JSON file:** Create `data/` if needed. Save the result as `data/<safe_sme_name>_capabilities.json`, using a lowercase filename with spaces replaced by underscores.
-13. **Validate the capability JSON:** Validate or carefully self-check against `schema/capability-profile.schema.json`. The JSON must have exactly 1-3 capabilities, 2-5 evidence notes, exactly 5 smart keyword seeds, valid confidence enum values, and no extra top-level fields.
-14. **Render the Markdown review file:** Save `data/<safe_sme_name>_capabilities.md` from the validated JSON. Do not add claims in Markdown that are absent from the JSON.
-15. **Write convenience workflow state:** Also write or update `data/_latest_workflow.json` with SME name, current step completed, capability JSON path, blank prospects and qualified JSON fields, and next recommended command `$us-prospect-discovery`. Self-check that the expected workflow fields are present, then render `data/_latest_workflow.md`. These files are only a convenience; do not require them for later steps.
-16. **Confirm only:** Output a business-friendly success message with the readable review report path, the AI background record path, what to review, the exact next command, how to revise, and how to stop. Do not print the full file contents in chat. The confirmation message must end with the three explicit choices in the template below.
+6. **Assess SBF project fit:** Record whether Singapore ownership, SME size, and supporting-industry fit are Confirmed, Likely, Unknown, or outside scope as allowed by the schema. The project definition is at least 30% Singapore citizen or permanent-resident equity, less than SGD 100 million revenue, and fewer than 200 employees. Public silence is `Unknown`, not evidence of ineligibility. Assign the most plausible SBF stage: Learn, Lead Generation, Land, Localize, or Unknown. Most early-stage firms should default to Learn unless evidence supports a later stage.
+7. **Extract evidence:** Capture 2-5 short source notes that support the capability claims. Prefer semiconductor-specific pages and terms over generic company pages. Do not use office locations or company age as capability evidence. If evidence is thin, say so instead of guessing.
+8. **Strip fluff:** Ignore generic marketing claims (e.g., "world-class," "premium quality," "customer-centric") and local details that do not describe buying relevance.
+9. **Map capabilities:** Identify up to 3 core technical capabilities. Prioritize supporting-industry capabilities such as equipment and equipment services, precision engineering, testing, assembly, advanced packaging, factory software, cleanroom and facility services, tool installation and relocation, logistics, materials, and systems integration. Direct semiconductor manufacturing is not the target SME segment. Use precise operating terms when supported.
+10. **Add confidence:** Mark each capability High, Medium, or Low based on how directly the source supports it.
+11. **Write smart keyword seeds:** These are suggested starting points for the next interactive Google Search skill, not final searches that must be used exactly. Create exactly 5 short keyword seeds. Each seed should combine one exact capability term, one likely buyer pain or timing signal, and optional US/company context. Prefer phrases a buyer or press release would actually use. For equipment logistics SMEs, use the specific tool or fab action, not generic logistics. Avoid generic phrases that are far from the SME's real capability.
+12. **Critique and improve the seeds:** Before writing the file, review each seed and ask: Is it close to the SME's real capability? Could it help the next skill find buyers after live Google iteration? Is it too broad, too crowded, or likely to only find competitors? Revise weak seeds, but do not over-optimize; the next skill will adapt them during interactive search.
+13. **Write the canonical JSON file:** Create `data/` if needed. Save the result as `data/<safe_sme_name>_capabilities.json`, using a lowercase filename with spaces replaced by underscores.
+14. **Validate the capability JSON:** Run the plugin's bundled `scripts/validate_output.py data/<safe_sme_name>_capabilities.json`, resolving the script path from this SKILL.md location. Fix every reported error. Only if the validator cannot run because `jsonschema` is unavailable, carefully self-check against `schema/capability-profile.schema.json` and disclose that fallback in the confirmation. The JSON must have an SBF scope assessment, exactly 1-3 capabilities, 2-5 evidence notes, exactly 5 smart keyword seeds, valid enum values, and no extra top-level fields.
+15. **Render the Markdown review file:** Save `data/<safe_sme_name>_capabilities.md` from the validated JSON. Do not add claims in Markdown that are absent from the JSON.
+16. **Write convenience workflow state:** Also write or update `data/_latest_workflow.json` with SME name, current step completed, capability JSON path, blank prospects and qualified JSON fields, and next recommended command `$us-prospect-discovery`. Self-check that the expected workflow fields are present, then render `data/_latest_workflow.md`. These files are only a convenience; do not require them for later steps.
+17. **Confirm only:** Output a business-friendly success message with the readable review report path, the AI background record path, what to review, the exact next command, how to revise, and how to stop. Do not print the full file contents in chat. The confirmation message must end with the three explicit choices in the template below.
 
 ## Opening Explanation Template
 
@@ -106,7 +109,7 @@ Use this structure for `data/_latest_workflow.json`:
 
 ```json
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "schema_name": "workflow_state",
   "sme_name": "[SME Name]",
   "safe_sme_name": "<safe_sme_name>",
@@ -138,7 +141,7 @@ Write this canonical file first as `data/<safe_sme_name>_capabilities.json`:
 
 ```json
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "schema_name": "capability_profile",
   "sme_name": "[Insert SME Name Here]",
   "safe_sme_name": "<safe_sme_name>",
@@ -146,6 +149,15 @@ Write this canonical file first as `data/<safe_sme_name>_capabilities.json`:
     "[URL or file path]"
   ],
   "generated_at": "[ISO 8601 timestamp]",
+  "sbf_scope_assessment": {
+    "singapore_ownership_status": "Unknown",
+    "sme_size_status": "Unknown",
+    "supporting_industry_fit": "In scope",
+    "sbf_support_stage": "Learn",
+    "notes": [
+      "[What is supported by evidence and what SBF should verify]"
+    ]
+  },
   "core_capabilities": [
     {
       "capability": "[Capability phrase]",
@@ -197,19 +209,26 @@ Render this human-readable file from the validated JSON as `data/<safe_sme_name>
 ```markdown
 # Semiconductor Capability Profile: [Insert SME Name Here]
 
-## 1. Core Technical Capabilities
+## 1. SBF Project Scope Fit
+* Singapore ownership: [Confirmed/Likely/Unknown/Does not meet]
+* SME size: [Confirmed/Likely/Unknown/Does not meet]
+* Supporting-industry fit: [In scope/Adjacent/Out of scope/Unknown]
+* Current SBF support stage: [Learn/Lead Generation/Land/Localize/Unknown]
+* Review notes: [Evidence and gaps]
+
+## 2. Core Technical Capabilities
 1. **[Capability phrase]** - Confidence: [High/Medium/Low]
 2. **[Capability phrase]** - Confidence: [High/Medium/Low]
 3. **[Capability phrase]** - Confidence: [High/Medium/Low]
 
-## 2. Evidence Notes
+## 3. Evidence Notes
 * [Short source-backed note, with page/file/URL if available]
 * [Short source-backed note, with page/file/URL if available]
 
-## 3. Caveats
+## 4. Caveats
 * [Evidence gap or must-not-overclaim note]
 
-## 4. Smart Keywords for US Prospecting
+## 5. Smart Keywords for US Prospecting
 *These are keyword seeds for the next interactive Google Search skill. They do not need to be used exactly; they should guide the first searches and be adapted based on live results:*
 * **Keyword Seed 1 (Procurement):** [Specific Capability] + [Buyer Pain] + RFP / vendor selection / approved supplier + United States
 * **Keyword Seed 2 (Production Ramp):** [Specific Capability] + production ramp / capacity expansion / pilot line + semiconductor USA
