@@ -57,6 +57,7 @@
         "ai_suggested_terms",
         "user_added_terms",
         "user_removed_terms",
+        "customer_context_terms",
         "buyer_timing_terms",
         "confirmed_technical_terms",
         "confirmation_status"
@@ -72,6 +73,9 @@
           "$ref": "#/$defs/term_list"
         },
         "user_removed_terms": {
+          "$ref": "#/$defs/term_list"
+        },
+        "customer_context_terms": {
           "$ref": "#/$defs/term_list"
         },
         "buyer_timing_terms": {

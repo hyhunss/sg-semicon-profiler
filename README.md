@@ -29,6 +29,8 @@ The outputs are company-level decision support for the broader SBF US semiconduc
 
 Start with the SME website or an uploaded company profile:
 
+Optionally add private customer context to `input/existing_customers.md` before starting. If the website lacks sufficient customer information, Step 1 will point the user to this file automatically.
+
 ```text
 Use $map-sme-capability for https://www.example.com.sg
 ```
@@ -145,6 +147,21 @@ Users do not need to copy file paths between steps.
 The JSON files are the structured records used between skills. The Markdown files are the reports intended for business review.
 
 Each skill validates its structured JSON output against the bundled schema before creating the readable report. This catches incomplete fields and invalid values before they reach the next step.
+
+## Optional Existing-Customer Input
+
+Use `input/existing_customers.md` to provide customer context that is missing from the SME's public website. The plugin includes an empty template, and Step 1 creates a workspace copy when needed. The file is optional and belongs in `input/` because it is user-provided context, not a generated workflow result.
+
+- Enter the active SME name to prevent customer information from being applied to another company.
+- Add named customers when authorized, or use anonymous patterns such as "Japanese OSAT companies with Southeast Asian operations."
+- Steps 1-3 use customer patterns to understand demonstrated fit and likely routes.
+- Steps 2 and 3 exclude named existing customers and obvious corporate-group aliases from new-prospect recommendations.
+- Existing customers are considered only when the user explicitly requests account-expansion analysis.
+- Named customers are not copied into the generated prospect or qualification reports.
+- Named customers are not inserted into live search queries unless account-expansion research is explicitly requested.
+- Keep populated customer files private and out of shared source control.
+
+If the website and file both lack sufficient customer context, Step 1 points the user to the file and offers the choice to update it or continue without customer information.
 
 ## Install the Plugin
 
