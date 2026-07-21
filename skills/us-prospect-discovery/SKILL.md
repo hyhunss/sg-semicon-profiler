@@ -20,7 +20,7 @@ Assume the user has already reviewed the capability profile. Do not continue int
 
 ## Inputs
 * `capability_profile`: Path to the canonical JSON file created by `map-sme-capability`, usually `data/<safe_sme_name>_capabilities.json`. Markdown capability files from older runs may be used only as fallback input.
-* Optional `input/existing_customers.md`: Private context used to identify analogous prospects and exclude named existing customers.
+* Optional `input/existing_customers.md`: Customer names and patterns used to identify analogous prospects and exclude existing customers.
 * Optional `prospect_scope`: Any user-specified filters. If omitted, prioritize Central Texas, Arizona, and New York; deprioritize but do not prohibit California; include other US clusters only when the fit or timing signal is notably strong.
 
 ## Output
@@ -52,10 +52,10 @@ Capability profile -> confirm search terms -> search -> reflect -> revised searc
 1. **Accept selected-prompt invocations:** If the user's message body is blank but selected text contains a prompt for this skill, treat the selected text as the user's instruction and proceed from it. Do not ask the user to paste it again.
 2. **Auto-detect input file:** If the user invokes this skill without a file path, first read `data/_latest_workflow.json`. Use its `capability_json` only when the file exists and its SME prefix agrees with `safe_sme_name`. If that state file is missing, malformed, or stale, scan `data/` and use the most recently modified JSON file ending with `_capabilities.json`. If no JSON exists, fall back to the latest `_capabilities.md` file and rebuild the required fields into the prospect JSON. If there is no matching file, ask the user to run `map-sme-capability` first or provide the capability profile path. If multiple candidates are equally recent or the intended company remains unclear, list the likely files and ask the user to choose.
 3. **Handle revision requests:** If the user asks to revise this step's output, read the current prospect discovery JSON first. If only Markdown exists from an older run, read the Markdown as fallback and rebuild the JSON. Apply the requested edits, then reconstruct the entire JSON object perfectly according to `schema/prospect-discovery.schema.json` before touching Markdown. Never truncate the JSON output. Rewrite the Markdown only by mirroring the validated JSON changes. Rewrite the same JSON and Markdown files unless the user asks for a new file, update both workflow state files, and confirm briefly. Do not rerun the whole workflow unless the user explicitly asks.
-4. **Read the capability profile and customer input:** Extract the SME name, safe SME name, core capabilities, confidence labels, evidence caveats, and exactly 5 smart keyword seeds from the JSON. If using Markdown fallback, convert the extracted fields into the same internal structure before preparing the search terms. Read `input/existing_customers.md` when present. If its `SME name` is blank, set it to the active SME before using any entries. Use populated context only when that name matches the capability profile. If it names another SME, stop and ask whether to replace it or continue without it. Parse named customers separately from anonymous patterns and relationship notes. Treat the contents as private user-provided context, not public evidence. Use named customers only for local exclusion; never insert their names into live search queries unless the user explicitly requests account-expansion research.
-5. **Prepare the search-term checkpoint:** Before any live search, create a short plan with: profile-supported technical terms, additional technical terms suggested by AI, anonymized customer-pattern terms from the optional input, and buyer/timing terms. Use precise semiconductor process, equipment, packaging, software, facility, and service terminology. Keep AI suggestions relevant but label them as unverified; a plausible term such as `flip chip` is not a confirmed SME capability merely because it may improve discovery. Never display named existing customers in this checkpoint.
+4. **Read the capability profile and customer input:** Extract the SME name, safe SME name, core capabilities, confidence labels, evidence caveats, and exactly 5 smart keyword seeds from the JSON. If using Markdown fallback, convert the extracted fields into the same internal structure before preparing the search terms. Read `input/existing_customers.md` when present. If its `SME name` is blank, set it to the active SME before using any entries. Use populated context only when that name matches the capability profile. If it names another SME, stop and ask whether to replace it or continue without it. Parse existing customers, customer patterns, and relationship notes.
+5. **Prepare the search-term checkpoint:** Before any live search, create a short plan with: profile-supported technical terms, additional technical terms suggested by AI, customer-pattern terms from the optional input, and buyer/timing terms. Use precise semiconductor process, equipment, packaging, software, facility, and service terminology. Keep AI suggestions relevant but label them as unverified; a plausible term such as `flip chip` is not a confirmed SME capability merely because it may improve discovery.
 6. **Show the terms and stop for confirmation:** Display the plan directly in chat using the Search-Term Confirmation Template. Do not browse, create the prospect files, or continue automatically. Let the user continue, add, remove, or replace terms. If the user edits the plan, show the revised plan and ask for confirmation again, unless the user explicitly says to apply the changes and continue. If the previous assistant message was this checkpoint and the user confirms, resume this skill without asking them to invoke it again.
-7. **Record term provenance:** After confirmation, preserve profile-supported terms, AI-suggested terms, user-added terms, user-removed terms, anonymized customer-context terms, buyer/timing terms, and the final confirmed technical terms in `search_term_plan`. User additions, AI suggestions, and customer patterns guide discovery but remain unverified technical capabilities unless the capability profile supports them. Do not copy named customers into the prospect JSON or Markdown.
+7. **Record term provenance:** After confirmation, preserve profile-supported terms, AI-suggested terms, user-added terms, user-removed terms, customer-context terms, buyer/timing terms, and the final confirmed technical terms in `search_term_plan`. User additions, AI suggestions, and customer patterns guide discovery but remain unverified technical capabilities unless the capability profile supports them.
 8. **Set the default cluster scope:** Unless the user overrides it, search Central Texas, Arizona, and New York as the priority clusters. California is deprioritized because of cost, not excluded. Allow `Other US` candidates when capability fit or timing is clearly stronger. Do not force equal candidate counts by cluster.
 9. **Define lightweight fit criteria:** Convert the capability profile into 3-5 simple discovery rules. A possible candidate should have at least one visible reason it could buy, enable, or connect the SME's real capability, such as a relevant facility, expansion, product line, supplier need, semiconductor workflow, market-entry program, or channel route.
 10. **Define likely go-to-market routes:** Before searching, identify 2-4 practical routes implied by the SME capability. Include commercial buyers and route partners, plus relevant EDOs, chambers, trade associations, universities, research consortia, or public-sector initiatives. Label connectors clearly; do not imply they are direct buyers.
@@ -96,8 +96,8 @@ Technical terms supported by the company profile:
 Additional technical terms suggested by AI (not yet verified as company capabilities):
 - [term]
 
-Customer-pattern terms from the optional private input:
-- [anonymized term or "None provided"]
+Customer-pattern terms from the optional input:
+- [term or "None provided"]
 
 Buyer and timing terms:
 - [term]
@@ -236,7 +236,7 @@ Render this human-readable file from the validated JSON as `data/<safe_sme_name>
 * Profile-supported technical terms: [terms]
 * AI-suggested technical terms: [terms or "None"]
 * User-added technical terms: [terms or "None"]
-* Anonymized customer-pattern terms: [terms or "None"]
+* Customer-pattern terms: [terms or "None"]
 * Final confirmed technical terms: [terms]
 * Fit rules:
   * [Rule 1]
@@ -281,7 +281,6 @@ Render this human-readable file from the validated JSON as `data/<safe_sme_name>
 * New version 1.2 outputs must preserve the confirmed search terms and their provenance, and label every candidate's engagement role and US cluster.
 * Do not present AI-suggested or user-added terms as verified SME capabilities unless the capability profile supports them.
 * Never recommend a named existing customer or obvious corporate-group alias as a new prospect unless the user explicitly requests account-expansion analysis.
-* Do not copy named existing customers from the private input file into generated prospect outputs.
 * Default discovery must cover Central Texas, Arizona, and New York unless the user specifies another geography.
 * Keep commercial prospects and ecosystem connectors clearly distinguished.
 * Do not include a prospect only because it is a large semiconductor company; there must be a capability-relevant reason it appeared.

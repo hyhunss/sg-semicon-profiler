@@ -1,6 +1,6 @@
 # Existing Customers
 
-This optional file provides private working context for the active SME. Do not add information you are not authorized to use.
+This optional file helps the AI understand the active SME's customer base. Do not enter company-confidential information.
 
 SME name:
 
@@ -8,9 +8,9 @@ SME name:
 
 Add one customer or corporate group per bullet. These names will be excluded from new-prospect recommendations.
 
-## Anonymous Customer Patterns
+## Customer Patterns
 
-Add useful patterns when names are confidential, for example: Japanese OSAT companies with operations in Southeast Asia.
+Add useful patterns, for example: Japanese OSAT companies with operations in Southeast Asia.
 
 ## Relationship Notes
 
