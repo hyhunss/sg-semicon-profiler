@@ -11,7 +11,6 @@
     "safe_sme_name",
     "generated_at",
     "source_capability_profile_path",
-    "source_prospect_discovery_path",
     "qualification_scope",
     "qualification_logic",
     "qualified_shortlist",
@@ -21,7 +20,7 @@
   "properties": {
     "schema_version": {
       "type": "string",
-      "enum": ["1.0.0", "1.1.0"]
+      "enum": ["1.0.0", "1.1.0", "1.2.0"]
     },
     "schema_name": {
       "type": "string",
@@ -47,6 +46,10 @@
     "source_prospect_discovery_path": {
       "type": "string",
       "pattern": "^data/[a-z0-9]+(?:_[a-z0-9]+)*_prospects\\.(json|md)$"
+    },
+    "source_prospect_directory": {
+      "type": "string",
+      "pattern": "^data/[a-z0-9]+(?:_[a-z0-9]+)*/prospects$"
     },
     "qualification_scope": {
       "type": "string",
@@ -424,7 +427,7 @@
     {
       "if": {
         "properties": {
-          "schema_version": {"const": "1.1.0"}
+          "schema_version": {"enum": ["1.1.0", "1.2.0"]}
         },
         "required": ["schema_version"]
       },
@@ -441,6 +444,28 @@
             }
           }
         }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "schema_version": {"enum": ["1.0.0", "1.1.0"]}
+        },
+        "required": ["schema_version"]
+      },
+      "then": {
+        "required": ["source_prospect_discovery_path"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "schema_version": {"const": "1.2.0"}
+        },
+        "required": ["schema_version"]
+      },
+      "then": {
+        "required": ["source_prospect_directory"]
       }
     }
   ]

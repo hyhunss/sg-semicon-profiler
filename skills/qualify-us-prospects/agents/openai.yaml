@@ -1,4 +1,4 @@
 interface:
   display_name: "Step 3 - Qualify US Prospects"
-  short_description: "Rank candidates and recommend SBF support actions."
+  short_description: "Qualify the persistent prospect library."
   default_prompt: "Use $qualify-us-prospects"

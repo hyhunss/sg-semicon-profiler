@@ -1,291 +1,304 @@
 ---
 name: us-prospect-discovery
-description: Second skill in the SG Semicon US Expansion workflow. Use after the user reviews a map-sme-capability output. Show the exact planned search terms and require user confirmation before searching, then run iterative live search to identify up to 20 possible US commercial prospects, route-to-market partners, and ecosystem connectors with only lightweight filtering. Default to SBF's priority clusters of Central Texas, Arizona, and New York unless the user specifies another scope, then stop for review.
+description: Second skill in the SG Semicon US Expansion workflow. Use after the user reviews a map-sme-capability output to run repeatable, adaptive US prospect-search cycles. Confirm the search scope on the first run, then resume across later runs from a persistent search log; create or update one Markdown record per possible commercial prospect, route-to-market partner, or ecosystem connector while preventing duplicates. Default to Central Texas, Arizona, and New York unless the user specifies another scope, and leave deep qualification to Skill 3.
 ---
 
 # Skill: us-prospect-discovery
 
-## Description
-Use one SME capability profile to confirm the search vocabulary with the user, run iterative live Google Search, refine the search strategy, and create a broad list of possible US prospects for later qualification. This skill discovers candidates; it should not do heavy filtering or deep buyer-path reasoning.
+Build a persistent library of possible US prospects through short, repeatable search cycles. Discover broadly and filter only obvious noise. Do not score or deeply qualify candidates.
 
-Apply the default SBF scope defined in this skill. Preserve Skill 2's discovery role: label broadly, but leave heavy judgment to Skill 3.
-
-This is step 2 of a three-skill human-in-the-loop workflow:
+This is step 2 of a review-gated workflow:
 
 ```text
-map-sme-capability -> user reviews capability profile -> us-prospect-discovery -> user reviews prospect pool -> qualify-us-prospects
+map-sme-capability -> review -> repeated discovery cycles -> review -> qualify-us-prospects
 ```
-
-Assume the user has already reviewed the capability profile. Do not continue into qualification automatically. The user should check this skill's output before invoking the next skill. Make that easy by ending with explicit Continue, Revise, or Stop choices.
 
 ## Inputs
-* `capability_profile`: Path to the canonical JSON file created by `map-sme-capability`, usually `data/<safe_sme_name>_capabilities.json`. Markdown capability files from older runs may be used only as fallback input.
-* Optional `input/existing_customers.md`: Customer names and patterns used to identify analogous prospects and exclude existing customers.
-* Optional `prospect_scope`: Any user-specified filters. If omitted, prioritize Central Texas, Arizona, and New York; deprioritize but do not prohibit California; include other US clusters only when the fit or timing signal is notably strong.
 
-## Output
-* `data/<safe_sme_name>_prospects.json`: The canonical structured prospect-discovery file. It must conform to `schema/prospect-discovery.schema.json`.
-* `data/<safe_sme_name>_prospects.md`: A concise human-readable Markdown list rendered from the validated JSON.
-* `data/_latest_workflow.json`: Optional convenience state file for the latest workflow.
-* `data/_latest_workflow.md`: Optional human-readable convenience state file rendered from the workflow JSON.
+- Canonical capability profile from Skill 1, normally `data/<safe_sme_name>_capabilities.json`.
+- Optional `input/existing_customers.md`.
+- Optional user changes to capabilities, buyer routes, timing signals, or geography.
 
-## Data Contract
-The prospect JSON file is the source of truth for `qualify-us-prospects`. Markdown is only for human review.
-
-Use `schema_version: "1.2.0"` and `schema_name: "prospect_discovery"` in new prospect JSON files. Versions `1.0.0` and `1.1.0` remain valid for older files. Before confirming completion:
-
-1. Read the previous step's capability JSON and treat it as authoritative.
-2. Write the prospect discovery JSON.
-3. Run the bundled `scripts/validate_output.py` against it, resolving the script path from this skill's plugin root.
-4. Fix any schema mismatch before continuing.
-5. Render the Markdown review file from the validated JSON.
-6. Update `data/_latest_workflow.json`, self-check that the expected workflow fields are present, then render `data/_latest_workflow.md`.
-
-## Core Rule
-Capability seeds are starting points, not final queries. Keep discovery broad, but remove obvious noise:
+## Canonical outputs
 
 ```text
-Capability profile -> confirm search terms -> search -> reflect -> revised search -> lightly filtered prospect list
+data/<safe_sme_name>/
+├── search_log.md
+└── prospects/
+    ├── <prospect_id>.md
+    └── ...
 ```
+
+- Treat each prospect Markdown file as the canonical record for one buying organization, route partner, project, or connector.
+- Treat `search_log.md` as the canonical record of approved scope, exact queries, results, reflections, and next search direction.
+- Do not create or maintain a consolidated prospect JSON or prospect report.
+- Preserve old `data/<safe_sme_name>_prospects.json` and `.md` files as legacy artifacts; do not overwrite or delete them.
+
+## Core loop
+
+```text
+load state -> find an uncovered query direction -> search -> upsert prospects
+-> reflect -> mutate the next query -> repeat -> stop and report
+```
+
+Each invocation after scope confirmation is one search cycle:
+
+- Run at most five live searches.
+- Stop early after three consecutive searches produce no new prospect files.
+- Process and save useful candidates immediately after every search.
+- Let later invocations resume from the accumulated files and search log.
 
 ## Instructions
-1. **Accept selected-prompt invocations:** If the user's message body is blank but selected text contains a prompt for this skill, treat the selected text as the user's instruction and proceed from it. Do not ask the user to paste it again.
-2. **Auto-detect input file:** If the user invokes this skill without a file path, first read `data/_latest_workflow.json`. Use its `capability_json` only when the file exists and its SME prefix agrees with `safe_sme_name`. If that state file is missing, malformed, or stale, scan `data/` and use the most recently modified JSON file ending with `_capabilities.json`. If no JSON exists, fall back to the latest `_capabilities.md` file and rebuild the required fields into the prospect JSON. If there is no matching file, ask the user to run `map-sme-capability` first or provide the capability profile path. If multiple candidates are equally recent or the intended company remains unclear, list the likely files and ask the user to choose.
-3. **Handle revision requests:** If the user asks to revise this step's output, read the current prospect discovery JSON first. If only Markdown exists from an older run, read the Markdown as fallback and rebuild the JSON. Apply the requested edits, then reconstruct the entire JSON object perfectly according to `schema/prospect-discovery.schema.json` before touching Markdown. Never truncate the JSON output. Rewrite the Markdown only by mirroring the validated JSON changes. Rewrite the same JSON and Markdown files unless the user asks for a new file, update both workflow state files, and confirm briefly. Do not rerun the whole workflow unless the user explicitly asks.
-4. **Read the capability profile and customer input:** Extract the SME name, safe SME name, core capabilities, confidence labels, evidence caveats, and exactly 5 smart keyword seeds from the JSON. If using Markdown fallback, convert the extracted fields into the same internal structure before preparing the search terms. Read `input/existing_customers.md` when present. If its `SME name` is blank, set it to the active SME before using any entries. Use populated context only when that name matches the capability profile. If it names another SME, stop and ask whether to replace it or continue without it. Parse existing customers, customer patterns, and relationship notes.
-5. **Prepare the search-term checkpoint:** Before any live search, create a short plan with: profile-supported technical terms, additional technical terms suggested by AI, customer-pattern terms from the optional input, and buyer/timing terms. Use precise semiconductor process, equipment, packaging, software, facility, and service terminology. Keep AI suggestions relevant but label them as unverified; a plausible term such as `flip chip` is not a confirmed SME capability merely because it may improve discovery.
-6. **Show the terms and stop for confirmation:** Display the plan directly in chat using the Search-Term Confirmation Template. Do not browse, create the prospect files, or continue automatically. Let the user continue, add, remove, or replace terms. If the user edits the plan, show the revised plan and ask for confirmation again, unless the user explicitly says to apply the changes and continue. If the previous assistant message was this checkpoint and the user confirms, resume this skill without asking them to invoke it again.
-7. **Record term provenance:** After confirmation, preserve profile-supported terms, AI-suggested terms, user-added terms, user-removed terms, customer-context terms, buyer/timing terms, and the final confirmed technical terms in `search_term_plan`. User additions, AI suggestions, and customer patterns guide discovery but remain unverified technical capabilities unless the capability profile supports them.
-8. **Set the default cluster scope:** Unless the user overrides it, search Central Texas, Arizona, and New York as the priority clusters. California is deprioritized because of cost, not excluded. Allow `Other US` candidates when capability fit or timing is clearly stronger. Do not force equal candidate counts by cluster.
-9. **Define lightweight fit criteria:** Convert the capability profile into 3-5 simple discovery rules. A possible candidate should have at least one visible reason it could buy, enable, or connect the SME's real capability, such as a relevant facility, expansion, product line, supplier need, semiconductor workflow, market-entry program, or channel route.
-10. **Define likely go-to-market routes:** Before searching, identify 2-4 practical routes implied by the SME capability. Include commercial buyers and route partners, plus relevant EDOs, chambers, trade associations, universities, research consortia, or public-sector initiatives. Label connectors clearly; do not imply they are direct buyers.
-11. **Run Search Round 1:** Use the confirmed technical terms, buyer/timing terms, and smart keyword seeds as the first live Google Search starting points. Search the web; do not rely on memory for current projects, funding, facilities, hiring signals, or cluster programs.
-12. **Run route and connector searches early:** In the first two rounds, search for both end-customer projects and realistic access routes. Combine capability terms with `EPC`, `EPCM`, `cleanroom contractor`, `systems integrator`, `approved supplier`, `economic development organization`, `industry association`, `university consortium`, `semiconductor initiative`, or named priority clusters.
-13. **Capture candidates:** For each promising result, save the company/project name, URL, prospect type, engagement role (`Commercial prospect`, `Route-to-market partner`, or `Ecosystem connector`), US cluster, matched capability, buying trigger or context, likely route type, and a short `Why this showed up` explanation. Prefer primary or high-quality sources such as company pages, press releases, CHIPS Act releases, state or regional EDO pages, procurement pages, contractor announcements, university consortium pages, and credible trade press.
-14. **Apply only lightweight filtering and customer exclusion:** Exclude clear noise: competitors, consultants without project access, recruiters, unrelated universities, non-US entities without a clear US project, and results with no connection to the SME capability or market-entry path. Also exclude every named existing customer and its obvious corporate-group aliases from new-prospect recommendations. Do not expose those names in the exclusions section. Allow an existing customer only when the user explicitly requests account-expansion analysis. Do not deeply rank, qualify, or reject other plausible candidates because the buyer path is uncertain; that is the third skill's job.
-15. **Reflect before more searching:** After each round, briefly assess what the results are finding:
-   * Are results finding buyers, competitors, or generic industry noise?
-   * Which exact capability terms are working?
-   * Which buyer-pain or timing terms are working?
-   * Which prospect types are appearing?
-   * Which route types are appearing: direct owner, channel/EPC, partner ecosystem, or watchlist?
-16. **Protect search diversity:** If the first two rounds mostly find one narrow type of result, force the next round to search a different plausible prospect type, engagement role, cluster, or route. Examples:
-   * If results are mostly software vendors, search hardware, equipment OEM, facility system, EPC, or systems-integrator terms.
-   * If results are mostly fab owners, search EPC/EPCM, cleanroom contractor, tool-install, equipment OEM, or approved-supplier terms.
-   * If results are mostly contractors or partners, search end-customer projects, OSATs, pilot lines, or funded facilities.
-   * If results are mostly giant incumbents, search smaller OSATs, compound-semiconductor firms, pilot lines, startups, or regional facility projects.
-   This is a discovery diversity check only. Do not qualify the prospects deeply here.
-17. **Revise the next searches:** Run 1-3 additional search rounds with improved phrases. Use concrete project, procurement, cluster, and route terms. For equipment logistics SMEs, use specific tool/fab actions. For software SMEs, use supported workflow terms such as MES, WIP tracking, SPC, recipe management, OEE, or yield monitoring.
-18. **Keep the pool balanced:** Include a useful mix of commercial prospects and route-to-market candidates when evidence supports both. Include ecosystem connectors only when they offer a plausible SBF or SME access route. Do not pad the list to satisfy a category quota.
-19. **Stop at a useful pool:** Stop once there are enough plausible candidates or after 4 total search rounds. Do not force 20 prospects; 10-15 decent candidates is better than 20 weak ones.
-20. **Order the list simply:** Put the most capability-relevant and timely candidates first, but do not use scoring. Heavy ranking belongs to `qualify-us-prospects`.
-21. **Write the canonical JSON file:** Create `data/` if needed. Save as `data/<safe_sme_name>_prospects.json`, using the same safe SME name as the capability profile.
-22. **Validate the prospect JSON:** Run the plugin's bundled `scripts/validate_output.py data/<safe_sme_name>_prospects.json`, resolving the script path from this SKILL.md location. Fix every reported error. Only if the validator cannot run because `jsonschema` is unavailable, carefully self-check against `schema/prospect-discovery.schema.json` and disclose that fallback in the confirmation. New version 1.2 files must include the confirmed search-term plan, identify priority clusters searched, and include engagement role and US cluster for every candidate. The JSON must have 1-4 search rounds, 1-20 prospects, source URL arrays for every prospect, valid enum values, and no extra top-level fields.
-23. **Render the Markdown review file:** Save `data/<safe_sme_name>_prospects.md` from the validated JSON. Do not add prospects, evidence, caveats, or recommendations in Markdown that are absent from the JSON.
-24. **Write convenience workflow state:** Also write or update `data/_latest_workflow.json` with SME name, current step completed, capability JSON path, prospects JSON path, blank qualified JSON field, and next recommended command `$qualify-us-prospects`. Self-check that the expected workflow fields are present, then render `data/_latest_workflow.md`. These files are only a convenience; do not require them for later steps.
-25. **Confirm only:** Output a business-friendly success message with the readable review report path, the AI background record path, the number of possible candidates, what to review, the exact next command, how to revise, and how to stop. Do not print the full file contents in chat unless the user asks. The confirmation message must end with the three explicit choices in the template below.
 
-## Search-Term Confirmation Template
+1. **Accept selected-prompt invocations.** If the message body is blank but selected text contains an instruction for this skill, use the selected text.
+
+2. **Resolve the active SME.** If no capability path is supplied, read `data/_latest_workflow.json` and use its `capability_json` only when the file exists and agrees with `safe_sme_name`. Otherwise choose the most recently modified `data/*_capabilities.json`. If the intended SME is ambiguous, ask the user to choose. Use a Markdown capability file only as a legacy fallback.
+
+3. **Read the capability and customer context.** Extract the SME name, safe name, supported capabilities, confidence and overclaim caveats, and exactly five keyword seeds. Read `input/existing_customers.md` when present. Use populated customer context only when its SME name matches. Exclude named existing customers and obvious group aliases unless the user explicitly requests account expansion. Do not reveal excluded customer names in discovery outputs.
+
+4. **Locate and audit persistent state.** Use:
+
+   - `data/<safe_sme_name>/search_log.md`
+   - `data/<safe_sme_name>/prospects/`
+
+   Before searching, enumerate every `.md` file in the prospect directory and read its JSON frontmatter. Confirm that every record belongs to the active SME, has all fields in the Prospect Record Contract, uses valid controlled values, and has at least one evidence URL. Compare the identity fields across all records and resolve exact duplicates before adding candidates. An absent directory on the first run is valid.
+
+5. **Confirm scope only when needed.** If no search log exists, or the user materially changes capabilities, buyer routes, timing signals, or geography, show the Search-Scope Confirmation Template and stop. AI- or user-added technical terms remain discovery hypotheses unless Skill 1 supports them. If the previous assistant message was this checkpoint and the user confirms, proceed with the confirmed scope even though the first search log does not exist yet. If an existing search log records the approved scope and the user says `continue` or invokes this skill without a scope change, resume without repeating the checkpoint.
+
+6. **Initialize the search dimensions.** Construct queries from:
+
+   ```text
+   supported capability x buyer or route x timing signal x geography
+   ```
+
+   Use precise semiconductor process, equipment, packaging, software, facility, logistics, and service language. Default geography is Central Texas, Arizona, and New York. Deprioritize but do not prohibit California. Use Other US when fit or timing is materially stronger.
+
+7. **Choose an uncovered direction.** Read the search log before every cycle. Do not repeat an exact query unless the user requests a freshness rerun. Prefer combinations or result types not adequately covered. Include direct buyers and realistic access routes such as EPC/EPCM firms, cleanroom contractors, systems integrators, equipment OEMs, approved-supplier routes, EDOs, chambers, associations, universities, and consortia.
+
+8. **Search and adapt one query at a time.** Run a live web search. Prefer primary or high-quality current sources: company pages, press releases, government and CHIPS releases, procurement pages, contractor project pages, university or consortium pages, EDO pages, and credible trade press. After each query, assess:
+
+   - whether it found buyers, route partners, connectors, competitors, or noise;
+   - which capability, buyer, timing, or geography term helped;
+   - which result type remains underexplored.
+
+   Change only one or two query dimensions for the next search so the reason for the mutation remains clear.
+
+   If the user asks to run one exact query, run only that query and stop the cycle after saving and logging its results.
+
+9. **Apply lightweight filtering.** Keep a candidate only when there is a visible reason it could buy, enable, or connect the SME's supported capability. Exclude clear competitors, recruiters, generic consultants without project access, unrelated organizations, non-US entities without a clear US route, named existing customers, and results supported only by company size.
+
+10. **Build one candidate record.** For each plausible candidate, prepare a complete record matching the Prospect Record Contract below. Use the normalized official company domain as `prospect_id` when available: lowercase it and remove the protocol, path, trailing slash, and leading `www.`. If there is no official domain, use a stable lowercase hyphenated organization or project name. Include the exact query that found the candidate and at least one evidence URL.
+
+11. **Run the identity check before every write.** Compare the candidate against every existing prospect record in this order:
+
+    1. Same normalized official domain: treat as the same record.
+    2. Same normalized company name or a known alias, with one or both domains missing: treat as the same record.
+    3. Same or very similar name but different official domains: pause and inspect; never merge automatically.
+    4. Clear parent and subsidiary relationship: keep separate only when they are distinct buying organizations; add the relationship as a caveat.
+    5. No match: create a new record.
+
+    Normalize names only for comparison by lowercasing, removing punctuation, and ignoring common endings such as `Inc`, `Corp`, `LLC`, `Ltd`, and `Company`. Do not remove meaningful words such as `Semiconductor`, `Technology`, or a geographic division name.
+
+12. **Create or update one Markdown file.**
+
+    - New identity: create `data/<safe_sme_name>/prospects/<prospect_id>.md`.
+    - Existing identity: rewrite the same file with the merged record.
+    - Preserve `first_seen`; update `last_seen`.
+    - Merge aliases, matched capabilities, buying triggers, queries, and caveats without repeated entries.
+    - Merge evidence by normalized URL; do not repeat the same URL.
+    - Prefer the most specific current company name, website, role, cluster, route, fit explanation, and evidence claim.
+    - Rewrite both the complete JSON frontmatter and the human-readable body. Never append evidence only to the body.
+
+13. **Log every exact query and scope change.** Before searching, compare the planned query with every query already in `search_log.md`. Do not rerun an exact query unless the user explicitly requests a freshness rerun. After processing the query, create the log on the first search or append one row using the Search Log Contract below. Record the exact query, counts of new, updated, and ignored results, and the reflection that explains the next mutation. When the user confirms a materially revised scope, append a dated `Scope update` section before the next query row; do not replace the earlier scope. Treat the most recent confirmed scope section as active on later runs.
+
+14. **Protect diversity.** If results concentrate on one category, deliberately change the next buyer or route dimension:
+
+    - fab owners -> EPC/EPCM, tool-install, cleanroom, integrator, or OEM routes;
+    - partners -> end-customer projects, OSATs, pilot lines, or funded facilities;
+    - giant incumbents -> smaller OSATs, compound-semiconductor firms, pilot lines, startups, or regional projects;
+    - one cluster -> another priority cluster.
+
+15. **Stop the cycle.** Stop after five searches or three consecutive searches with no new prospect files. Do not stop merely because the library has reached 20 prospects. Do not pad the library.
+
+16. **Audit the completed store.** Re-enumerate all prospect files and self-check:
+
+    - one file per distinct identity;
+    - no repeated normalized domain;
+    - no repeated normalized company name or alias without an explained separate buying organization;
+    - valid JSON frontmatter and controlled values;
+    - matching SME name and safe name;
+    - at least one exact query and evidence URL per record;
+    - no claims in the body that are absent from the frontmatter.
+
+    Fix every issue before completion.
+
+17. **Update workflow state.** Write `data/_latest_workflow.json` with the active SME, capability path, `prospect_directory`, `search_log`, current step, blank qualified output, and next command. Render `data/_latest_workflow.md`. Do not use a `prospects_json` field for a new Skill 2 run.
+
+18. **Confirm briefly.** Report searches run, new files, updated files, total prospect records, search-log path, and prospect-directory path. End with:
+
+    - Continue discovery with another cycle.
+    - Revise the search scope.
+    - Run `$qualify-us-prospects`.
+    - Stop.
+
+## Search-Scope Confirmation Template
 
 ```text
-Before I search, please review the terms I will use.
+Before the first search cycle, please review the search scope.
 
-Technical terms supported by the company profile:
+Supported capabilities:
 - [term]
 
-Additional technical terms suggested by AI (not yet verified as company capabilities):
-- [term]
+Additional discovery terms (not verified capabilities):
+- [term or None]
 
-Customer-pattern terms from the optional input:
-- [term or "None provided"]
+Buyer and route types:
+- [type]
 
-Buyer and timing terms:
-- [term]
+Timing signals:
+- [signal]
 
-Reply with one of:
-A. Continue with these terms
-B. Add: [terms]
-C. Remove: [terms]
-D. Replace: [old term] with [new term]
+Geography:
+- [cluster]
 
-You can also write, for example: "Add flip chip and wafer bumping, then continue."
+Reply with:
+A. Continue with this scope
+B. Add: [term, route, signal, or geography]
+C. Remove: [item]
+D. Replace: [old] with [new]
 ```
 
-## Completion Message Template
+## Prospect Record Contract
 
-```text
-Created successfully:
-- Broad Prospect Pool (AI Record): data/<safe_sme_name>_prospects.json
-- Human-Readable Review Report: data/<safe_sme_name>_prospects.md
-
-Found <N> potential targets and route-to-market paths. Please double-click to open 'data/<safe_sme_name>_prospects.md' to review the candidates.
-
-Next Steps:
-A. To filter and rank into a 20-point scored shortlist, type:
-   $qualify-us-prospects
-
-B. To revise, type:
-   Revise the prospect discovery: [describe your changes]
-
-C. Stop here.
-```
-
-## Workflow State Template
-
-Use this structure for `data/_latest_workflow.json`:
-
-```json
-{
-  "schema_version": "1.1.0",
-  "schema_name": "workflow_state",
-  "sme_name": "[SME Name]",
-  "safe_sme_name": "<safe_sme_name>",
-  "current_step_completed": "Step 2 - Discover US Prospects",
-  "capability_json": "data/<safe_sme_name>_capabilities.json",
-  "prospects_json": "data/<safe_sme_name>_prospects.json",
-  "qualified_json": null,
-  "next_recommended_command": "$qualify-us-prospects"
-}
-```
-
-Render this human-readable companion as `data/_latest_workflow.md`:
+Use JSON inside the Markdown frontmatter so later skill runs can compare records consistently:
 
 ```markdown
-# Latest SG Semicon Expansion Workflow
-
-* SME name: [SME Name]
-* Current step completed: Step 2 - Discover US Prospects
-* Capability JSON: data/<safe_sme_name>_capabilities.json
-* Prospects JSON: data/<safe_sme_name>_prospects.json
-* Prospects Markdown: data/<safe_sme_name>_prospects.md
-* Qualified JSON:
-* Next recommended command: $qualify-us-prospects
+---
+{
+  "schema_version": "1.0.0",
+  "schema_name": "prospect_record",
+  "sme_name": "Example SME",
+  "safe_sme_name": "example_sme",
+  "prospect_id": "example.com",
+  "company": "Example Company",
+  "website": "https://www.example.com",
+  "aliases": ["Example"],
+  "prospect_type": "EPC",
+  "engagement_role": "Route-to-market partner",
+  "us_cluster": "Arizona",
+  "route_type": "Channel-EPC",
+  "matched_capabilities": ["Tool installation"],
+  "buying_triggers": ["New fab construction"],
+  "why_this_may_fit": "The company manages semiconductor construction packages that may require specialist tool-install support.",
+  "first_seen": "2026-07-28",
+  "last_seen": "2026-07-28",
+  "discovered_by_queries": ["semiconductor tool installation EPC Arizona"],
+  "evidence": [
+    {
+      "title": "Example project page",
+      "url": "https://www.example.com/project",
+      "supported_claim": "The company manages an Arizona semiconductor project."
+    }
+  ],
+  "caveats": ["The subcontractor qualification route is not yet public."]
+}
+---
 ```
 
-## Output JSON Template
+Required controlled values:
 
-Write this canonical file first as `data/<safe_sme_name>_prospects.json`:
+- `engagement_role`: `Commercial prospect`, `Route-to-market partner`, or `Ecosystem connector`
+- `us_cluster`: `Central Texas`, `Arizona`, `New York`, `California`, or `Other US`
+- `route_type`: `Direct owner`, `Channel-EPC`, `Partner ecosystem`, or `Watchlist`
+
+Render the human-readable body from the structured frontmatter. Do not add claims to the body that are absent from the structured record.
+
+Use this body structure:
+
+```markdown
+# [Company]
+
+* Website: [URL or Not found]
+* Role: [engagement role]
+* US cluster: [cluster]
+* Route: [route type]
+* First seen: [date]
+* Last seen: [date]
+
+## Why this may fit
+[Concise explanation]
+
+## Matched capabilities
+- [Capability]
+
+## Buying triggers or context
+- [Trigger]
+
+## Found through
+- `[Exact query]`
+
+## Evidence
+- [Source title](URL): [Supported claim]
+
+## Caveats
+- [Caveat or None recorded]
+```
+
+## Search Log Contract
+
+```markdown
+# US Prospect Search Log: [SME name]
+
+* Capability profile: data/<safe_sme_name>_capabilities.json
+* Approved capabilities: [terms]
+* Additional discovery terms: [terms or None]
+* Buyer and route types: [types]
+* Timing signals: [signals]
+* Geography: [clusters]
+
+| Timestamp | Exact query | New | Updated | Ignored | Reflection |
+|---|---|---:|---:|---:|---|
+| [ISO timestamp] | `[exact query]` | [N] | [N] | [N] | [What worked, what was noisy, and why the next query changed.] |
+```
+
+For a later scope change, append:
+
+```markdown
+## Scope update: [ISO timestamp]
+
+* Approved capabilities: [terms]
+* Additional discovery terms: [terms or None]
+* Buyer and route types: [types]
+* Timing signals: [signals]
+* Geography: [clusters]
+```
+
+## New workflow state
 
 ```json
 {
   "schema_version": "1.2.0",
-  "schema_name": "prospect_discovery",
-  "sme_name": "[Insert SME Name Here]",
+  "schema_name": "workflow_state",
+  "sme_name": "[SME name]",
   "safe_sme_name": "<safe_sme_name>",
-  "generated_at": "[ISO 8601 timestamp]",
-  "source_capability_profile_path": "data/<safe_sme_name>_capabilities.json",
-  "prospect_scope": "[scope used]",
-  "search_term_plan": {
-    "profile_supported_terms": ["[profile-supported technical term]"],
-    "ai_suggested_terms": ["[AI-suggested technical term]"],
-    "user_added_terms": [],
-    "user_removed_terms": [],
-    "customer_context_terms": ["Japanese OSAT companies with Southeast Asian operations"],
-    "buyer_timing_terms": ["capacity expansion", "approved supplier"],
-    "confirmed_technical_terms": ["[all technical terms confirmed for searching]"],
-    "confirmation_status": "Confirmed by user"
-  },
-  "priority_clusters_searched": ["Central Texas", "Arizona", "New York"],
-  "fit_rules": [
-    "[Rule 1]",
-    "[Rule 2]",
-    "[Rule 3]"
-  ],
-  "search_rounds": [
-    {
-      "round_number": 1,
-      "queries_tried": ["[query]"],
-      "reflection": "[what worked, what was noisy, what changed]"
-    }
-  ],
-  "prospects": [
-    {
-      "prospect": "[Company / project]",
-      "prospect_type": "Fab",
-      "engagement_role": "Commercial prospect",
-      "us_cluster": "Central Texas",
-      "route_type": "Direct owner",
-      "matched_capability": "[Capability]",
-      "buying_trigger_or_context": "[Trigger or context]",
-      "evidence_urls": ["[URL]"],
-      "why_this_showed_up": "[Plain-language reason this might be relevant]",
-      "caveats": ["[Optional caveat]"]
-    }
-  ],
-  "exclusions_and_caveats": [
-    "[Competitors or noisy result types excluded]"
-  ],
-  "recommended_next_analysis": [
-    "Run qualify-us-prospects to filter this broad list into the most likely prospects."
-  ]
+  "current_step_completed": "Step 2 - Discover US Prospects",
+  "capability_json": "data/<safe_sme_name>_capabilities.json",
+  "prospect_directory": "data/<safe_sme_name>/prospects",
+  "search_log": "data/<safe_sme_name>/search_log.md",
+  "qualified_json": null,
+  "next_recommended_command": "$us-prospect-discovery to continue, or $qualify-us-prospects to qualify"
 }
 ```
 
-## Output Markdown Template
+Render `data/_latest_workflow.md` with the same SME name, current step, capability JSON, prospect directory, search log, qualified JSON, and next command. Do not introduce a path that is absent from the JSON state.
 
-Render this human-readable file from the validated JSON as `data/<safe_sme_name>_prospects.md`:
+## Quality bar
 
-```markdown
-# US Prospect Discovery: [Insert SME Name Here]
-
-## 1. Search Strategy Summary
-* Source capability profile path: [path]
-* Prospect scope: [scope used]
-* Priority clusters searched: [Central Texas / Arizona / New York / other user scope]
-* Likely route types searched: [Direct owner / Channel-EPC / Partner ecosystem / Watchlist]
-* Profile-supported technical terms: [terms]
-* AI-suggested technical terms: [terms or "None"]
-* User-added technical terms: [terms or "None"]
-* Customer-pattern terms: [terms or "None"]
-* Final confirmed technical terms: [terms]
-* Fit rules:
-  * [Rule 1]
-  * [Rule 2]
-  * [Rule 3]
-
-## 2. Search Rounds
-### Round 1
-* Queries tried: [short list]
-* Reflection: [what worked, what was noisy, what changed]
-
-### Round 2
-* Queries tried: [short list]
-* Reflection: [what worked, what was noisy, what changed]
-
-### Round 3
-* Queries tried: [short list or "Not needed"]
-* Diversity check: [whether earlier rounds were too concentrated, and what counter-search was tried]
-* Reflection: [what worked, what was noisy, what changed]
-
-### Round 4
-* Queries tried: [short list or "Not needed"]
-* Reflection: [what worked, what was noisy, what changed]
-
-## 3. Ranked Prospect Shortlist
-| # | Candidate | Role | US Cluster | Candidate Type | Route Type | Matched Capability | Trigger / Context | Evidence | Why This Showed Up |
-|---:|---|---|---|---|---|---|---|---|---|
-| 1 | [Company / project / connector] | [Commercial prospect / Route-to-market partner / Ecosystem connector] | [Central Texas / Arizona / New York / California / Other US] | [Fab / OSAT / EPC / EDO / chamber / university consortium / other] | [Direct owner / Channel-EPC / Partner ecosystem / Watchlist] | [Capability] | [Trigger or context] | [URL] | [Plain-language reason this might be relevant] |
-
-## 4. Exclusions and Caveats
-* [Competitors or noisy result types excluded]
-* [Evidence gaps or scope limitations]
-
-## 5. Recommended Next Analysis
-* Run `qualify-us-prospects` to filter this broad list into the most likely prospects.
-* Pay special attention to candidates where the evidence is recent but the actual buyer path is unclear.
-```
-
-## Quality Bar
-* Every ranked prospect must have at least one source URL.
-* The final list must contain no more than 20 prospects.
-* New version 1.2 outputs must preserve the confirmed search terms and their provenance, and label every candidate's engagement role and US cluster.
-* Do not present AI-suggested or user-added terms as verified SME capabilities unless the capability profile supports them.
-* Never recommend a named existing customer or obvious corporate-group alias as a new prospect unless the user explicitly requests account-expansion analysis.
-* Default discovery must cover Central Texas, Arizona, and New York unless the user specifies another geography.
-* Keep commercial prospects and ecosystem connectors clearly distinguished.
-* Do not include a prospect only because it is a large semiconductor company; there must be a capability-relevant reason it appeared.
-* For SMEs likely to face difficult direct fab access, include channel/EPC/partner-route candidates from the beginning instead of leaving all route-to-market work to qualification.
-* If early search rounds cluster around one narrow result type, force at least one counter-search before finalizing the prospect pool.
-* If fewer than 20 plausible prospects are found, stop at the plausible number and say why in the caveats.
-* Prefer concrete buying triggers: new fab, expansion, pilot line, reshoring, funding award, hiring, equipment install, facility commissioning, qualification, cybersecurity program, or supplier selection.
-* Do not score, heavily qualify, or over-reason the candidates. Leave deep filtering to `qualify-us-prospects`.
+- Every prospect has exactly one canonical Markdown file and at least one evidence URL.
+- Every exact query is recorded in the search log.
+- Repeated appearances update an existing record instead of creating another file.
+- Parent and subsidiary records remain separate only when they are distinct buying organizations.
+- Current projects, funding, facilities, hiring, and cluster programs come from live sources.
+- AI- or user-added search terms are not presented as verified SME capabilities.
+- Named existing customers and obvious group aliases are excluded unless account expansion is requested.
+- Discovery remains broad and unscored; Skill 3 owns qualification.

@@ -13,7 +13,7 @@ The plugin produces evidence-backed decision support. It does not replace commer
 For each SME, the plugin produces:
 
 - A concise capability profile showing what the company can credibly offer, supporting evidence, confidence levels, and important information gaps.
-- A broad discovery pool of up to 20 possible US commercial prospects, market-entry partners, and ecosystem connectors.
+- A persistent prospect library that grows across repeated search cycles, with one readable Markdown record per possible US commercial prospect, market-entry partner, or ecosystem connector.
 - A focused shortlist, normally 5-8 candidates, showing capability fit, timing, buyer route, accessibility, evidence strength, the next question to verify, and a recommended SBF action.
 
 If the evidence supports fewer strong candidates, the plugin returns a shorter list instead of padding the results.
@@ -39,6 +39,8 @@ Prepare:
 - Time to review the result at the end of each step and correct missing or inaccurate assumptions.
 
 Do not enter company-confidential information.
+
+The workflow runs entirely inside Codex. SME users need no additional local software or command-line setup.
 
 ## The Three-Step Workflow
 
@@ -80,7 +82,9 @@ Before searching, the plugin displays the exact technical and buyer-signal terms
 - Remove irrelevant terms.
 - Replace inaccurate terminology.
 
-The plugin then runs iterative live searches and creates a broad pool of up to 20 possible candidates. It applies only lightweight filtering at this stage so that potentially useful routes are not discarded too early.
+The plugin then runs a short adaptive search cycle of up to five searches. It saves one Markdown record per possible prospect and keeps a search log showing the exact queries, results, reflections, and next direction. Running Step 2 again resumes from the accumulated library instead of overwriting the previous search.
+
+When a known company appears again, the plugin updates its existing record with new evidence. It creates a new file only for a genuinely new buying organization. The cycle stops early after three searches produce no new prospects, but there is no fixed 20-company limit across repeated runs.
 
 Every candidate is clearly labeled as one of:
 
@@ -88,13 +92,13 @@ Every candidate is clearly labeled as one of:
 - `Route-to-market partner`: an equipment OEM, EPC/EPCM firm, contractor, integrator, or other organization that may provide access to a project or buyer.
 - `Ecosystem connector`: an economic development organization, chamber, association, university, consortium, or public initiative that may help the SME or SBF enter a US cluster.
 
-Review whether the pool reflects the SME's real capabilities and contains a useful mix of customers, partners, and access routes.
+Review the newly created or updated records after each cycle. Users can continue discovery with another cycle, revise the search scope, or move to qualification when the accumulated library is useful.
 
 ### Step 3 - Qualify US Prospects
 
 After approving Step 2, click **Step 3 - Qualify US Prospects** or type `$qualify-us-prospects`.
 
-The plugin performs targeted verification and filters the broad pool into the strongest candidates. It considers:
+The plugin first scans the structured headers of every accumulated prospect record. It then opens the full content only for the strongest 10-20 candidates, performs targeted verification, and filters them into the final shortlist. It considers:
 
 - Capability fit.
 - Timing and urgency.
@@ -147,7 +151,7 @@ At every stage, users can revise the result in normal language. Examples:
 
 ```text
 Revise the capability profile: add flip chip as a user-provided search term.
-Revise the prospect discovery: include more Arizona partners and fewer fab owners.
+Revise the discovery scope: include more Arizona partners and fewer fab owners.
 Revise the qualified shortlist: move this company to Watchlist because the buyer route is unclear.
 ```
 
@@ -161,9 +165,10 @@ Users do not need to copy file paths between steps. The plugin automatically con
 
 - `input/existing_customers.md` is optional user input.
 - `data/*_capabilities.md` is the Step 1 review report.
-- `data/*_prospects.md` is the Step 2 discovery report.
+- `data/<safe_sme_name>/search_log.md` records Step 2 searches and reflections.
+- `data/<safe_sme_name>/prospects/*.md` contains one canonical Step 2 record per possible prospect.
 - `data/*_qualified_prospects.md` is the Step 3 decision-support shortlist.
-- Corresponding JSON files support reliable handoff and validation between steps.
+- Step 1 and Step 3 JSON files support reliable handoff and consistency checks. Step 2 uses structured JSON frontmatter inside each readable Markdown prospect record.
 
 ## Install the Plugin
 

@@ -13,15 +13,15 @@ Apply the SBF project scope defined in this skill. Preserve the three-step workf
 This is the front door and step 1 of a three-skill human-in-the-loop workflow:
 
 ```text
-map-sme-capability -> user reviews capability profile -> us-prospect-discovery -> user reviews prospect pool -> qualify-us-prospects
+map-sme-capability -> user reviews capability profile -> repeated us-prospect-discovery cycles -> user reviews prospect library -> qualify-us-prospects
 ```
 
 When this skill is used to start the workflow, briefly orient the user before doing the work:
 
 1. First, this skill creates a capability profile from the SME source.
 2. The user reviews that profile.
-3. If it looks right, `us-prospect-discovery` finds a broad pool of possible US prospects.
-4. The user reviews that broad prospect pool.
+3. If it looks right, `us-prospect-discovery` grows a persistent library of possible US prospects through repeatable search cycles.
+4. The user reviews the prospect records and can run more discovery cycles.
 5. If it looks useful, `qualify-us-prospects` filters the strongest prospects.
 
 Do not continue into prospect discovery automatically. The user should check this skill's output before invoking the next skill. Make that easy by ending with explicit Continue, Revise, or Stop choices.
@@ -33,7 +33,7 @@ Do not continue into prospect discovery automatically. The user should check thi
 
 ## Output
 * `data/<safe_sme_name>_capabilities.json`: The canonical structured capability profile. It must conform to `schema/capability-profile.schema.json`.
-* `data/<safe_sme_name>_capabilities.md`: A short human-readable Markdown profile rendered from the validated JSON.
+* `data/<safe_sme_name>_capabilities.md`: A short human-readable Markdown profile rendered from the self-checked JSON.
 * `data/_latest_workflow.json`: Optional convenience state file for the latest workflow.
 * `data/_latest_workflow.md`: Optional human-readable convenience state file rendered from the workflow JSON.
 
@@ -45,9 +45,9 @@ Use `schema_version: "1.1.0"` and `schema_name: "capability_profile"` in new cap
 Before confirming completion:
 
 1. Write the capability JSON.
-2. Run the bundled `scripts/validate_output.py` against it, resolving the script path from this skill's plugin root.
-3. Fix any schema mismatch before continuing.
-4. Render the Markdown review file from the validated JSON.
+2. Read `schema/capability-profile.schema.json` and self-check the completed object against its required fields, controlled values, limits, and version rules.
+3. Re-read the written JSON, fix any mismatch, and confirm it is complete and parseable before continuing.
+4. Render the Markdown review file from the self-checked JSON.
 5. Write `data/_latest_workflow.json` and self-check that the expected workflow fields are present.
 6. Render `data/_latest_workflow.md` from the workflow JSON.
 
@@ -55,7 +55,7 @@ Before confirming completion:
 1. **Accept selected-prompt invocations:** If the user's message body is blank but selected text contains a prompt for this skill, treat the selected text as the user's instruction and proceed from it. Do not ask the user to paste it again.
 2. **Orient first-time users:** If the user is starting the workflow or sounds unsure, briefly explain the three review-gated steps before beginning. Keep this short and then proceed; do not make the user invoke a separate guide skill.
 3. **Ask for missing source material:** If the user has not provided an SME website, uploaded company profile, or other source material, stop and ask for it. Do not create a profile from memory or guess the company.
-4. **Handle revision requests:** If the user asks to revise this step's output, read the current capability JSON first. If only Markdown exists from an older run, read the Markdown as a fallback and rebuild the JSON. Apply the requested edits, then reconstruct the entire JSON object perfectly according to `schema/capability-profile.schema.json` before touching Markdown. Never truncate the JSON output. Rewrite the Markdown only by mirroring the validated JSON changes. Rewrite the same JSON and Markdown files unless the user asks for a new file, update both workflow state files, and confirm briefly. Do not rerun the whole workflow unless the user explicitly asks.
+4. **Handle revision requests:** If the user asks to revise this step's output, read the current capability JSON first. If only Markdown exists from an older run, read the Markdown as a fallback and rebuild the JSON. Apply the requested edits, then reconstruct the entire JSON object perfectly according to `schema/capability-profile.schema.json` before touching Markdown. Never truncate the JSON output. Rewrite the Markdown only by mirroring the self-checked JSON changes. Rewrite the same JSON and Markdown files unless the user asks for a new file, update both workflow state files, and confirm briefly. Do not rerun the whole workflow unless the user explicitly asks.
 5. **Ingest the source and customer context:** Read the provided website or document. For websites, check the home page plus obvious capability pages such as Services, Products, Solutions, Industries, Certifications, Quality, Equipment, Customers, and About. Ensure `input/existing_customers.md` exists in the current workspace; when missing, copy the bundled `../../input/existing_customers.md` template from the plugin and leave its customer sections empty. Read it when populated. If its `SME name` is blank, set it to the active SME before using any entries. Use populated context only when that name matches the active SME. If it names another SME, stop and ask the user to replace the file or continue without it; never mix customer context between companies. Treat generic website statements such as "serves leading semiconductor companies" as insufficient customer information. If the website has insufficient customer information and the file has no customer entries, show the Customer Context Check Template and stop. Continue without customer context when the user chooses that option. If the user provides details in chat, offer to record them in the file and proceed when confirmed. Use customer names and patterns to understand demonstrated customer fit and routes, but do not use a customer relationship as technical-capability evidence by itself.
 6. **Assess SBF project fit:** Record whether Singapore ownership, SME size, and supporting-industry fit are Confirmed, Likely, Unknown, or outside scope as allowed by the schema. The project definition is at least 30% Singapore citizen or permanent-resident equity, less than SGD 100 million revenue, and fewer than 200 employees. Public silence is `Unknown`, not evidence of ineligibility. Assign the most plausible SBF stage: Learn, Lead Generation, Land, Localize, or Unknown. Most early-stage firms should default to Learn unless evidence supports a later stage.
 7. **Extract evidence:** Capture 2-5 short source notes that support the capability claims. Prefer semiconductor-specific pages and terms over generic company pages. Do not use office locations or company age as capability evidence. If evidence is thin, say so instead of guessing.
@@ -65,9 +65,9 @@ Before confirming completion:
 11. **Write smart keyword seeds:** These are suggested starting points for the next interactive Google Search skill, not final searches that must be used exactly. Create exactly 5 short keyword seeds. Each seed should combine one exact capability term, one likely buyer pain or timing signal, and optional US/company context. Prefer phrases a buyer or press release would actually use. For equipment logistics SMEs, use the specific tool or fab action, not generic logistics. Avoid generic phrases that are far from the SME's real capability.
 12. **Critique and improve the seeds:** Before writing the file, review each seed and ask: Is it close to the SME's real capability? Could it help the next skill find buyers after live Google iteration? Is it too broad, too crowded, or likely to only find competitors? Revise weak seeds, but do not over-optimize; the next skill will adapt them during interactive search.
 13. **Write the canonical JSON file:** Create `data/` if needed. Save the result as `data/<safe_sme_name>_capabilities.json`, using a lowercase filename with spaces replaced by underscores.
-14. **Validate the capability JSON:** Run the plugin's bundled `scripts/validate_output.py data/<safe_sme_name>_capabilities.json`, resolving the script path from this SKILL.md location. Fix every reported error. Only if the validator cannot run because `jsonschema` is unavailable, carefully self-check against `schema/capability-profile.schema.json` and disclose that fallback in the confirmation. The JSON must have an SBF scope assessment, exactly 1-3 capabilities, 2-5 evidence notes, exactly 5 smart keyword seeds, valid enum values, and no extra top-level fields.
-15. **Render the Markdown review file:** Save `data/<safe_sme_name>_capabilities.md` from the validated JSON. Do not add claims in Markdown that are absent from the JSON.
-16. **Write convenience workflow state:** Also write or update `data/_latest_workflow.json` with SME name, current step completed, capability JSON path, blank prospects and qualified JSON fields, and next recommended command `$us-prospect-discovery`. Self-check that the expected workflow fields are present, then render `data/_latest_workflow.md`. These files are only a convenience; do not require them for later steps.
+14. **Self-check the capability JSON:** Read `schema/capability-profile.schema.json` and compare the completed JSON against every required field, controlled value, item limit, and version rule. Re-read the written JSON and fix every mismatch. The JSON must have an SBF scope assessment, exactly 1-3 capabilities, 2-5 evidence notes, exactly 5 smart keyword seeds, valid enum values, and no extra top-level fields.
+15. **Render the Markdown review file:** Save `data/<safe_sme_name>_capabilities.md` from the self-checked JSON. Do not add claims in Markdown that are absent from the JSON.
+16. **Write convenience workflow state:** Also write or update `data/_latest_workflow.json` with SME name, current step completed, capability JSON path, blank prospect-directory, search-log, and qualified JSON fields, and next recommended command `$us-prospect-discovery`. Self-check that the expected workflow fields are present, then render `data/_latest_workflow.md`. These files are only a convenience; do not require them for later steps.
 17. **Confirm only:** Output a business-friendly success message with the readable review report path, the AI background record path, what to review, the exact next command, how to revise, and how to stop. Do not print the full file contents in chat. The confirmation message must end with the three explicit choices in the template below.
 
 ## Opening Explanation Template
@@ -79,7 +79,7 @@ I will handle this as a three-step review-gated workflow:
 1. Create a capability profile from the SME source.
 2. You review that profile.
 3. Then the next skill discovers possible US prospects.
-4. You review that broad prospect pool.
+4. You review the prospect records and may run more discovery cycles.
 5. Then the final skill qualifies the strongest prospects.
 
 I will start with step 1 now.
@@ -126,13 +126,14 @@ Use this structure for `data/_latest_workflow.json`:
 
 ```json
 {
-  "schema_version": "1.1.0",
+  "schema_version": "1.2.0",
   "schema_name": "workflow_state",
   "sme_name": "[SME Name]",
   "safe_sme_name": "<safe_sme_name>",
   "current_step_completed": "Step 1 - Map SME Capability",
   "capability_json": "data/<safe_sme_name>_capabilities.json",
-  "prospects_json": null,
+  "prospect_directory": null,
+  "search_log": null,
   "qualified_json": null,
   "next_recommended_command": "$us-prospect-discovery"
 }
@@ -147,7 +148,8 @@ Render this human-readable companion as `data/_latest_workflow.md`:
 * Current step completed: Step 1 - Map SME Capability
 * Capability JSON: data/<safe_sme_name>_capabilities.json
 * Capability Markdown: data/<safe_sme_name>_capabilities.md
-* Prospects JSON:
+* Prospect directory:
+* Search log:
 * Qualified JSON:
 * Next recommended command: $us-prospect-discovery
 ```
@@ -221,7 +223,7 @@ Write this canonical file first as `data/<safe_sme_name>_capabilities.json`:
 
 ## Output Markdown Template
 
-Render this human-readable file from the validated JSON as `data/<safe_sme_name>_capabilities.md`:
+Render this human-readable file from the self-checked JSON as `data/<safe_sme_name>_capabilities.md`:
 
 ```markdown
 # Semiconductor Capability Profile: [Insert SME Name Here]
