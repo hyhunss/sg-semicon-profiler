@@ -89,7 +89,7 @@ After approving Step 1, click **Step 2 - Discover US Prospects** or type `$us-pr
 
 The plugin immediately runs a short adaptive search cycle of up to five searches using the approved capability profile and default US scope. It does not require another confirmation after the user continues from Step 1. Users can still revise capabilities, buyer routes, timing signals, or geography whenever they choose.
 
-The plugin saves one Markdown record per possible prospect and keeps a search log showing the exact queries, results, reflections, and next direction. It also rebuilds a small TSV index after each search so later runs can scan a large library quickly. Running Step 2 again resumes from the accumulated library instead of overwriting the previous search.
+The plugin saves one Markdown record per possible prospect and keeps a search log showing the exact queries, results, reflections, and next direction. It uses open public signals such as company career pages, CHIPS Act and government notices, state EDO releases, and contractor project pages without relying on private databases or login-walled social networks. It also rebuilds a small TSV index after each search so later runs can scan a large library quickly. Running Step 2 again resumes from the accumulated library instead of overwriting the previous search.
 
 When a known company appears again, the plugin updates its existing record with new evidence. It creates a new file only for a genuinely new buying organization. The cycle stops early after three searches produce no new prospects, but there is no fixed 20-company limit across repeated runs.
 
@@ -105,7 +105,7 @@ Review the newly created or updated records after each cycle. Users can continue
 
 After approving Step 2, click **Step 3 - Qualify US Prospects** or type `$qualify-us-prospects`.
 
-The plugin first reads the lightweight prospect index, then opens the full Markdown only for the strongest 10-15 candidates, performs targeted verification, and filters them into the final shortlist. If the index is missing or damaged, the plugin automatically falls back to the prospect Markdown files. It considers:
+The plugin first reads the lightweight prospect index, then opens the full Markdown only for the strongest 10-15 candidates. It verifies timing and buyer paths through public career, government-award, EDO, and contractor-project sources before producing the final shortlist. If the index is missing or damaged, the plugin automatically falls back to the prospect Markdown files. It considers:
 
 - Capability fit.
 - Timing and urgency.

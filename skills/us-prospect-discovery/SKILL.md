@@ -87,6 +87,16 @@ Each normal invocation is one search cycle:
 
    Change only one or two query dimensions for the next search so the reason for the mutation remains clear.
 
+   Never run `site:linkedin.com` searches or target private social networks. Do not spend a search on login-walled or blocked pages; use open, indexed sources instead.
+
+   When ordinary company searches produce weak or repetitive results, change to one public-signal angle:
+
+   - Hiring: `"[capability]" ("job opening" OR careers) "[state]"`; prefer first-party career pages and public Greenhouse or Lever postings.
+   - Government and awards: `"[capability]" ("CHIPS Act award" OR subcontractor) "[state]"`; prioritize CHIPS.gov, SAM.gov, and state or regional EDO releases.
+   - Contractors and projects: `"[capability]" ("general contractor" OR EPC) semiconductor "[state]"`; prioritize EPC/GC portfolios, expansion announcements, and tool-install releases.
+
+   Treat a job posting only as evidence of the stated role, location, function, and date. Do not claim that it proves construction, procurement demand, or an expansion unless the posting or a separate source says so. Likewise, do not infer a contractor or tier relationship from an award notice unless the source names it.
+
    If the user asks to run one exact query, run only that query and stop the cycle after saving and logging its results.
 
 9. **Apply lightweight filtering.** Keep a candidate only when there is a visible reason it could buy, enable, or connect the SME's supported capability. Exclude clear competitors, recruiters, generic consultants without project access, unrelated organizations, non-US entities without a clear US route, named existing customers, and results supported only by company size.
@@ -123,6 +133,7 @@ Each normal invocation is one search cycle:
     - partners -> end-customer projects, OSATs, pilot lines, or funded facilities;
     - giant incumbents -> smaller OSATs, compound-semiconductor firms, pilot lines, startups, or regional projects;
     - one cluster -> another priority cluster.
+    - repetitive company pages -> hiring, government/award, or contractor/project signals.
 
 16. **Stop the cycle.** Stop after five searches or three consecutive searches with no new prospect files. Do not stop merely because the library has reached 20 prospects. Do not pad the library.
 

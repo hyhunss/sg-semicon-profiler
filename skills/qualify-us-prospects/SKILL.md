@@ -58,7 +58,13 @@ Use `schema_version: "1.2.0"` and `schema_name: "qualified_prospects"` for new J
 
 9. **Preserve discovery provenance.** From each selected record capture company, role, cluster, route, matched capabilities, buying triggers, why it may fit, queries, evidence, and caveats. Search terms and candidate records do not prove that the SME has a capability absent from Skill 1.
 
-10. **Run targeted verification only.** Search narrowly when one current fact could change a likely finalist's rank: project timing, buyer path, procurement route, facility phase, hiring, contractor relationship, or access route. Do not run broad prospect searches.
+10. **Run targeted verification only.** Search narrowly when one current fact could change a likely finalist's rank: project timing, buyer path, procurement route, facility phase, hiring, contractor relationship, or access route. Do not run broad prospect searches or target `site:linkedin.com` or other private social networks.
+
+    - For `timing_signal`, check recent first-party career pages or public Greenhouse/Lever postings, CHIPS.gov notices, and state or regional EDO grant and expansion announcements.
+    - For `best_buyer_path`, check named EPC/GC project announcements, contractor portfolios, SAM.gov notices, CHIPS.gov releases, and state EDO announcements.
+    - Prioritize `Job posting`, `Government notice`, and `Contractor project page` as source types when they directly support the claim.
+
+    A job posting proves only the stated hiring activity; it does not by itself prove construction, procurement need, or expansion. A grant or award proves a buyer, contractor, or tier relationship only when the notice explicitly names that relationship. Otherwise label the connection as inference or leave it out.
 
 11. **Structure every new fact.** Any fact introduced during qualification must appear in `key_evidence` with:
 
