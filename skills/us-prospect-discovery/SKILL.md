@@ -79,7 +79,7 @@ Each normal invocation is one search cycle:
 
 7. **Choose an uncovered direction.** Read `02_search_log.md` before every cycle. Do not repeat an exact query unless the user requests a freshness rerun. Prefer combinations or result types not adequately covered. Include direct buyers and realistic access routes such as EPC/EPCM firms, cleanroom contractors, systems integrators, equipment OEMs, approved-supplier routes, EDOs, chambers, associations, universities, and consortia.
 
-8. **Search and adapt one query at a time.** Run a live web search. Prefer primary or high-quality current sources: company pages, press releases, government and CHIPS releases, procurement pages, contractor project pages, university or consortium pages, EDO pages, and credible trade press. After each query, assess:
+8. **Search and adapt one query at a time.** Run a live web search. Prefer primary or high-quality current sources: company pages, press releases, government and CHIPS releases, procurement pages, contractor project pages, university or consortium pages, EDO pages, and credible trade press. Use open tech-discussion APIs such as Hacker News via Algolia only as secondary discovery or caveat signals. After each query, assess:
 
    - whether it found buyers, route partners, connectors, competitors, or noise;
    - which capability, buyer, timing, or geography term helped;
@@ -94,14 +94,22 @@ Each normal invocation is one search cycle:
    - Hiring: `"[capability]" ("job opening" OR careers) "[state]"`; prefer first-party career pages and public Greenhouse or Lever postings.
    - Government and awards: `"[capability]" ("CHIPS Act award" OR subcontractor) "[state]"`; prioritize CHIPS.gov, SAM.gov, and state or regional EDO releases.
    - Contractors and projects: `"[capability]" ("general contractor" OR EPC) semiconductor "[state]"`; prioritize EPC/GC portfolios, expansion announcements, and tool-install releases.
+   - Tech community: fetch the public Hacker News Algolia API directly, with URL-encoded query values:
+     - Stories: `https://hn.algolia.com/api/v1/search?query=[capability]+[state]&tags=story`
+     - Recent stories: `https://hn.algolia.com/api/v1/search_by_date?query=[capability]+[state]&tags=story&numericFilters=created_at_i%3E[TIMESTAMP_6_MONTHS_AGO]`
+     - Recent comments: `https://hn.algolia.com/api/v1/search_by_date?query=%22[exact_company_or_project_phrase]%22+[specific_cluster]&tags=comment&numericFilters=created_at_i%3E[TIMESTAMP_6_MONTHS_AGO]`
 
    Treat a job posting only as evidence of the stated role, location, function, and date. Do not claim that it proves construction, procurement demand, or an expansion unless the posting or a separate source says so. Likewise, do not infer a contractor or tier relationship from an award notice unless the source names it.
+
+   Use an exact company or project phrase and a specific cluster for comment searches; never query a generic term such as `fab` alone. Use at most one Hacker News API query per cycle unless it produces a named, relevant company, project, or route worth following. Do not create a prospect from an HN mention alone; corroborate the identity and commercial relevance with an official company, project, government, contractor, or credible trade source.
 
    If the user asks to run one exact query, run only that query and stop the cycle after saving and logging its results.
 
 9. **Apply lightweight filtering.** Keep a candidate only when there is a visible reason it could buy, enable, or connect the SME's supported capability. Exclude clear competitors, recruiters, generic consultants without project access, unrelated organizations, non-US entities without a clear US route, named existing customers, and results supported only by company size.
 
 10. **Build one candidate record.** For each plausible candidate, prepare a complete record matching the Prospect Record Contract below. Use the normalized official company domain as `prospect_id` when available: lowercase it and remove the protocol, path, trailing slash, and leading `www.`. If there is no official domain, use a stable lowercase hyphenated organization or project name. Include the exact query that found the candidate and at least one evidence URL.
+
+    For a lead found through the Hacker News Algolia API, use the official project or company domain as `prospect_id`, never `hn.algolia.com` or `news.ycombinator.com`. Preserve the specific discussion URL as `https://news.ycombinator.com/item?id=[story_id_or_objectID]` and the original linked article URL when available. Limit the HN-supported claim to what the thread actually states and retain any uncertainty as a caveat.
 
 11. **Run the identity check before every write.** Compare the candidate against every existing prospect record in this order:
 
@@ -133,7 +141,7 @@ Each normal invocation is one search cycle:
     - partners -> end-customer projects, OSATs, pilot lines, or funded facilities;
     - giant incumbents -> smaller OSATs, compound-semiconductor firms, pilot lines, startups, or regional projects;
     - one cluster -> another priority cluster.
-    - repetitive company pages -> hiring, government/award, or contractor/project signals.
+    - repetitive company pages -> hiring, government/award, contractor/project, or one HN ecosystem signal.
 
 16. **Stop the cycle.** Stop after five searches or three consecutive searches with no new prospect files. Do not stop merely because the library has reached 20 prospects. Do not pad the library.
 

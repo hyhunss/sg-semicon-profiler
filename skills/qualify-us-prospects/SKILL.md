@@ -62,9 +62,10 @@ Use `schema_version: "1.2.0"` and `schema_name: "qualified_prospects"` for new J
 
     - For `timing_signal`, check recent first-party career pages or public Greenhouse/Lever postings, CHIPS.gov notices, and state or regional EDO grant and expansion announcements.
     - For `best_buyer_path`, check named EPC/GC project announcements, contractor portfolios, SAM.gov notices, CHIPS.gov releases, and state EDO announcements.
+    - For possible insider timing, subcontractor discussion, or project caveats, fetch `https://hn.algolia.com/api/v1/search_by_date?query=%22[exact_prospect_or_project_phrase]%22+[specific_cluster]&tags=comment&numericFilters=created_at_i%3E[TIMESTAMP_6_MONTHS_AGO]`. URL-encode values and never use a generic term such as `fab` alone.
     - Prioritize `Job posting`, `Government notice`, and `Contractor project page` as source types when they directly support the claim.
 
-    A job posting proves only the stated hiring activity; it does not by itself prove construction, procurement need, or expansion. A grant or award proves a buyer, contractor, or tier relationship only when the notice explicitly names that relationship. Otherwise label the connection as inference or leave it out.
+    A job posting proves only the stated hiring activity; it does not by itself prove construction, procurement need, or expansion. A grant or award proves a buyer, contractor, or tier relationship only when the notice explicitly names that relationship. Treat HN stories and comments as `Other` sources and normally as risk/caveat or discovery evidence, not direct proof. An HN discussion alone cannot establish `timing_signal`, `best_buyer_path`, a commercial relationship, or `Priority` status. Corroborate material claims with a primary or high-quality source; otherwise label the connection as inference or leave it out.
 
 11. **Structure every new fact.** Any fact introduced during qualification must appear in `key_evidence` with:
 
