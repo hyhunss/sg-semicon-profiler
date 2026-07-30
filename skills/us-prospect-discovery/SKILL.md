@@ -15,14 +15,14 @@ map-sme-capability -> review -> repeated discovery cycles -> review -> qualify-u
 
 ## Inputs
 
-- Canonical capability profile from Skill 1, normally `data/<safe_sme_name>_capabilities.json`.
+- Canonical capability profile from Skill 1, normally `output/<safe_sme_name>_capabilities.json`.
 - Optional `input/existing_customers.md`.
 - Optional user changes to capabilities, buyer routes, timing signals, or geography.
 
 ## Canonical outputs
 
 ```text
-data/<safe_sme_name>/
+output/<safe_sme_name>/
 ├── search_log.md
 └── prospects/
     ├── <prospect_id>.md
@@ -32,7 +32,7 @@ data/<safe_sme_name>/
 - Treat each prospect Markdown file as the canonical record for one buying organization, route partner, project, or connector.
 - Treat `search_log.md` as the canonical record of approved scope, exact queries, results, reflections, and next search direction.
 - Do not create or maintain a consolidated prospect JSON or prospect report.
-- Preserve old `data/<safe_sme_name>_prospects.json` and `.md` files as legacy artifacts; do not overwrite or delete them.
+- Preserve old `output/<safe_sme_name>_prospects.json` and `.md` files as legacy artifacts; do not overwrite or delete them.
 
 ## Core loop
 
@@ -52,14 +52,14 @@ Each invocation after scope confirmation is one search cycle:
 
 1. **Accept selected-prompt invocations.** If the message body is blank but selected text contains an instruction for this skill, use the selected text.
 
-2. **Resolve the active SME.** If no capability path is supplied, read `data/_latest_workflow.json` and use its `capability_json` only when the file exists and agrees with `safe_sme_name`. Otherwise choose the most recently modified `data/*_capabilities.json`. If the intended SME is ambiguous, ask the user to choose. Use a Markdown capability file only as a legacy fallback.
+2. **Resolve the active SME.** If no capability path is supplied, read `output/_latest_workflow.json` and use its `capability_json` only when the file exists and agrees with `safe_sme_name`. Otherwise choose the most recently modified `output/*_capabilities.json`. If the intended SME is ambiguous, ask the user to choose. Use a Markdown capability file only as a legacy fallback.
 
 3. **Read the capability and customer context.** Extract the SME name, safe name, supported capabilities, confidence and overclaim caveats, and exactly five keyword seeds. Read `input/existing_customers.md` when present. Use populated customer context only when its SME name matches. Exclude named existing customers and obvious group aliases unless the user explicitly requests account expansion. Do not reveal excluded customer names in discovery outputs.
 
 4. **Locate and audit persistent state.** Use:
 
-   - `data/<safe_sme_name>/search_log.md`
-   - `data/<safe_sme_name>/prospects/`
+   - `output/<safe_sme_name>/search_log.md`
+   - `output/<safe_sme_name>/prospects/`
 
    Before searching, enumerate every `.md` file in the prospect directory and read its JSON frontmatter. Confirm that every record belongs to the active SME, has all fields in the Prospect Record Contract, uses valid controlled values, and has at least one evidence URL. Compare the identity fields across all records and resolve exact duplicates before adding candidates. An absent directory on the first run is valid.
 
@@ -101,7 +101,7 @@ Each invocation after scope confirmation is one search cycle:
 
 12. **Create or update one Markdown file.**
 
-    - New identity: create `data/<safe_sme_name>/prospects/<prospect_id>.md`.
+    - New identity: create `output/<safe_sme_name>/prospects/<prospect_id>.md`.
     - Existing identity: rewrite the same file with the merged record.
     - Preserve `first_seen`; update `last_seen`.
     - Merge aliases, matched capabilities, buying triggers, queries, and caveats without repeated entries.
@@ -132,7 +132,7 @@ Each invocation after scope confirmation is one search cycle:
 
     Fix every issue before completion.
 
-17. **Update workflow state.** Write `data/_latest_workflow.json` with the active SME, capability path, `prospect_directory`, `search_log`, current step, blank qualified output, and next command. Render `data/_latest_workflow.md`. Do not use a `prospects_json` field for a new Skill 2 run.
+17. **Update workflow state.** Write `output/_latest_workflow.json` with the active SME, capability path, `prospect_directory`, `search_log`, current step, blank qualified output, and next command. Render `output/_latest_workflow.md`. Do not use a `prospects_json` field for a new Skill 2 run.
 
 18. **Confirm briefly.** Report searches run, new files, updated files, total prospect records, search-log path, and prospect-directory path. End with:
 
@@ -249,7 +249,7 @@ Use this body structure:
 ```markdown
 # US Prospect Search Log: [SME name]
 
-* Capability profile: data/<safe_sme_name>_capabilities.json
+* Capability profile: output/<safe_sme_name>_capabilities.json
 * Approved capabilities: [terms]
 * Additional discovery terms: [terms or None]
 * Buyer and route types: [types]
@@ -282,15 +282,15 @@ For a later scope change, append:
   "sme_name": "[SME name]",
   "safe_sme_name": "<safe_sme_name>",
   "current_step_completed": "Step 2 - Discover US Prospects",
-  "capability_json": "data/<safe_sme_name>_capabilities.json",
-  "prospect_directory": "data/<safe_sme_name>/prospects",
-  "search_log": "data/<safe_sme_name>/search_log.md",
+  "capability_json": "output/<safe_sme_name>_capabilities.json",
+  "prospect_directory": "output/<safe_sme_name>/prospects",
+  "search_log": "output/<safe_sme_name>/search_log.md",
   "qualified_json": null,
   "next_recommended_command": "$us-prospect-discovery to continue, or $qualify-us-prospects to qualify"
 }
 ```
 
-Render `data/_latest_workflow.md` with the same SME name, current step, capability JSON, prospect directory, search log, qualified JSON, and next command. Do not introduce a path that is absent from the JSON state.
+Render `output/_latest_workflow.md` with the same SME name, current step, capability JSON, prospect directory, search log, qualified JSON, and next command. Do not introduce a path that is absent from the JSON state.
 
 ## Quality bar
 

@@ -41,15 +41,15 @@
     },
     "source_capability_profile_path": {
       "type": "string",
-      "pattern": "^data/[a-z0-9]+(?:_[a-z0-9]+)*_capabilities\\.(json|md)$"
+      "pattern": "^output/[a-z0-9]+(?:_[a-z0-9]+)*_capabilities\\.(json|md)$"
     },
     "source_prospect_discovery_path": {
       "type": "string",
-      "pattern": "^data/[a-z0-9]+(?:_[a-z0-9]+)*_prospects\\.(json|md)$"
+      "pattern": "^output/[a-z0-9]+(?:_[a-z0-9]+)*_prospects\\.(json|md)$"
     },
     "source_prospect_directory": {
       "type": "string",
-      "pattern": "^data/[a-z0-9]+(?:_[a-z0-9]+)*/prospects$"
+      "pattern": "^output/[a-z0-9]+(?:_[a-z0-9]+)*/prospects$"
     },
     "qualification_scope": {
       "type": "string",

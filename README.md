@@ -30,6 +30,19 @@ The project focuses on Singapore-owned SMEs with at least 30% Singapore citizen 
 
 Relevant supporting activities include semiconductor equipment and services, precision engineering, testing, assembly, advanced packaging, factory software, cleanroom and facility services, tool installation and relocation, logistics, materials, and systems integration. Direct semiconductor manufacturing is not the target SME segment.
 
+## No Technical Setup Required
+
+This plugin is designed for business users:
+
+- You do not need Python.
+- You do not need Terminal or command-line access.
+- You do not need a database or spreadsheet system.
+- Put optional user-provided information in the `input/` folder.
+- Find every generated report and working record in the `output/` folder.
+- Open and review the Markdown (`.md`) files like ordinary documents.
+
+The workflow uses simple folders and readable Markdown files so users can understand what was provided, what the plugin found, and what to review next.
+
 ## Before You Start
 
 Prepare:
@@ -40,7 +53,7 @@ Prepare:
 
 Do not enter company-confidential information.
 
-The workflow runs entirely inside Codex. SME users need no additional local software or command-line setup.
+The workflow runs entirely inside Codex. SME users do not install or run Python, use Terminal, or manage technical dependencies.
 
 ## The Three-Step Workflow
 
@@ -164,10 +177,10 @@ The company-level outputs support the broader SBF US semiconductor playbook. The
 Users do not need to copy file paths between steps. The plugin automatically continues from the latest reviewed company record.
 
 - `input/existing_customers.md` is optional user input.
-- `data/*_capabilities.md` is the Step 1 review report.
-- `data/<safe_sme_name>/search_log.md` records Step 2 searches and reflections.
-- `data/<safe_sme_name>/prospects/*.md` contains one canonical Step 2 record per possible prospect.
-- `data/*_qualified_prospects.md` is the Step 3 decision-support shortlist.
+- `output/*_capabilities.md` is the Step 1 review report.
+- `output/<safe_sme_name>/search_log.md` records Step 2 searches and reflections.
+- `output/<safe_sme_name>/prospects/*.md` contains one canonical Step 2 record per possible prospect.
+- `output/*_qualified_prospects.md` is the Step 3 decision-support shortlist.
 - Step 1 and Step 3 JSON files support reliable handoff and consistency checks. Step 2 uses structured JSON frontmatter inside each readable Markdown prospect record.
 
 ## Install the Plugin

@@ -14,18 +14,18 @@ capability profile + prospect directory -> metadata screen -> focused reading
 
 ## Inputs
 
-- Canonical Skill 1 capability profile, normally `data/<safe_sme_name>_capabilities.json`.
-- Canonical Skill 2 directory, normally `data/<safe_sme_name>/prospects/`.
-- Skill 2 search log, normally `data/<safe_sme_name>/search_log.md`.
+- Canonical Skill 1 capability profile, normally `output/<safe_sme_name>_capabilities.json`.
+- Canonical Skill 2 directory, normally `output/<safe_sme_name>/prospects/`.
+- Skill 2 search log, normally `output/<safe_sme_name>/search_log.md`.
 - Optional `input/existing_customers.md`.
 - Optional qualification preference such as easiest first outreach, near-term timing, specific state, or buyer route.
-- Legacy fallback only: `data/<safe_sme_name>_prospects.json` or `.md`.
+- Legacy fallback only: `output/<safe_sme_name>_prospects.json` or `.md`.
 
 ## Outputs
 
-- `data/<safe_sme_name>_qualified_prospects.json`
-- `data/<safe_sme_name>_qualified_prospects.md`
-- Updated `data/_latest_workflow.json` and `.md`
+- `output/<safe_sme_name>_qualified_prospects.json`
+- `output/<safe_sme_name>_qualified_prospects.md`
+- Updated `output/_latest_workflow.json` and `.md`
 
 Use `schema_version: "1.2.0"` and `schema_name: "qualified_prospects"` for new JSON output. Treat `schema/qualified-prospects.schema.json` as the field contract and self-check the completed object against it.
 
@@ -33,9 +33,9 @@ Use `schema_version: "1.2.0"` and `schema_name: "qualified_prospects"` for new J
 
 1. **Accept selected-prompt invocations.** If the message body is blank but selected text contains an instruction for this skill, use the selected text.
 
-2. **Resolve matching inputs.** If paths are not supplied, read `data/_latest_workflow.json`. Use `capability_json`, `prospect_directory`, and `search_log` only when they exist and agree with `safe_sme_name`. Otherwise find the most recent capability JSON and matching `data/<safe_sme_name>/prospects/` directory. If multiple SMEs are plausible, ask the user to choose.
+2. **Resolve matching inputs.** If paths are not supplied, read `output/_latest_workflow.json`. Use `capability_json`, `prospect_directory`, and `search_log` only when they exist and agree with `safe_sme_name`. Otherwise find the most recent capability JSON and matching `output/<safe_sme_name>/prospects/` directory. If multiple SMEs are plausible, ask the user to choose.
 
-3. **Use legacy discovery only as fallback.** If no new prospect directory exists, accept a matching old `data/<safe_sme_name>_prospects.json` or `.md`. Never combine legacy and directory records silently. State which source is being qualified.
+3. **Use legacy discovery only as fallback.** If no new prospect directory exists, accept a matching old `output/<safe_sme_name>_prospects.json` or `.md`. Never combine legacy and directory records silently. State which source is being qualified.
 
 4. **Handle revisions narrowly.** For a requested revision to the qualified shortlist, read the current qualified JSON, apply the requested changes, reconstruct the complete schema-valid object, then render Markdown. Do not rerun discovery or qualification unless explicitly asked.
 
@@ -118,8 +118,8 @@ Use `schema_version: "1.2.0"` and `schema_name: "qualified_prospects"` for new J
   "sme_name": "[SME name]",
   "safe_sme_name": "<safe_sme_name>",
   "generated_at": "[ISO 8601 timestamp]",
-  "source_capability_profile_path": "data/<safe_sme_name>_capabilities.json",
-  "source_prospect_directory": "data/<safe_sme_name>/prospects",
+  "source_capability_profile_path": "output/<safe_sme_name>_capabilities.json",
+  "source_prospect_directory": "output/<safe_sme_name>/prospects",
   "qualification_scope": "[scope used]",
   "qualification_logic": {
     "sme_capabilities_used": ["[Capability]"],
@@ -206,15 +206,15 @@ Do not introduce claims, scores, or recommendations absent from the self-checked
   "sme_name": "[SME name]",
   "safe_sme_name": "<safe_sme_name>",
   "current_step_completed": "Step 3 - Qualify US Prospects",
-  "capability_json": "data/<safe_sme_name>_capabilities.json",
-  "prospect_directory": "data/<safe_sme_name>/prospects",
-  "search_log": "data/<safe_sme_name>/search_log.md",
-  "qualified_json": "data/<safe_sme_name>_qualified_prospects.json",
+  "capability_json": "output/<safe_sme_name>_capabilities.json",
+  "prospect_directory": "output/<safe_sme_name>/prospects",
+  "search_log": "output/<safe_sme_name>/search_log.md",
+  "qualified_json": "output/<safe_sme_name>_qualified_prospects.json",
   "next_recommended_command": "Final review complete; use, revise, or stop"
 }
 ```
 
-Render `data/_latest_workflow.md` with the same SME name, current step, capability JSON, prospect directory, search log, qualified JSON, and next command. Do not introduce a path that is absent from the JSON state.
+Render `output/_latest_workflow.md` with the same SME name, current step, capability JSON, prospect directory, search log, qualified JSON, and next command. Do not introduce a path that is absent from the JSON state.
 
 ## Quality bar
 

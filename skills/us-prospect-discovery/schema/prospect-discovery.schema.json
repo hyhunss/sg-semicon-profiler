@@ -42,7 +42,7 @@
     },
     "source_capability_profile_path": {
       "type": "string",
-      "pattern": "^data/[a-z0-9]+(?:_[a-z0-9]+)*_capabilities\\.(json|md)$"
+      "pattern": "^output/[a-z0-9]+(?:_[a-z0-9]+)*_capabilities\\.(json|md)$"
     },
     "prospect_scope": {
       "type": "string",

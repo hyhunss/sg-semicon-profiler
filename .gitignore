@@ -2,5 +2,5 @@
 .codex-marketplace-install.json
 *.tmp
 *.bak
-data/
+output/
 repomix-output*.xml
