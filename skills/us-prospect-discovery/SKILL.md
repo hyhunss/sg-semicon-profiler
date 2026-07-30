@@ -1,11 +1,11 @@
 ---
 name: us-prospect-discovery
-description: Second skill in the SG Semicon US Expansion workflow. Use after the user reviews a map-sme-capability output to run repeatable, adaptive US prospect-search cycles and resume later from a persistent search log. Create or update a Markdown record only when a possible commercial prospect, route-to-market partner, or ecosystem connector meets the two-of-three discovery evidence threshold, while preventing duplicates. Default to Central Texas, Arizona, and New York unless the user specifies another scope, and leave deep qualification to Skill 3.
+description: Second skill in the SG Semicon US Expansion workflow. Use after the user reviews a map-sme-capability output to run repeatable, adaptive US prospect-search cycles and build a persistent, high-recall prospect library. Create or update a Markdown record for any candidate with direct capability relevance while preventing duplicates, and leave deep qualification to Skill 3.
 ---
 
 # Skill: us-prospect-discovery
 
-Build a persistent library of plausible US prospects through short, repeatable search cycles. Search broadly, but create a canonical record only after a candidate meets the discovery evidence threshold. Do not score or deeply qualify candidates.
+Build a rich, persistent library of plausible US prospects through short, repeatable search cycles. Search broadly and save capability-relevant candidates while filtering obvious noise. Do not score or deeply qualify candidates.
 
 This is step 2 of a review-gated workflow:
 
@@ -48,7 +48,7 @@ Each normal invocation is one search cycle:
 
 - Run at most five live searches.
 - Stop early after three consecutive searches produce no new prospect files.
-- Evaluate every result after each search; save only candidates that meet the two-of-three discovery evidence threshold.
+- Evaluate every result after each search; save any candidate with direct capability relevance while filtering obvious noise.
 - Let later invocations resume from the accumulated files and search log.
 - When broad uncovered directions span independent regions or signal types, automatically delegate bounded, read-only searches to parallel subagents, then consolidate their results in the primary thread.
 
@@ -73,10 +73,10 @@ Each normal invocation is one search cycle:
 6. **Initialize the search dimensions.** Construct queries from:
 
    ```text
-   supported capability x buyer or route x timing signal x geography
+   supported capability x buyer or route x geography x optional timing signal
    ```
 
-   Use precise semiconductor process, equipment, packaging, software, facility, logistics, and service language. Default geography is Central Texas, Arizona, and New York. Deprioritize but do not prohibit California. Use Other US when fit or timing is materially stronger.
+   Lead with capability and buyer or route relevance. Add a timing signal when it improves precision, but do not make timing a mandatory query dimension. Use precise semiconductor process, equipment, packaging, software, facility, logistics, and service language. Default geography is Central Texas, Arizona, and New York. Deprioritize but do not prohibit California. Use Other US when fit or timing is materially stronger.
 
 7. **Choose an uncovered direction.** Read `02_search_log.md` before every cycle. Do not repeat an exact query unless the user requests a freshness rerun. Prefer combinations or result types not adequately covered. Include direct buyers and realistic access routes such as EPC/EPCM firms, cleanroom contractors, systems integrators, equipment OEMs, approved-supplier routes, EDOs, chambers, associations, universities, and consortia.
 
@@ -117,7 +117,7 @@ Each normal invocation is one search cycle:
 
    Keep the cycle within the same five-search total, including every delegated query. Spawn only the workers needed for distinct uncovered directions; do not repeat logged exact queries merely to fill a parallel batch.
 
-   Give each subagent a bounded, read-only assignment containing the approved capabilities, target cluster or signal channel, one exact query, existing prospect identities, and the relevant evidence rules. Require a compact structured return containing the exact query, candidate name and official domain, possible role and cluster, evidence URLs with supported claims, caveats, ignored-result reasons, and a short reflection. Subagents must not write or edit the prospect store.
+   Give each subagent a bounded, read-only assignment containing the approved capabilities, target cluster or signal channel, one exact query, existing prospect identities, and the high-recall admission and exclusion rules. Require a compact structured return containing the exact query, candidate name and official domain, possible role and cluster, evidence URLs with supported claims, any timing or access signals found, caveats, ignored-result reasons, and a short reflection. Subagents must not write or edit the prospect store.
 
    Wait for the delegated searches, then have the primary agent:
 
@@ -130,17 +130,19 @@ Each normal invocation is one search cycle:
 
    If multi-agent tools are unavailable, the thread limit is reached, or delegation fails, continue the same uncovered searches sequentially without asking the user to configure anything. The primary agent remains responsible for all writes, deduplication, logging, validation, and final reporting.
 
-9. **Apply the two-of-three discovery evidence threshold.** Create a new canonical record only when current public evidence supports at least two of these three admission bases:
+9. **Apply high-recall candidate admission.** Create a canonical prospect Markdown record for any candidate organization that satisfies `Capability relevance`: a named process, facility, service, equipment category, or program has a direct relationship to one of the SME's supported capabilities. The evidence must support a plausible demand-side use or route-side role—for example, the candidate buys, uses, integrates, specifies, distributes, or can connect the capability to semiconductor work. A company merely advertising the same capability is normally a competitor, not a prospect. Generic semiconductor activity or company size alone does not qualify.
 
-   - `Capability relevance`: a named process, facility, service, equipment category, or program has a direct relationship to one of the SME's supported capabilities. Generic semiconductor activity or company size does not qualify.
-   - `Current timing`: a dated or visibly current expansion, award, hiring need, tool installation, capacity change, program, procurement event, or operating requirement creates a reason to investigate now.
-   - `Access route`: a documented supplier, procurement, project, technical-contact, paid-pilot, membership, contractor, OEM, integrator, or partner route could realistically connect the SME or SBF to the opportunity.
+   Do not require `Current timing` or `Access route` for initial admission. When current public evidence supports either signal, add it to `admission_basis` and capture the supporting source. When either signal is missing or unverified, add a concise caveat stating `Current timing: To be verified in Step 3 / human review` or `Access route: To be verified in Step 3 / human review`, and still save the record.
 
-   Record the met values in `admission_basis`. A candidate with only one supported basis remains an ignored result: count it in the search-log `Ignored` column and name the missing basis in the reflection when it materially affects the next query. Do not create a full prospect record merely to preserve a weak lead. Exclude clear competitors, recruiters, generic consultants without project access, unrelated organizations, non-US entities without a clear US route, named existing customers, and results supported only by company size.
+   Exclude only obvious noise: direct competitors, recruiters, generic non-semiconductor entities, generic consultants without a semiconductor route, non-US entities without a clear US operational route, named existing customers, and results supported solely by general company size. Count excluded results in the search log and explain material exclusion patterns in the reflection.
 
-   Do not delete legacy records that predate this threshold. On a later discovery appearance, update a legacy record only when the new evidence is material; add `admission_basis` and migrate it to prospect schema `1.1.0` only after the current evidence supports at least two bases.
+   Across repeated cycles, aim to build a rich library of 15-30+ distinct records spanning buyers, route partners, and ecosystem connectors so SME team members can browse candidates directly and Skill 3 has a broad pool to screen. Do not pad a cycle with irrelevant records merely to reach that range.
 
-10. **Build one candidate record.** For each admitted candidate, prepare a complete record matching the Prospect Record Contract below. Use the normalized official company domain as `prospect_id` when available: lowercase it and remove the protocol, path, trailing slash, and leading `www.`. If there is no official domain, use a stable lowercase hyphenated organization or project name. Include the exact query that found the candidate, the two or three supported `admission_basis` values, and at least one evidence URL.
+   Do not delete legacy records that predate this rule. On a later discovery appearance, update a legacy record only when the new evidence is material; add at least `Capability relevance` to `admission_basis` and migrate it to prospect schema `1.1.0` when direct capability relevance is supported.
+
+10. **Build one candidate record.** For each admitted candidate, prepare a complete record matching the Prospect Record Contract below. Use the normalized official company domain as `prospect_id` when available: lowercase it and remove the protocol, path, trailing slash, and leading `www.`. If there is no official domain, use a stable lowercase hyphenated organization or project name. Include the exact query that found the candidate, one to three supported `admission_basis` values, and at least one evidence URL.
+
+    Use an empty `buying_triggers` array when no timing signal is verified. Use `Watchlist` as `route_type` when the candidate is capability-relevant but no buyer or access route is yet visible. Do not invent timing or access text merely to fill a field; preserve the missing signal in `caveats` for Step 3 / human review.
 
     For a lead found through the Hacker News Algolia API, use the official project or company domain as `prospect_id`, never `hn.algolia.com` or `news.ycombinator.com`. Preserve the specific discussion URL as `https://news.ycombinator.com/item?id=[story_id_or_objectID]` and the original linked article URL when available. Limit the HN-supported claim to what the thread actually states and retain any uncertainty as a caveat.
 
@@ -189,7 +191,8 @@ Each normal invocation is one search cycle:
     - valid JSON frontmatter and controlled values;
     - matching SME name and safe name;
     - at least one exact query and evidence URL per record;
-    - every new schema `1.1.0` record has two or three unique `admission_basis` values and an `accessed_on` date for each evidence item;
+    - every new schema `1.1.0` record has one to three unique `admission_basis` values, always including `Capability relevance`, and an `accessed_on` date for each evidence item;
+    - records without verified `Current timing` or `Access route` include the corresponding Step 3 / human-review caveat;
     - no search-log or scope timestamp is later than a fresh runtime-clock reading;
     - no claims in the body that are absent from the frontmatter;
     - a valid index with one row per prospect file and no extra rows.
@@ -250,7 +253,7 @@ Use JSON inside the Markdown frontmatter so later skill runs can compare records
   "us_cluster": "Arizona",
   "route_type": "Channel-EPC",
   "matched_capabilities": ["Tool installation"],
-  "admission_basis": ["Capability relevance", "Current timing", "Access route"],
+  "admission_basis": ["Capability relevance"],
   "buying_triggers": ["New fab construction"],
   "why_this_may_fit": "The company manages semiconductor construction packages that may require specialist tool-install support.",
   "first_seen": "2026-07-28",
@@ -264,7 +267,7 @@ Use JSON inside the Markdown frontmatter so later skill runs can compare records
       "accessed_on": "2026-07-28"
     }
   ],
-  "caveats": ["The subcontractor qualification route is not yet public."]
+  "caveats": ["Current timing: To be verified in Step 3 / human review", "Access route: To be verified in Step 3 / human review"]
 }
 ---
 ```
@@ -274,7 +277,10 @@ Required controlled values:
 - `engagement_role`: `Commercial prospect`, `Route-to-market partner`, or `Ecosystem connector`
 - `us_cluster`: `Central Texas`, `Arizona`, `New York`, `California`, or `Other US`
 - `route_type`: `Direct owner`, `Channel-EPC`, `Partner ecosystem`, or `Watchlist`
-- `admission_basis`: two or three unique values from `Capability relevance`, `Current timing`, and `Access route`
+- `admission_basis`: one to three unique values from `Capability relevance`, `Current timing`, and `Access route`; every new record must include `Capability relevance`
+- `buying_triggers`: use an empty array when no current timing signal is verified
+
+Missing `Current timing` and `Access route` values are optional and never block creation. When a signal is missing, use the required Step 3 / human-review caveat instead of adding an unsupported `admission_basis` value.
 
 Treat schema `1.0.0` prospect records without `admission_basis` or `accessed_on` as readable legacy records. Do not backfill an access date unless the source was actually reopened.
 
@@ -299,7 +305,7 @@ Use this body structure:
 - [Capability]
 
 ## Buying triggers or context
-- [Trigger]
+- [Trigger, or `None verified; see caveats.`]
 
 ## Admission basis
 - [Capability relevance, Current timing, or Access route]
@@ -356,7 +362,10 @@ Write one row per prospect Markdown file, sorted by `prospect_id`. Join multiple
 ## Quality bar
 
 - Every prospect has exactly one canonical Markdown file and at least one evidence URL.
-- Every new prospect meets at least two discovery admission bases; single-basis results remain in the search log rather than becoming full records.
+- Every prospect has direct capability relevance to the SME and records `Capability relevance` in `admission_basis`.
+- Timing and buyer access are captured when available; missing signals are explicitly deferred to Step 3 / human review rather than blocking admission.
+- Obvious competitors, recruiters, unrelated organizations, and other defined noise remain excluded.
+- Repeated cycles build a broad 15-30+ candidate pool without padding individual cycles.
 - Every exact query is recorded in the search log.
 - Every new timestamp and evidence access date comes directly from the Codex runtime or system clock, never model generation.
 - Repeated appearances update an existing record instead of creating another file.
@@ -365,3 +374,23 @@ Write one row per prospect Markdown file, sorted by `prospect_id`. Join multiple
 - AI- or user-added search terms are not presented as verified SME capabilities.
 - Named existing customers and obvious group aliases are excluded unless account expansion is requested.
 - Discovery remains broad and unscored; Skill 3 owns qualification.
+
+
+## Pandoc conversion to PDF
+Later on, the Markdown file will be converted to PDF using pandoc manually. The PDF will be delivered to SME leadership team. Therefore, you must put the following in the top section of the generated Markdown file.
+
+```
+---
+mainfont: "Helvetica"              
+fontsize: 11pt                
+geometry:
+  - left=1.2cm
+  - right=1.2cm
+  - top=2cm
+  - bottom=2cm
+colorlinks: true
+urlcolor: blue
+linkcolor: blue
+pdf-engine: xelatex
+---
+```

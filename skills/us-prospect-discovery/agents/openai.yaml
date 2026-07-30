@@ -1,4 +1,4 @@
 interface:
   display_name: "Step 2 - Discover US Prospects"
-  short_description: "Grow an evidence-screened US prospect library."
-  default_prompt: "Use $us-prospect-discovery"
+  short_description: "Build a high-recall US prospect library."
+  default_prompt: "Use $us-prospect-discovery to grow a high-recall US prospect library."

@@ -1,197 +1,147 @@
 # SG Semicon US Expansion
 
+<img src="assets/icon.svg" align="right" width="120" alt="SG Semicon Logo" />
+
+> **SBF-Aligned US Market-Entry Prospecting & Decision Support for Singapore Semiconductor SMEs**
+
 This Codex plugin helps Singapore Business Federation (SBF) leaders and Singapore semiconductor-supply-chain SMEs answer three practical questions:
 
-1. What can this SME credibly offer the US semiconductor market?
-2. Which US companies, projects, and market-entry routes may be relevant?
-3. Which opportunities deserve priority, and how can SBF help?
+1. **What can this SME credibly offer the US semiconductor market?**
+2. **Which US companies, projects, and market-entry routes may be relevant?**
+3. **Which opportunities deserve priority, and how can SBF help?**
 
 The plugin produces evidence-backed decision support. It does not replace commercial due diligence or guarantee that a company will become a customer.
 
-## What You Receive
+---
 
-For each SME, the plugin produces:
+## Quick Reference
 
-- A concise Markdown capability profile showing what the company can credibly offer, supporting evidence, and important limitations.
-- A persistent prospect library that grows across repeated search cycles, with one readable Markdown record per evidence-screened US commercial prospect, market-entry partner, or ecosystem connector.
-- A focused shortlist, normally 5-8 candidates, led by a one-page executive brief and showing capability fit, timing, buyer route, accessibility, evidence strength, transparent component scores, the next question to verify, and a recommended SBF action.
+| Stage | Command / Trigger | Primary Action | Output |
+| :--- | :--- | :--- | :--- |
+| **Step 1** | `$map-sme-capability <URL / File>` | Map SME core capabilities, evidence & limitations | `output/<sme>/01_capability_profile.md` |
+| **Step 2** | `$us-prospect-discovery` | Discover relevant US prospects across target clusters | `output/<sme>/prospects/*.md` |
+| **Step 3** | `$qualify-us-prospects` | Score & rank top candidates using 20-pt rubric | `output/<sme>/03_qualified_shortlist.md` |
 
-If the evidence supports fewer strong candidates, the plugin returns a shorter list instead of padding the results.
+---
 
-## Who It Is For
+## Installation
 
-The workflow is designed for:
+1. Open **Plugins** in Codex.
+2. Select **Add more** from the marketplace dropdown.
+3. Add the plugin folder or repository URL.
+4. Start a new Codex task after installation.
 
-- SBF leaders assessing how to support Singapore SMEs entering the US semiconductor ecosystem.
-- Singapore SME executives evaluating potential US customers, partners, projects, and entry routes.
-- Sector partners helping SMEs prepare for introductions, missions, market validation, establishment, or localization.
+---
 
-The broader project focuses on Singapore-owned SMEs with at least 30% Singapore citizen or permanent-resident equity, less than SGD 100 million in revenue, and fewer than 200 employees. Skill 1 does not burden capability mapping with a detailed eligibility assessment; SBF can verify missing eligibility facts separately.
+## Deliverables
 
-Relevant supporting activities include semiconductor equipment and services, precision engineering, testing, assembly, advanced packaging, factory software, cleanroom and facility services, tool installation and relocation, logistics, materials, and systems integration. Direct semiconductor manufacturing is not the target SME segment.
+For each SME, the workflow generates:
 
-## No Technical Setup Required
+- **Capability Profile (`01_capability_profile.md`)**: A structured summary of core technical offerings, website evidence, and operational limits.
+- **Prospect Library (`prospects/*.md`)**: A persistent collection of individual Markdown records for screened US prospects, market-entry partners, and ecosystem connectors.
+- **Qualified Executive Shortlist (`03_qualified_shortlist.md`)**: A prioritized 5–8 candidate decision report featuring component scores, buyer routes, next verification questions, and recommended SBF actions.
 
-This plugin is designed for business users:
+---
 
-- You do not need Python.
-- You do not need Terminal or command-line access.
-- You do not need a database or spreadsheet system.
-- Put optional user-provided information in the `input/` folder.
-- Find every generated report and working record in the `output/` folder.
-- Each SME has one self-contained folder under `output/`.
-- Open and review the Markdown (`.md`) files like ordinary documents.
+## Target Segment & Scope
 
-The workflow uses simple folders and readable Markdown files so users can understand what was provided, what the plugin found, and what to review next.
+### Designed For
+- **SBF Leaders & Advisors**: Evaluating strategic support initiatives for Singapore SMEs entering the US semiconductor ecosystem.
+- **Singapore SME Executives**: Assessing potential US customers, partners, and expansion routes.
+- **Industry Partners**: Guiding SMEs through market validation, missions, and establishment.
 
-When the active Codex runtime supports subagents, Step 2 automatically runs independent regional and public-signal searches in parallel. Business users do not configure agents, edit settings, provide API keys, or manage the resulting worker threads; if subagents are unavailable, the same workflow continues sequentially.
+### Eligible Sector Focus
+Target SMEs should be Singapore-owned (≥30% local equity, revenue < SGD 100M, <200 employees). Relevant activities include:
 
-## Before You Start
+- Semiconductor equipment & precision engineering
+- Testing, assembly & advanced packaging
+- Cleanroom, facility services & tool relocation
+- Factory software, logistics & systems integration
 
-Prepare:
+*Note: Direct semiconductor manufacturing (Fab operations) is out of scope.*
 
-- The SME's website or an uploaded company profile.
-- Optional customer information in `input/existing_customers.md` when the website does not adequately describe the company's customer base.
-- Time to review the result at the end of each step and correct missing or inaccurate assumptions.
+---
 
-Do not enter company-confidential information.
+## Workflow Architecture
 
-The workflow runs entirely inside Codex. SME users do not install or run Python, use Terminal, or manage technical dependencies.
-
-## The Three-Step Workflow
-
-```text
-Understand the SME -> discover possible US routes -> qualify the best candidates
+```mermaid
+flowchart LR
+    A[SME Website / Input] -->|Step 1: $map-sme-capability| B[Capability Profile]
+    B -->|Review & Approve| C[Step 2: $us-prospect-discovery]
+    C -->|Adaptive Discovery| D[Prospect Library]
+    D -->|Review & Approve| E[Step 3: $qualify-us-prospects]
+    E -->|20-Pt Scoring Rubric| F[Executive Shortlist]
 ```
 
-The workflow deliberately stops for review after every step. Users can continue, revise the current result in plain English, or stop.
+### 1. Capability Mapping (`$map-sme-capability`)
+Analyzes the SME’s website or company presentation to identify up to three core capabilities, supporting evidence, and search keywords for US discovery.
 
-### Step 1 - Map SME Capability
+### 2. Prospect Discovery (`$us-prospect-discovery`)
+Runs adaptive search cycles across priority US clusters using public signals (CHIPS Act awards, state EDO announcements, company career portals, contractor listings). Generates individual prospect records categorized as:
+- **Commercial Prospect**: Potential buyers or end-customer projects.
+- **Route-to-Market Partner**: OEMs, EPCM contractors, integrators providing buyer access.
+- **Ecosystem Connector**: EDOs, industry chambers, research consortia.
 
-Click **Step 1 - Map SME Capability** and provide the SME website or company profile. Users can also type:
+### 3. Prospect Qualification (`$qualify-us-prospects`)
+Screens the prospect library against a 20-point rubric assessing capability fit, timing signals, buyer accessibility, and evidence strength. Recommends specific SBF engagement stages (**Learn**, **Lead Generation**, **Land**, **Localize**).
 
-```text
-Use $map-sme-capability for https://www.example.com.sg
+---
+
+## Optional Inputs
+
+Users can supply context in `input/existing_customers.md` to exclude current accounts or guide analogous-buyer searches:
+
+```markdown
+# Existing Customers - [SME Name]
+
+- Customer A (US - Texas)
+- Customer B (Singapore / SEA Subsidiary)
+
+Exclusions:
+- Exclude direct outreach to existing Tier-1 fab accounts in Taiwan.
 ```
 
-The plugin reviews the source material and identifies:
+---
 
-- Up to three core technical capabilities.
-- Direct website evidence.
-- Partner-supplied products and important limitations.
-- Simple search directions for Skill 2.
+## Geographic Focus
 
-Customer information is optional and never blocks Step 1. When it is absent, the plugin still creates the capability profile; users may add customer context before Step 2 if it would help exclude existing accounts or guide analogous-buyer searches.
+Default priority US semiconductor clusters:
+1. **Central Texas** (Austin, Taylor, Round Rock)
+2. **Arizona** (Phoenix, Chandler)
+3. **New York** (Albany, Marcy, Fishkill)
 
-Review the capability report before proceeding. Correcting weak assumptions here prevents them from affecting the later prospect search.
+Other US regions are evaluated when capability fit or timing signals are exceptionally strong.
 
-### Step 2 - Discover US Prospects
+---
 
-After approving Step 1, click **Step 2 - Discover US Prospects** or type `$us-prospect-discovery`.
+## Human Review & Natural Language Feedback
 
-The plugin immediately runs a short adaptive search cycle of up to five searches using the approved capability profile and default US scope. It does not require another confirmation after the user continues from Step 1. Users can still revise capabilities, buyer routes, timing signals, or geography whenever they choose.
-
-The plugin saves one Markdown record per prospect that meets at least two of three public-evidence tests: direct capability relevance, current timing, and a visible access route. Weaker single-signal results remain in the search log instead of becoming full prospect records. The log shows the exact queries, results, reflections, and next direction. It uses open public signals such as company career pages, CHIPS Act and government notices, state EDO releases, contractor project pages, and the free Hacker News Algolia API without relying on API keys, private databases, or login-walled social networks. Hacker News is treated as a secondary discovery and caveat signal, not proof of a commercial relationship. The plugin also rebuilds a small TSV index after each search so later runs can scan a large library quickly. Running Step 2 again resumes from the accumulated library instead of overwriting the previous search.
-
-Under the hood, Step 2 can delegate independent Arizona, Central Texas, New York, and public-signal searches to read-only subagents and consolidate their evidence in the primary thread. Only the primary thread updates the canonical prospect files, search log, and index, preserving the same review-gated, no-code experience.
-
-When a known company appears again, the plugin updates its existing record with new evidence. It creates a new file only for a genuinely new buying organization. The cycle stops early after three searches produce no new prospects, but there is no fixed 20-company limit across repeated runs.
-
-Every candidate is clearly labeled as one of:
-
-- `Commercial prospect`: a possible buyer or end-customer project.
-- `Route-to-market partner`: an equipment OEM, EPC/EPCM firm, contractor, integrator, or other organization that may provide access to a project or buyer.
-- `Ecosystem connector`: an economic development organization, chamber, association, university, consortium, or public initiative that may help the SME or SBF enter a US cluster.
-
-Review the newly created or updated records after each cycle. Users can continue discovery with another cycle, revise the search scope, or move to qualification when the accumulated library is useful.
-
-### Step 3 - Qualify US Prospects
-
-After approving Step 2, click **Step 3 - Qualify US Prospects** or type `$qualify-us-prospects`.
-
-The plugin first reads the lightweight prospect index, then opens the full Markdown only for the strongest 10-15 candidates. It verifies timing and buyer paths through public career, government-award, EDO, and contractor-project sources before producing the final shortlist. If the index is missing or damaged, the plugin automatically falls back to the prospect Markdown files. It considers:
-
-- Capability fit.
-- Timing and urgency.
-- Clarity of the likely buyer route.
-- Accessibility for a Singapore SME.
-- Relevance to priority US clusters.
-- Strength of available evidence.
-
-Each finalist receives a classification, a six-part score breakdown, a practical route to investigate, a next verification question, and a recommended SBF support action. The report opens with a one-page decision brief; detailed evidence remains below it for audit and diligence.
-
-The recommended SBF stages are:
-
-- `Learn`: improve market understanding and test the SME's fit.
-- `Lead Generation`: create introductions and validate demand.
-- `Land`: support initial US establishment, incentives, and partner selection.
-- `Localize`: deepen local operations, hiring, supplier status, and scale.
-
-Use the final shortlist to guide deeper diligence, introductions, mission meetings, partner discussions, and market-entry planning.
-
-## Existing Customers
-
-The optional `input/existing_customers.md` file helps the plugin understand customer patterns that may be missing from the company website.
-
-Users can add:
-
-- Existing customer names.
-- Customer types, countries, or regions.
-- Patterns such as Japanese OSAT companies with Southeast Asian operations.
-- Relevant relationship or route-to-market notes.
-
-Steps 2 and 3 exclude named existing customers and obvious corporate-group aliases from new-prospect recommendations. Existing customers are considered only when the user explicitly requests account-expansion analysis.
-
-The SME name in the file prevents customer information from being applied to the wrong company. The file is optional; leaving it empty does not block the workflow.
-
-## US Market Scope
-
-The default priority clusters are:
-
-- Central Texas.
-- Arizona.
-- New York.
-
-California is deprioritized because of cost, but it is not prohibited. Candidates elsewhere in the US can appear when capability fit, timing, or market access is materially stronger.
-
-The plugin searches beyond fab owners. Depending on the SME, practical routes may include equipment OEMs, EPC/EPCM firms, cleanroom contractors, systems integrators, approved-supplier programs, economic development organizations, chambers, industry associations, universities, and research consortia.
-
-## Human Review
-
-At every stage, users can revise the result in normal language. Examples:
+The workflow stops for review after every step. Users can revise assumptions or scope in plain English:
 
 ```text
-Revise the capability profile: add flip chip as a user-provided search term.
-Revise the discovery scope: include more Arizona partners and fewer fab owners.
-Revise the qualified shortlist: move this company to Watchlist because the buyer route is unclear.
+- "Add flip-chip packaging as a user-specified search term."
+- "Focus search on Arizona partners rather than fab owners."
+- "Move Candidate X to Watchlist due to unclear buyer route."
 ```
 
-The reports should be treated as structured research and decision support. Users should verify important commercial facts before outreach, investment, or market-entry decisions.
-
-The company-level outputs support the broader SBF US semiconductor playbook. They are not, by themselves, SBF's complete 3-to-5-year strategy.
+---
 
 ## Working Files
 
-Users do not need to copy file paths between steps. The plugin automatically continues from the latest reviewed company record.
+All outputs are saved in self-contained folders under `output/<sme_name>/`:
 
-- `input/existing_customers.md` is optional user input.
-- `output/<safe_sme_name>/01_capability_profile.md` is the Step 1 profile.
-- `output/<safe_sme_name>/02_search_log.md` records Step 2 searches and reflections.
-- `output/<safe_sme_name>/02_prospects_index.tsv` is a compact, automatically rebuilt speed index.
-- `output/<safe_sme_name>/prospects/*.md` contains one canonical Step 2 record per prospect that passes the discovery evidence threshold.
-- `output/<safe_sme_name>/03_qualified_shortlist.md` is the Step 3 decision-support report.
-- `output/<safe_sme_name>/03_qualified_shortlist.json` is the matching structured archive.
+- `01_capability_profile.md`: Step 1 capability summary.
+- `02_search_log.md`: Log of discovery queries and reflections.
+- `02_prospects_index.tsv`: Lightweight speed index.
+- `prospects/*.md`: Detailed records for each discovered prospect.
+- `03_qualified_shortlist.md`: Final qualified executive report.
+- `03_qualified_shortlist.json`: Structured archive of shortlisted candidates.
 
-The numbered filenames appear in workflow order in Mac Finder and Windows File Explorer. To share or archive one SME's work, copy or zip that SME's single folder.
+---
 
-Prospect Markdown files are the source of truth. The TSV file is only a fast index and can always be rebuilt, so a damaged index cannot erase prospect research. Search timestamps and evidence access dates are taken from the runtime clock rather than generated manually.
+## Limitations & Disclaimers
 
-## Install the Plugin
+> **Decision Support Only**: Reports generated by this plugin provide evidence-backed research and market discovery. They do not replace formal commercial due diligence, legal counsel, or financial audits.
 
-In Codex:
-
-1. Open **Plugins**.
-2. Open the marketplace dropdown.
-3. Click **Add more**.
-4. Add the plugin link or folder provided by the project lead.
-5. Start a new Codex task after installation or update.
+- **Public Data Dependency**: Prospect discovery is built strictly on open, publicly accessible web signals and public announcements. It does not access private databases or non-public procurement registries.
+- **Export Control Disclaimer**: The plugin does not perform compliance reviews under US Export Administration Regulations (EAR) or ITAR. Users must independently verify regulatory compliance before commercial outreach.

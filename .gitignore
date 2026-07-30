@@ -4,3 +4,4 @@
 *.bak
 output/
 repomix-output*.xml
+tmp/
