@@ -50,6 +50,7 @@ Each normal invocation is one search cycle:
 - Stop early after three consecutive searches produce no new prospect files.
 - Process and save useful candidates immediately after every search.
 - Let later invocations resume from the accumulated files and search log.
+- When broad uncovered directions span independent regions or signal types, automatically delegate bounded, read-only searches to parallel subagents, then consolidate their results in the primary thread.
 
 ## Instructions
 
@@ -104,6 +105,30 @@ Each normal invocation is one search cycle:
    Use an exact company or project phrase and a specific cluster for comment searches; never query a generic term such as `fab` alone. Use at most one Hacker News API query per cycle unless it produces a named, relevant company, project, or route worth following. Do not create a prospect from an HN mention alone; corroborate the identity and commercial relevance with an official company, project, government, contractor, or credible trade source.
 
    If the user asks to run one exact query, run only that query and stop the cycle after saving and logging its results.
+
+   #### Parallel execution via subagents
+
+   When at least two uncovered search directions are independent, automatically delegate them to parallel subagents. Prefer read-heavy discovery across:
+
+   - Arizona fab, advanced-packaging, tool-install, contractor, and public-project signals.
+   - Central Texas CHIPS awards, fab or supplier expansions, contractor projects, and first-party hiring signals.
+   - New York or stronger Other US ecosystem, university, supplier, EPC, and regional-project signals.
+   - At most one Hacker News Algolia query using an exact company or project phrase and a specific cluster.
+
+   Keep the cycle within the same five-search total, including every delegated query. Spawn only the workers needed for distinct uncovered directions; do not repeat logged exact queries merely to fill a parallel batch.
+
+   Give each subagent a bounded, read-only assignment containing the approved capabilities, target cluster or signal channel, one exact query, existing prospect identities, and the relevant evidence rules. Require a compact structured return containing the exact query, candidate name and official domain, possible role and cluster, evidence URLs with supported claims, caveats, ignored-result reasons, and a short reflection. Subagents must not write or edit the prospect store.
+
+   Wait for the delegated searches, then have the primary agent:
+
+   1. Validate the returned sources and evidence boundaries.
+   2. Process each completed query separately in a deterministic order.
+   3. Run the identity check and upsert canonical `prospects/<prospect_id>.md` records.
+   4. Log every exact query with its own counts and reflection.
+   5. Rebuild `02_prospects_index.tsv` from the canonical Markdown records.
+   6. Use any remaining search slots adaptively after reviewing the combined results.
+
+   If multi-agent tools are unavailable, the thread limit is reached, or delegation fails, continue the same uncovered searches sequentially without asking the user to configure anything. The primary agent remains responsible for all writes, deduplication, logging, validation, and final reporting.
 
 9. **Apply lightweight filtering.** Keep a candidate only when there is a visible reason it could buy, enable, or connect the SME's supported capability. Exclude clear competitors, recruiters, generic consultants without project access, unrelated organizations, non-US entities without a clear US route, named existing customers, and results supported only by company size.
 

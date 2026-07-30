@@ -44,6 +44,8 @@ This plugin is designed for business users:
 
 The workflow uses simple folders and readable Markdown files so users can understand what was provided, what the plugin found, and what to review next.
 
+When the active Codex runtime supports subagents, Step 2 automatically runs independent regional and public-signal searches in parallel. Business users do not configure agents, edit settings, provide API keys, or manage the resulting worker threads; if subagents are unavailable, the same workflow continues sequentially.
+
 ## Before You Start
 
 Prepare:
@@ -90,6 +92,8 @@ After approving Step 1, click **Step 2 - Discover US Prospects** or type `$us-pr
 The plugin immediately runs a short adaptive search cycle of up to five searches using the approved capability profile and default US scope. It does not require another confirmation after the user continues from Step 1. Users can still revise capabilities, buyer routes, timing signals, or geography whenever they choose.
 
 The plugin saves one Markdown record per possible prospect and keeps a search log showing the exact queries, results, reflections, and next direction. It uses open public signals such as company career pages, CHIPS Act and government notices, state EDO releases, contractor project pages, and the free Hacker News Algolia API without relying on API keys, private databases, or login-walled social networks. Hacker News is treated as a secondary discovery and caveat signal, not proof of a commercial relationship. The plugin also rebuilds a small TSV index after each search so later runs can scan a large library quickly. Running Step 2 again resumes from the accumulated library instead of overwriting the previous search.
+
+Under the hood, Step 2 can delegate independent Arizona, Central Texas, New York, and public-signal searches to read-only subagents and consolidate their evidence in the primary thread. Only the primary thread updates the canonical prospect files, search log, and index, preserving the same review-gated, no-code experience.
 
 When a known company appears again, the plugin updates its existing record with new evidence. It creates a new file only for a genuinely new buying organization. The cycle stops early after three searches produce no new prospects, but there is no fixed 20-company limit across repeated runs.
 
