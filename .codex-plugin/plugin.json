@@ -1,6 +1,6 @@
 {
   "name": "sg-semicon-expansion-plugin",
-  "version": "0.2.0+codex.20260730031539",
+  "version": "0.2.0+codex.20260730123411",
   "description": "SBF-aligned US market-entry prospecting for Singapore semiconductor-supply-chain SMEs using three review-gated skills.",
   "author": {
     "name": "Hanyang Hu",
@@ -31,6 +31,9 @@
       "Interactive"
     ],
     "websiteURL": "https://github.com/hyhunss/sg-semicon-us-expansion-plugin",
+    "brandColor": "#00F0FF",
+    "composerIcon": "./assets/icon.svg",
+    "logo": "./assets/icon.svg",
     "defaultPrompt": [
       "Use $map-sme-capability for [SME website or company profile]."
     ]
