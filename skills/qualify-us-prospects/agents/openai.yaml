@@ -1,4 +1,4 @@
 interface:
   display_name: "Step 3 - Qualify US Prospects"
-  short_description: "Turn the prospect index into a focused shortlist."
+  short_description: "Turn the prospect library into an executive shortlist."
   default_prompt: "Use $qualify-us-prospects"

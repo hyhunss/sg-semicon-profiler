@@ -1,6 +1,6 @@
 ---
 name: qualify-us-prospects
-description: Third skill in the SG Semicon US Expansion workflow. Use after the user reviews the persistent prospect library created by us-prospect-discovery. Screen the lightweight prospect index, read only the strongest Markdown records, run targeted verification, and produce a 5-8 target decision-support shortlist with practical SBF actions. Fall back to prospect frontmatter automatically when the index is unavailable, and accept legacy consolidated Skill 2 files only when necessary.
+description: Third skill in the SG Semicon US Expansion workflow. Use after the user reviews the persistent prospect library created by us-prospect-discovery. Screen the lightweight prospect index, read only the strongest Markdown records, run targeted verification, and produce a 5-8 target decision-support shortlist with score breakdowns, a one-page leadership brief, and practical SBF actions. Fall back to prospect frontmatter automatically when the index is unavailable, and accept legacy consolidated Skill 2 files only when necessary.
 ---
 
 # Skill: qualify-us-prospects
@@ -27,7 +27,7 @@ capability profile + prospect directory -> metadata screen -> focused reading
 - `output/<safe_sme_name>/03_qualified_shortlist.json`
 - `output/<safe_sme_name>/03_qualified_shortlist.md`
 
-Use `schema_version: "1.2.0"` and `schema_name: "qualified_prospects"` for new JSON output. Treat `schema/qualified-prospects.schema.json` as the field contract and self-check the completed object against it.
+Use `schema_version: "1.3.0"` and `schema_name: "qualified_prospects"` for new JSON output. Treat `schema/qualified-prospects.schema.json` as the field contract and self-check the completed object against it. Continue to accept valid legacy 1.0.0-1.2.0 outputs when revising or reading older work.
 
 ## Instructions
 
@@ -73,13 +73,16 @@ Use `schema_version: "1.2.0"` and `schema_name: "qualified_prospects"` for new J
     - source focus;
     - source title and type;
     - source date or `Not stated`;
+    - actual access date;
     - URL;
     - supported claim;
     - short excerpt or tight paraphrase.
 
     Label unsupported possibilities as inference or leave them out.
 
-12. **Apply the 20-point rubric.**
+12. **Use runtime-derived time values.** At the start of qualification and immediately before the final write, read the current local time from the Codex runtime or system clock. Use the final exact ISO 8601 timestamp returned by the environment as `generated_at` and its calendar date as `accessed_on` for every source actually opened during this run. Never estimate or manually generate either value. Preserve an older access date only when carrying forward evidence without reopening its URL. This is an internal Codex operation: never create a helper script or ask the SME user to run a command. If the runtime clock is unavailable, stop before writing rather than inventing a timestamp.
+
+13. **Apply and expose the 20-point rubric.**
 
     - Capability fit: 0-5
     - Timing or urgency: 0-4
@@ -88,13 +91,17 @@ Use `schema_version: "1.2.0"` and `schema_name: "qualified_prospects"` for new J
     - Priority-cluster fit: 0-1
     - Evidence strength: 0-2
 
-13. **Classify finalists.**
+    Store all six component scores in `score_breakdown`. Set `score` to their arithmetic sum and verify the sum exactly before writing. Do not assign a total independently.
+
+14. **Classify finalists.**
 
     - `Priority`: strong fit, timely, and a specific route worth investigating now.
     - `Strategic`: important but likely long-cycle or partner-led.
     - `Watchlist`: relevant but timing, access, or evidence is not ready.
 
-14. **Enforce evidence coverage.**
+    Classification expresses actionability and route maturity; it is not mechanically determined by the total score. State this once in the leadership brief so a lower-scoring `Priority` and a higher-scoring `Strategic` candidate do not appear contradictory.
+
+15. **Enforce evidence coverage.**
 
     - `Priority`: timing, capability fit, and buyer-path or accessibility evidence; at least two distinct URLs; at least one project/timing-specific source.
     - `Strategic`: timing, capability fit, and buyer-path or risk evidence.
@@ -102,23 +109,32 @@ Use `schema_version: "1.2.0"` and `schema_name: "qualified_prospects"` for new J
 
     A generic company page alone cannot support `Priority`.
 
-15. **Recommend one SBF intervention per finalist.** Assign `Learn`, `Lead Generation`, `Land`, or `Localize` and one concrete action, such as a cluster briefing, procurement-route validation, warm introduction, mission meeting, local partner search, incentive navigation, or supplier-localization support.
+16. **Recommend one SBF intervention per finalist.** Assign `Learn`, `Lead Generation`, `Land`, or `Localize` and one concrete action, such as a cluster briefing, procurement-route validation, warm introduction, mission meeting, local partner search, incentive navigation, or supplier-localization support.
 
-16. **Prefer realistic routes.** Compare direct-owner outreach with EPC, contractor, OEM, channel, integrator, and ecosystem routes. Do not rank a megafab owner highly without a specific route to investigate. Apply Central Texas, Arizona, and New York as tie-breakers, not absolute rules.
+17. **Prefer realistic routes.** Compare direct-owner outreach with EPC, contractor, OEM, channel, integrator, and ecosystem routes. Do not rank a megafab owner highly without a specific route to investigate. Apply Central Texas, Arizona, and New York as tie-breakers, not absolute rules.
 
-17. **Filter aggressively.** Produce 5-8 finalists and never more than 10. Return fewer than five when fewer are credible. Group non-finalists by concise exclusion reason rather than listing every weak record.
+18. **Filter aggressively.** Produce 5-8 finalists and never more than 10. Return fewer than five when fewer are credible. Group non-finalists by concise exclusion reason rather than listing every weak record.
 
-18. **Write canonical JSON first.** Use the Output Contract below. Set `source_prospect_directory` to the Skill 2 directory. When using a legacy input, use the legacy `source_prospect_discovery_path` field and its compatible schema version instead.
+19. **Build a one-page leadership brief.** Before the detailed shortlist, create `executive_summary` with:
 
-19. **Self-check and render.** Read `schema/qualified-prospects.schema.json` and compare the completed JSON against its required fields, controlled values, item limits, evidence requirements, and version-specific source field. Re-read the written JSON to ensure it is complete and parseable. Fix every mismatch. Render the Markdown report only from the self-checked JSON.
+    - one decision headline;
+    - no more than four `action_now` items, each naming the prospect, why it matters now, and the next SBF action;
+    - no more than three `strategic_routes` items for longer-cycle or partner-led options;
+    - up to three portfolio-level critical unknowns.
 
-20. **Confirm briefly.** Report the number of prospect records screened, full records read, candidates verified, and finalists produced. Point to the qualified Markdown and JSON. End with use, revise, or stop choices.
+    Keep the rendered section concise enough to fit roughly one page. Every named organization must also appear in `qualified_shortlist`. Do not repeat full evidence citations there; the detailed sections remain the audit trail.
+
+20. **Write canonical JSON first.** Use the Output Contract below. Set `source_prospect_directory` to the Skill 2 directory. When using a legacy input, use the legacy `source_prospect_discovery_path` field and its compatible schema version instead.
+
+21. **Self-check and render.** Read `schema/qualified-prospects.schema.json` and validate the completed JSON with the JSON Schema capability available in the Codex runtime. Independently recompute every total from the six score components and compare `generated_at` with a fresh runtime-clock reading. Fix every mismatch before rendering Markdown. Do not create a validation script and do not ask the SME user to run technical checks.
+
+22. **Confirm briefly.** Report the number of prospect records screened, full records read, candidates verified, and finalists produced. Point to the qualified Markdown and JSON. End with use, revise, or stop choices.
 
 ## Output Contract
 
 ```json
 {
-  "schema_version": "1.2.0",
+  "schema_version": "1.3.0",
   "schema_name": "qualified_prospects",
   "sme_name": "[SME name]",
   "safe_sme_name": "<safe_sme_name>",
@@ -130,6 +146,23 @@ Use `schema_version: "1.2.0"` and `schema_name: "qualified_prospects"` for new J
     "sme_capabilities_used": ["[Capability]"],
     "must_not_overclaim_caveats": ["[Caveat]"],
     "best_buyer_paths": ["[Route]"]
+  },
+  "executive_summary": {
+    "headline": "[Decision-oriented portfolio conclusion]",
+    "action_now": [
+      {
+        "prospect": "[Company]",
+        "why_now": "[Why action is timely]",
+        "next_sbf_action": "[One immediate action]"
+      }
+    ],
+    "strategic_routes": [
+      {
+        "prospect": "[Company]",
+        "why_strategic": "[Why this matters but is not immediate]"
+      }
+    ],
+    "critical_unknowns": ["[Portfolio-level unknown]"]
   },
   "qualified_shortlist": [
     {
@@ -150,6 +183,7 @@ Use `schema_version: "1.2.0"` and `schema_name: "qualified_prospects"` for new J
           "source_title": "[Project or timing source]",
           "source_type": "Press release",
           "source_date": "2026-07-28",
+          "accessed_on": "2026-07-30",
           "url": "https://example.com/project-source",
           "supported_claim": "[Current timing claim]",
           "evidence_excerpt": "[Short excerpt or tight paraphrase]"
@@ -160,6 +194,7 @@ Use `schema_version: "1.2.0"` and `schema_name: "qualified_prospects"` for new J
           "source_title": "[Capability source]",
           "source_type": "Company page",
           "source_date": "Not stated",
+          "accessed_on": "2026-07-30",
           "url": "https://example.com/capability-source",
           "supported_claim": "[Capability-fit claim]",
           "evidence_excerpt": "[Short excerpt or tight paraphrase]"
@@ -170,11 +205,20 @@ Use `schema_version: "1.2.0"` and `schema_name: "qualified_prospects"` for new J
           "source_title": "[Buyer-route source]",
           "source_type": "Company page",
           "source_date": "Not stated",
+          "accessed_on": "2026-07-30",
           "url": "https://example.com/capability-source",
           "supported_claim": "[Specific buyer or access route]",
           "evidence_excerpt": "[Short excerpt or tight paraphrase]"
         }
       ],
+      "score_breakdown": {
+        "capability_fit": 5,
+        "timing_urgency": 3,
+        "buyer_path_clarity": 3,
+        "accessibility_sbf_route": 3,
+        "priority_cluster_fit": 1,
+        "evidence_strength": 2
+      },
       "score": 17,
       "what_to_verify_next": "[One verification question]"
     }
@@ -193,12 +237,13 @@ Use `schema_version: "1.2.0"` and `schema_name: "qualified_prospects"` for new J
 
 Render these sections:
 
-1. Inputs and number of prospect records screened
-2. Qualification logic
-3. Qualified shortlist table
-4. Structured evidence by finalist
-5. Grouped exclusions
-6. Recommended next actions
+1. Executive decision brief
+2. Inputs and number of prospect records screened
+3. Qualification logic, including the distinction between score and actionability class
+4. Qualified shortlist table with compact component-score breakdowns
+5. Structured evidence by finalist
+6. Grouped exclusions
+7. Recommended next actions
 
 Do not introduce claims, scores, or recommendations absent from the self-checked JSON.
 
@@ -209,6 +254,9 @@ Do not introduce claims, scores, or recommendations absent from the self-checked
 - Read full files only for the focused 10-15 candidate set.
 - Produce 5-8 finalists, never more than 10, without padding.
 - Give every finalist a specific buyer path, one verification question, and one concrete SBF action.
+- Show all six score components and verify that they sum to the total.
+- Lead with a concise executive brief containing at most four immediate actions and three strategic routes.
+- Give every newly opened evidence URL a runtime-derived access date.
 - Meet classification-specific evidence coverage.
 - Exclude named existing customers unless account expansion is requested.
 - Separate direct evidence from inference.

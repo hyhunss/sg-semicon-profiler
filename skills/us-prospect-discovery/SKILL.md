@@ -1,11 +1,11 @@
 ---
 name: us-prospect-discovery
-description: Second skill in the SG Semicon US Expansion workflow. Use after the user reviews a map-sme-capability output to immediately run repeatable, adaptive US prospect-search cycles, then resume later runs from a persistent search log. Create or update one Markdown record per possible commercial prospect, route-to-market partner, or ecosystem connector while preventing duplicates. Default to Central Texas, Arizona, and New York unless the user specifies another scope, and leave deep qualification to Skill 3.
+description: Second skill in the SG Semicon US Expansion workflow. Use after the user reviews a map-sme-capability output to run repeatable, adaptive US prospect-search cycles and resume later from a persistent search log. Create or update a Markdown record only when a possible commercial prospect, route-to-market partner, or ecosystem connector meets the two-of-three discovery evidence threshold, while preventing duplicates. Default to Central Texas, Arizona, and New York unless the user specifies another scope, and leave deep qualification to Skill 3.
 ---
 
 # Skill: us-prospect-discovery
 
-Build a persistent library of possible US prospects through short, repeatable search cycles. Discover broadly and filter only obvious noise. Do not score or deeply qualify candidates.
+Build a persistent library of plausible US prospects through short, repeatable search cycles. Search broadly, but create a canonical record only after a candidate meets the discovery evidence threshold. Do not score or deeply qualify candidates.
 
 This is step 2 of a review-gated workflow:
 
@@ -48,7 +48,7 @@ Each normal invocation is one search cycle:
 
 - Run at most five live searches.
 - Stop early after three consecutive searches produce no new prospect files.
-- Process and save useful candidates immediately after every search.
+- Evaluate every result after each search; save only candidates that meet the two-of-three discovery evidence threshold.
 - Let later invocations resume from the accumulated files and search log.
 - When broad uncovered directions span independent regions or signal types, automatically delegate bounded, read-only searches to parallel subagents, then consolidate their results in the primary thread.
 
@@ -130,9 +130,17 @@ Each normal invocation is one search cycle:
 
    If multi-agent tools are unavailable, the thread limit is reached, or delegation fails, continue the same uncovered searches sequentially without asking the user to configure anything. The primary agent remains responsible for all writes, deduplication, logging, validation, and final reporting.
 
-9. **Apply lightweight filtering.** Keep a candidate only when there is a visible reason it could buy, enable, or connect the SME's supported capability. Exclude clear competitors, recruiters, generic consultants without project access, unrelated organizations, non-US entities without a clear US route, named existing customers, and results supported only by company size.
+9. **Apply the two-of-three discovery evidence threshold.** Create a new canonical record only when current public evidence supports at least two of these three admission bases:
 
-10. **Build one candidate record.** For each plausible candidate, prepare a complete record matching the Prospect Record Contract below. Use the normalized official company domain as `prospect_id` when available: lowercase it and remove the protocol, path, trailing slash, and leading `www.`. If there is no official domain, use a stable lowercase hyphenated organization or project name. Include the exact query that found the candidate and at least one evidence URL.
+   - `Capability relevance`: a named process, facility, service, equipment category, or program has a direct relationship to one of the SME's supported capabilities. Generic semiconductor activity or company size does not qualify.
+   - `Current timing`: a dated or visibly current expansion, award, hiring need, tool installation, capacity change, program, procurement event, or operating requirement creates a reason to investigate now.
+   - `Access route`: a documented supplier, procurement, project, technical-contact, paid-pilot, membership, contractor, OEM, integrator, or partner route could realistically connect the SME or SBF to the opportunity.
+
+   Record the met values in `admission_basis`. A candidate with only one supported basis remains an ignored result: count it in the search-log `Ignored` column and name the missing basis in the reflection when it materially affects the next query. Do not create a full prospect record merely to preserve a weak lead. Exclude clear competitors, recruiters, generic consultants without project access, unrelated organizations, non-US entities without a clear US route, named existing customers, and results supported only by company size.
+
+   Do not delete legacy records that predate this threshold. On a later discovery appearance, update a legacy record only when the new evidence is material; add `admission_basis` and migrate it to prospect schema `1.1.0` only after the current evidence supports at least two bases.
+
+10. **Build one candidate record.** For each admitted candidate, prepare a complete record matching the Prospect Record Contract below. Use the normalized official company domain as `prospect_id` when available: lowercase it and remove the protocol, path, trailing slash, and leading `www.`. If there is no official domain, use a stable lowercase hyphenated organization or project name. Include the exact query that found the candidate, the two or three supported `admission_basis` values, and at least one evidence URL.
 
     For a lead found through the Hacker News Algolia API, use the official project or company domain as `prospect_id`, never `hn.algolia.com` or `news.ycombinator.com`. Preserve the specific discussion URL as `https://news.ycombinator.com/item?id=[story_id_or_objectID]` and the original linked article URL when available. Limit the HN-supported claim to what the thread actually states and retain any uncertainty as a caveat.
 
@@ -153,14 +161,17 @@ Each normal invocation is one search cycle:
     - Preserve `first_seen`; update `last_seen`.
     - Merge aliases, matched capabilities, buying triggers, queries, and caveats without repeated entries.
     - Merge evidence by normalized URL; do not repeat the same URL.
+    - Give every newly accessed evidence item an `accessed_on` value from the runtime clock. Preserve an older `accessed_on` value unless the URL was reopened in the current run.
     - Prefer the most specific current company name, website, role, cluster, route, fit explanation, and evidence claim.
     - Rewrite both the complete JSON frontmatter and the human-readable body. Never append evidence only to the body.
 
-13. **Log every exact query and scope change.** Before searching, compare the planned query with every query already in `02_search_log.md`. Do not rerun an exact query unless the user explicitly requests a freshness rerun. After processing the query, create the log on the first search or append one row using the Search Log Contract below. Record the exact query, counts of new, updated, and ignored results, and the reflection that explains the next mutation. When the user confirms a materially revised scope, append a dated `Scope update` section before the next query row; do not replace the earlier scope. Treat the most recent confirmed scope section as active on later runs.
+13. **Use runtime-derived time values.** Immediately before writing each search-log row or scope update, read the current local time from the Codex runtime or system clock. Use the exact ISO 8601 timestamp returned by the environment and its calendar date for new `first_seen`, `last_seen`, and evidence `accessed_on` values. Never estimate, interpolate, round, sequence, or manually generate a time value. Read the clock again for each later log row. This is an internal Codex operation: never create a helper script or ask the SME user to run a command. If the runtime clock is unavailable, omit the write and report the clock failure instead of inventing a timestamp.
 
-14. **Rebuild the speed index after each search.** Re-enumerate all prospect Markdown files and replace `02_prospects_index.tsv` from their JSON frontmatter. Never append blindly. Use the exact header and rules in the Index Contract below. If rebuilding fails, continue using the Markdown records and report the index issue; never lose or rewrite a valid prospect record to satisfy the index.
+14. **Log every exact query and scope change.** Before searching, compare the planned query with every query already in `02_search_log.md`. Do not rerun an exact query unless the user explicitly requests a freshness rerun. After processing the query, create the log on the first search or append one row using the Search Log Contract below. Record the exact query, counts of new, updated, and ignored results, and the reflection that explains the next mutation. When the user confirms a materially revised scope, append a runtime-dated `Scope update` section before the next query row; do not replace the earlier scope. Treat the most recent confirmed scope section as active on later runs.
 
-15. **Protect diversity.** If results concentrate on one category, deliberately change the next buyer or route dimension:
+15. **Rebuild the speed index after each search.** Re-enumerate all prospect Markdown files and replace `02_prospects_index.tsv` from their JSON frontmatter. Never append blindly. Use the exact header and rules in the Index Contract below. If rebuilding fails, continue using the Markdown records and report the index issue; never lose or rewrite a valid prospect record to satisfy the index.
+
+16. **Protect diversity.** If results concentrate on one category, deliberately change the next buyer or route dimension:
 
     - fab owners -> EPC/EPCM, tool-install, cleanroom, integrator, or OEM routes;
     - partners -> end-customer projects, OSATs, pilot lines, or funded facilities;
@@ -168,9 +179,9 @@ Each normal invocation is one search cycle:
     - one cluster -> another priority cluster.
     - repetitive company pages -> hiring, government/award, contractor/project, or one HN ecosystem signal.
 
-16. **Stop the cycle.** Stop after five searches or three consecutive searches with no new prospect files. Do not stop merely because the library has reached 20 prospects. Do not pad the library.
+17. **Stop the cycle.** Stop after five searches or three consecutive searches with no new prospect files. Do not stop merely because the library has reached 20 prospects. Do not pad the library.
 
-17. **Audit the completed store.** Re-enumerate all prospect files and self-check:
+18. **Audit the completed store.** Re-enumerate all prospect files and self-check:
 
     - one file per distinct identity;
     - no repeated normalized domain;
@@ -178,12 +189,14 @@ Each normal invocation is one search cycle:
     - valid JSON frontmatter and controlled values;
     - matching SME name and safe name;
     - at least one exact query and evidence URL per record;
+    - every new schema `1.1.0` record has two or three unique `admission_basis` values and an `accessed_on` date for each evidence item;
+    - no search-log or scope timestamp is later than a fresh runtime-clock reading;
     - no claims in the body that are absent from the frontmatter;
     - a valid index with one row per prospect file and no extra rows.
 
     Fix every issue before completion.
 
-18. **Confirm briefly.** Report searches run, new files, updated files, total prospect records, search-log path, index path, and prospect-directory path. End with:
+19. **Confirm briefly.** Report searches run, new files, updated files, total prospect records, search-log path, index path, and prospect-directory path. End with:
 
     - Continue discovery with another cycle.
     - Revise the search scope.
@@ -224,7 +237,7 @@ Use JSON inside the Markdown frontmatter so later skill runs can compare records
 ```markdown
 ---
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "schema_name": "prospect_record",
   "sme_name": "Example SME",
   "safe_sme_name": "example_sme",
@@ -237,6 +250,7 @@ Use JSON inside the Markdown frontmatter so later skill runs can compare records
   "us_cluster": "Arizona",
   "route_type": "Channel-EPC",
   "matched_capabilities": ["Tool installation"],
+  "admission_basis": ["Capability relevance", "Current timing", "Access route"],
   "buying_triggers": ["New fab construction"],
   "why_this_may_fit": "The company manages semiconductor construction packages that may require specialist tool-install support.",
   "first_seen": "2026-07-28",
@@ -246,7 +260,8 @@ Use JSON inside the Markdown frontmatter so later skill runs can compare records
     {
       "title": "Example project page",
       "url": "https://www.example.com/project",
-      "supported_claim": "The company manages an Arizona semiconductor project."
+      "supported_claim": "The company manages an Arizona semiconductor project.",
+      "accessed_on": "2026-07-28"
     }
   ],
   "caveats": ["The subcontractor qualification route is not yet public."]
@@ -259,6 +274,9 @@ Required controlled values:
 - `engagement_role`: `Commercial prospect`, `Route-to-market partner`, or `Ecosystem connector`
 - `us_cluster`: `Central Texas`, `Arizona`, `New York`, `California`, or `Other US`
 - `route_type`: `Direct owner`, `Channel-EPC`, `Partner ecosystem`, or `Watchlist`
+- `admission_basis`: two or three unique values from `Capability relevance`, `Current timing`, and `Access route`
+
+Treat schema `1.0.0` prospect records without `admission_basis` or `accessed_on` as readable legacy records. Do not backfill an access date unless the source was actually reopened.
 
 Render the human-readable body from the structured frontmatter. Do not add claims to the body that are absent from the structured record.
 
@@ -283,11 +301,14 @@ Use this body structure:
 ## Buying triggers or context
 - [Trigger]
 
+## Admission basis
+- [Capability relevance, Current timing, or Access route]
+
 ## Found through
 - `[Exact query]`
 
 ## Evidence
-- [Source title](URL): [Supported claim]
+- [Source title](URL), accessed [YYYY-MM-DD]: [Supported claim]
 
 ## Caveats
 - [Caveat or None recorded]
@@ -335,7 +356,9 @@ Write one row per prospect Markdown file, sorted by `prospect_id`. Join multiple
 ## Quality bar
 
 - Every prospect has exactly one canonical Markdown file and at least one evidence URL.
+- Every new prospect meets at least two discovery admission bases; single-basis results remain in the search log rather than becoming full records.
 - Every exact query is recorded in the search log.
+- Every new timestamp and evidence access date comes directly from the Codex runtime or system clock, never model generation.
 - Repeated appearances update an existing record instead of creating another file.
 - Parent and subsidiary records remain separate only when they are distinct buying organizations.
 - Current projects, funding, facilities, hiring, and cluster programs come from live sources.

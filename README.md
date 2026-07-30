@@ -13,8 +13,8 @@ The plugin produces evidence-backed decision support. It does not replace commer
 For each SME, the plugin produces:
 
 - A concise Markdown capability profile showing what the company can credibly offer, supporting evidence, and important limitations.
-- A persistent prospect library that grows across repeated search cycles, with one readable Markdown record per possible US commercial prospect, market-entry partner, or ecosystem connector.
-- A focused shortlist, normally 5-8 candidates, showing capability fit, timing, buyer route, accessibility, evidence strength, the next question to verify, and a recommended SBF action.
+- A persistent prospect library that grows across repeated search cycles, with one readable Markdown record per evidence-screened US commercial prospect, market-entry partner, or ecosystem connector.
+- A focused shortlist, normally 5-8 candidates, led by a one-page executive brief and showing capability fit, timing, buyer route, accessibility, evidence strength, transparent component scores, the next question to verify, and a recommended SBF action.
 
 If the evidence supports fewer strong candidates, the plugin returns a shorter list instead of padding the results.
 
@@ -91,7 +91,7 @@ After approving Step 1, click **Step 2 - Discover US Prospects** or type `$us-pr
 
 The plugin immediately runs a short adaptive search cycle of up to five searches using the approved capability profile and default US scope. It does not require another confirmation after the user continues from Step 1. Users can still revise capabilities, buyer routes, timing signals, or geography whenever they choose.
 
-The plugin saves one Markdown record per possible prospect and keeps a search log showing the exact queries, results, reflections, and next direction. It uses open public signals such as company career pages, CHIPS Act and government notices, state EDO releases, contractor project pages, and the free Hacker News Algolia API without relying on API keys, private databases, or login-walled social networks. Hacker News is treated as a secondary discovery and caveat signal, not proof of a commercial relationship. The plugin also rebuilds a small TSV index after each search so later runs can scan a large library quickly. Running Step 2 again resumes from the accumulated library instead of overwriting the previous search.
+The plugin saves one Markdown record per prospect that meets at least two of three public-evidence tests: direct capability relevance, current timing, and a visible access route. Weaker single-signal results remain in the search log instead of becoming full prospect records. The log shows the exact queries, results, reflections, and next direction. It uses open public signals such as company career pages, CHIPS Act and government notices, state EDO releases, contractor project pages, and the free Hacker News Algolia API without relying on API keys, private databases, or login-walled social networks. Hacker News is treated as a secondary discovery and caveat signal, not proof of a commercial relationship. The plugin also rebuilds a small TSV index after each search so later runs can scan a large library quickly. Running Step 2 again resumes from the accumulated library instead of overwriting the previous search.
 
 Under the hood, Step 2 can delegate independent Arizona, Central Texas, New York, and public-signal searches to read-only subagents and consolidate their evidence in the primary thread. Only the primary thread updates the canonical prospect files, search log, and index, preserving the same review-gated, no-code experience.
 
@@ -118,7 +118,7 @@ The plugin first reads the lightweight prospect index, then opens the full Markd
 - Relevance to priority US clusters.
 - Strength of available evidence.
 
-Each finalist receives a classification, a practical route to investigate, a next verification question, and a recommended SBF support action.
+Each finalist receives a classification, a six-part score breakdown, a practical route to investigate, a next verification question, and a recommended SBF support action. The report opens with a one-page decision brief; detailed evidence remains below it for audit and diligence.
 
 The recommended SBF stages are:
 
@@ -178,13 +178,13 @@ Users do not need to copy file paths between steps. The plugin automatically con
 - `output/<safe_sme_name>/01_capability_profile.md` is the Step 1 profile.
 - `output/<safe_sme_name>/02_search_log.md` records Step 2 searches and reflections.
 - `output/<safe_sme_name>/02_prospects_index.tsv` is a compact, automatically rebuilt speed index.
-- `output/<safe_sme_name>/prospects/*.md` contains one canonical Step 2 record per possible prospect.
+- `output/<safe_sme_name>/prospects/*.md` contains one canonical Step 2 record per prospect that passes the discovery evidence threshold.
 - `output/<safe_sme_name>/03_qualified_shortlist.md` is the Step 3 decision-support report.
 - `output/<safe_sme_name>/03_qualified_shortlist.json` is the matching structured archive.
 
 The numbered filenames appear in workflow order in Mac Finder and Windows File Explorer. To share or archive one SME's work, copy or zip that SME's single folder.
 
-Prospect Markdown files are the source of truth. The TSV file is only a fast index and can always be rebuilt, so a damaged index cannot erase prospect research.
+Prospect Markdown files are the source of truth. The TSV file is only a fast index and can always be rebuilt, so a damaged index cannot erase prospect research. Search timestamps and evidence access dates are taken from the runtime clock rather than generated manually.
 
 ## Install the Plugin
 
