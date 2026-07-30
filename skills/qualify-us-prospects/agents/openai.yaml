@@ -1,4 +1,4 @@
 interface:
   display_name: "Step 3 - Qualify US Prospects"
-  short_description: "Qualify the persistent prospect library."
+  short_description: "Turn the prospect index into a focused shortlist."
   default_prompt: "Use $qualify-us-prospects"

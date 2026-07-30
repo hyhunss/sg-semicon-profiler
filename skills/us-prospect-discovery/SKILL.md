@@ -1,6 +1,6 @@
 ---
 name: us-prospect-discovery
-description: Second skill in the SG Semicon US Expansion workflow. Use after the user reviews a map-sme-capability output to run repeatable, adaptive US prospect-search cycles. Confirm the search scope on the first run, then resume across later runs from a persistent search log; create or update one Markdown record per possible commercial prospect, route-to-market partner, or ecosystem connector while preventing duplicates. Default to Central Texas, Arizona, and New York unless the user specifies another scope, and leave deep qualification to Skill 3.
+description: Second skill in the SG Semicon US Expansion workflow. Use after the user reviews a map-sme-capability output to immediately run repeatable, adaptive US prospect-search cycles, then resume later runs from a persistent search log. Create or update one Markdown record per possible commercial prospect, route-to-market partner, or ecosystem connector while preventing duplicates. Default to Central Texas, Arizona, and New York unless the user specifies another scope, and leave deep qualification to Skill 3.
 ---
 
 # Skill: us-prospect-discovery
@@ -15,7 +15,7 @@ map-sme-capability -> review -> repeated discovery cycles -> review -> qualify-u
 
 ## Inputs
 
-- Canonical capability profile from Skill 1, normally `output/<safe_sme_name>_capabilities.json`.
+- Capability profile from Skill 1: `output/<safe_sme_name>/01_capability_profile.md`.
 - Optional `input/existing_customers.md`.
 - Optional user changes to capabilities, buyer routes, timing signals, or geography.
 
@@ -23,14 +23,17 @@ map-sme-capability -> review -> repeated discovery cycles -> review -> qualify-u
 
 ```text
 output/<safe_sme_name>/
-├── search_log.md
+├── 01_capability_profile.md
+├── 02_search_log.md
+├── 02_prospects_index.tsv
 └── prospects/
     ├── <prospect_id>.md
     └── ...
 ```
 
 - Treat each prospect Markdown file as the canonical record for one buying organization, route partner, project, or connector.
-- Treat `search_log.md` as the canonical record of approved scope, exact queries, results, reflections, and next search direction.
+- Treat `02_search_log.md` as the canonical record of approved scope, exact queries, results, reflections, and next search direction.
+- Treat `02_prospects_index.tsv` as a disposable speed index derived from the prospect Markdown files. It is never evidence and never the canonical record.
 - Do not create or maintain a consolidated prospect JSON or prospect report.
 - Preserve old `output/<safe_sme_name>_prospects.json` and `.md` files as legacy artifacts; do not overwrite or delete them.
 
@@ -41,7 +44,7 @@ load state -> find an uncovered query direction -> search -> upsert prospects
 -> reflect -> mutate the next query -> repeat -> stop and report
 ```
 
-Each invocation after scope confirmation is one search cycle:
+Each normal invocation is one search cycle:
 
 - Run at most five live searches.
 - Stop early after three consecutive searches produce no new prospect files.
@@ -52,18 +55,19 @@ Each invocation after scope confirmation is one search cycle:
 
 1. **Accept selected-prompt invocations.** If the message body is blank but selected text contains an instruction for this skill, use the selected text.
 
-2. **Resolve the active SME.** If no capability path is supplied, read `output/_latest_workflow.json` and use its `capability_json` only when the file exists and agrees with `safe_sme_name`. Otherwise choose the most recently modified `output/*_capabilities.json`. If the intended SME is ambiguous, ask the user to choose. Use a Markdown capability file only as a legacy fallback.
+2. **Resolve the active SME.** If no capability path is supplied, choose the most recently modified `output/*/01_capability_profile.md`. Ask only when multiple SMEs remain genuinely ambiguous.
 
-3. **Read the capability and customer context.** Extract the SME name, safe name, supported capabilities, confidence and overclaim caveats, and exactly five keyword seeds. Read `input/existing_customers.md` when present. Use populated customer context only when its SME name matches. Exclude named existing customers and obvious group aliases unless the user explicitly requests account expansion. Do not reveal excluded customer names in discovery outputs.
+3. **Read the capability and customer context.** Extract the SME name, supported capabilities, limitations, and search directions from the Markdown profile. Derive `safe_sme_name` from its parent folder. Read `input/existing_customers.md` when present and matching. Exclude named existing customers and obvious group aliases unless the user requests account expansion.
 
 4. **Locate and audit persistent state.** Use:
 
-   - `output/<safe_sme_name>/search_log.md`
+   - `output/<safe_sme_name>/02_search_log.md`
+   - `output/<safe_sme_name>/02_prospects_index.tsv`
    - `output/<safe_sme_name>/prospects/`
 
-   Before searching, enumerate every `.md` file in the prospect directory and read its JSON frontmatter. Confirm that every record belongs to the active SME, has all fields in the Prospect Record Contract, uses valid controlled values, and has at least one evidence URL. Compare the identity fields across all records and resolve exact duplicates before adding candidates. An absent directory on the first run is valid.
+   Use a valid index for the fast identity scan. If the index is absent, malformed, or does not match the prospect filenames, rebuild it silently from all prospect frontmatter before searching. Open likely matching Markdown records whenever a domain, name, or alias may duplicate a candidate. An absent directory on the first run is valid.
 
-5. **Confirm scope only when needed.** If no search log exists, or the user materially changes capabilities, buyer routes, timing signals, or geography, show the Search-Scope Confirmation Template and stop. AI- or user-added technical terms remain discovery hypotheses unless Skill 1 supports them. If the previous assistant message was this checkpoint and the user confirms, proceed with the confirmed scope even though the first search log does not exist yet. If an existing search log records the approved scope and the user says `continue` or invokes this skill without a scope change, resume without repeating the checkpoint.
+5. **Start immediately on normal invocation.** Invoking this skill, or selecting Continue after Skill 1, authorizes the first search cycle using the supported capability profile and default geography. Do not add another confirmation checkpoint merely because no search log exists. Show the Scope Revision Template and stop only when the user explicitly asks to preview or change scope, when the active SME or capability profile is ambiguous, or when a proposed discovery term would materially extend beyond the supported capabilities. Existing search logs resume automatically unless the user requests a scope change.
 
 6. **Initialize the search dimensions.** Construct queries from:
 
@@ -73,7 +77,7 @@ Each invocation after scope confirmation is one search cycle:
 
    Use precise semiconductor process, equipment, packaging, software, facility, logistics, and service language. Default geography is Central Texas, Arizona, and New York. Deprioritize but do not prohibit California. Use Other US when fit or timing is materially stronger.
 
-7. **Choose an uncovered direction.** Read the search log before every cycle. Do not repeat an exact query unless the user requests a freshness rerun. Prefer combinations or result types not adequately covered. Include direct buyers and realistic access routes such as EPC/EPCM firms, cleanroom contractors, systems integrators, equipment OEMs, approved-supplier routes, EDOs, chambers, associations, universities, and consortia.
+7. **Choose an uncovered direction.** Read `02_search_log.md` before every cycle. Do not repeat an exact query unless the user requests a freshness rerun. Prefer combinations or result types not adequately covered. Include direct buyers and realistic access routes such as EPC/EPCM firms, cleanroom contractors, systems integrators, equipment OEMs, approved-supplier routes, EDOs, chambers, associations, universities, and consortia.
 
 8. **Search and adapt one query at a time.** Run a live web search. Prefer primary or high-quality current sources: company pages, press releases, government and CHIPS releases, procurement pages, contractor project pages, university or consortium pages, EDO pages, and credible trade press. After each query, assess:
 
@@ -109,18 +113,20 @@ Each invocation after scope confirmation is one search cycle:
     - Prefer the most specific current company name, website, role, cluster, route, fit explanation, and evidence claim.
     - Rewrite both the complete JSON frontmatter and the human-readable body. Never append evidence only to the body.
 
-13. **Log every exact query and scope change.** Before searching, compare the planned query with every query already in `search_log.md`. Do not rerun an exact query unless the user explicitly requests a freshness rerun. After processing the query, create the log on the first search or append one row using the Search Log Contract below. Record the exact query, counts of new, updated, and ignored results, and the reflection that explains the next mutation. When the user confirms a materially revised scope, append a dated `Scope update` section before the next query row; do not replace the earlier scope. Treat the most recent confirmed scope section as active on later runs.
+13. **Log every exact query and scope change.** Before searching, compare the planned query with every query already in `02_search_log.md`. Do not rerun an exact query unless the user explicitly requests a freshness rerun. After processing the query, create the log on the first search or append one row using the Search Log Contract below. Record the exact query, counts of new, updated, and ignored results, and the reflection that explains the next mutation. When the user confirms a materially revised scope, append a dated `Scope update` section before the next query row; do not replace the earlier scope. Treat the most recent confirmed scope section as active on later runs.
 
-14. **Protect diversity.** If results concentrate on one category, deliberately change the next buyer or route dimension:
+14. **Rebuild the speed index after each search.** Re-enumerate all prospect Markdown files and replace `02_prospects_index.tsv` from their JSON frontmatter. Never append blindly. Use the exact header and rules in the Index Contract below. If rebuilding fails, continue using the Markdown records and report the index issue; never lose or rewrite a valid prospect record to satisfy the index.
+
+15. **Protect diversity.** If results concentrate on one category, deliberately change the next buyer or route dimension:
 
     - fab owners -> EPC/EPCM, tool-install, cleanroom, integrator, or OEM routes;
     - partners -> end-customer projects, OSATs, pilot lines, or funded facilities;
     - giant incumbents -> smaller OSATs, compound-semiconductor firms, pilot lines, startups, or regional projects;
     - one cluster -> another priority cluster.
 
-15. **Stop the cycle.** Stop after five searches or three consecutive searches with no new prospect files. Do not stop merely because the library has reached 20 prospects. Do not pad the library.
+16. **Stop the cycle.** Stop after five searches or three consecutive searches with no new prospect files. Do not stop merely because the library has reached 20 prospects. Do not pad the library.
 
-16. **Audit the completed store.** Re-enumerate all prospect files and self-check:
+17. **Audit the completed store.** Re-enumerate all prospect files and self-check:
 
     - one file per distinct identity;
     - no repeated normalized domain;
@@ -128,23 +134,22 @@ Each invocation after scope confirmation is one search cycle:
     - valid JSON frontmatter and controlled values;
     - matching SME name and safe name;
     - at least one exact query and evidence URL per record;
-    - no claims in the body that are absent from the frontmatter.
+    - no claims in the body that are absent from the frontmatter;
+    - a valid index with one row per prospect file and no extra rows.
 
     Fix every issue before completion.
 
-17. **Update workflow state.** Write `output/_latest_workflow.json` with the active SME, capability path, `prospect_directory`, `search_log`, current step, blank qualified output, and next command. Render `output/_latest_workflow.md`. Do not use a `prospects_json` field for a new Skill 2 run.
-
-18. **Confirm briefly.** Report searches run, new files, updated files, total prospect records, search-log path, and prospect-directory path. End with:
+18. **Confirm briefly.** Report searches run, new files, updated files, total prospect records, search-log path, index path, and prospect-directory path. End with:
 
     - Continue discovery with another cycle.
     - Revise the search scope.
     - Run `$qualify-us-prospects`.
     - Stop.
 
-## Search-Scope Confirmation Template
+## Scope Revision Template
 
 ```text
-Before the first search cycle, please review the search scope.
+Please review the requested search-scope change.
 
 Supported capabilities:
 - [term]
@@ -249,7 +254,7 @@ Use this body structure:
 ```markdown
 # US Prospect Search Log: [SME name]
 
-* Capability profile: output/<safe_sme_name>_capabilities.json
+* Capability profile: output/<safe_sme_name>/01_capability_profile.md
 * Approved capabilities: [terms]
 * Additional discovery terms: [terms or None]
 * Buyer and route types: [types]
@@ -273,24 +278,15 @@ For a later scope change, append:
 * Geography: [clusters]
 ```
 
-## New workflow state
+## Index Contract
 
-```json
-{
-  "schema_version": "1.2.0",
-  "schema_name": "workflow_state",
-  "sme_name": "[SME name]",
-  "safe_sme_name": "<safe_sme_name>",
-  "current_step_completed": "Step 2 - Discover US Prospects",
-  "capability_json": "output/<safe_sme_name>_capabilities.json",
-  "prospect_directory": "output/<safe_sme_name>/prospects",
-  "search_log": "output/<safe_sme_name>/search_log.md",
-  "qualified_json": null,
-  "next_recommended_command": "$us-prospect-discovery to continue, or $qualify-us-prospects to qualify"
-}
+Write UTF-8 tab-separated text with this exact header:
+
+```tsv
+prospect_id	company	engagement_role	us_cluster	route_type	matched_capability	last_seen
 ```
 
-Render `output/_latest_workflow.md` with the same SME name, current step, capability JSON, prospect directory, search log, qualified JSON, and next command. Do not introduce a path that is absent from the JSON state.
+Write one row per prospect Markdown file, sorted by `prospect_id`. Join multiple matched capabilities with `; `. Replace tabs and line breaks inside values with spaces. Require unique `prospect_id` values and an exact match between index IDs and prospect filenames without `.md`.
 
 ## Quality bar
 

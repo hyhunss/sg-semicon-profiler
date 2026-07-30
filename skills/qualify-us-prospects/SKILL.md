@@ -1,6 +1,6 @@
 ---
 name: qualify-us-prospects
-description: Third skill in the SG Semicon US Expansion workflow. Use after the user reviews the persistent prospect library created by us-prospect-discovery. Scan all prospect Markdown metadata, lightly screen the accumulated pool, read the strongest records, run targeted verification, and produce a 5-8 target decision-support shortlist with practical SBF actions. Accept legacy consolidated Skill 2 files only as fallback.
+description: Third skill in the SG Semicon US Expansion workflow. Use after the user reviews the persistent prospect library created by us-prospect-discovery. Screen the lightweight prospect index, read only the strongest Markdown records, run targeted verification, and produce a 5-8 target decision-support shortlist with practical SBF actions. Fall back to prospect frontmatter automatically when the index is unavailable, and accept legacy consolidated Skill 2 files only when necessary.
 ---
 
 # Skill: qualify-us-prospects
@@ -14,18 +14,18 @@ capability profile + prospect directory -> metadata screen -> focused reading
 
 ## Inputs
 
-- Canonical Skill 1 capability profile, normally `output/<safe_sme_name>_capabilities.json`.
+- Skill 1 capability profile: `output/<safe_sme_name>/01_capability_profile.md`.
 - Canonical Skill 2 directory, normally `output/<safe_sme_name>/prospects/`.
-- Skill 2 search log, normally `output/<safe_sme_name>/search_log.md`.
+- Skill 2 speed index: `output/<safe_sme_name>/02_prospects_index.tsv`.
+- Skill 2 search log: `output/<safe_sme_name>/02_search_log.md`.
 - Optional `input/existing_customers.md`.
 - Optional qualification preference such as easiest first outreach, near-term timing, specific state, or buyer route.
 - Legacy fallback only: `output/<safe_sme_name>_prospects.json` or `.md`.
 
 ## Outputs
 
-- `output/<safe_sme_name>_qualified_prospects.json`
-- `output/<safe_sme_name>_qualified_prospects.md`
-- Updated `output/_latest_workflow.json` and `.md`
+- `output/<safe_sme_name>/03_qualified_shortlist.json`
+- `output/<safe_sme_name>/03_qualified_shortlist.md`
 
 Use `schema_version: "1.2.0"` and `schema_name: "qualified_prospects"` for new JSON output. Treat `schema/qualified-prospects.schema.json` as the field contract and self-check the completed object against it.
 
@@ -33,15 +33,15 @@ Use `schema_version: "1.2.0"` and `schema_name: "qualified_prospects"` for new J
 
 1. **Accept selected-prompt invocations.** If the message body is blank but selected text contains an instruction for this skill, use the selected text.
 
-2. **Resolve matching inputs.** If paths are not supplied, read `output/_latest_workflow.json`. Use `capability_json`, `prospect_directory`, and `search_log` only when they exist and agree with `safe_sme_name`. Otherwise find the most recent capability JSON and matching `output/<safe_sme_name>/prospects/` directory. If multiple SMEs are plausible, ask the user to choose.
+2. **Resolve matching inputs.** If paths are not supplied, find the most recently modified `output/*/01_capability_profile.md` with a matching `prospects/` directory. If multiple SMEs remain genuinely ambiguous, ask the user to choose.
 
 3. **Use legacy discovery only as fallback.** If no new prospect directory exists, accept a matching old `output/<safe_sme_name>_prospects.json` or `.md`. Never combine legacy and directory records silently. State which source is being qualified.
 
 4. **Handle revisions narrowly.** For a requested revision to the qualified shortlist, read the current qualified JSON, apply the requested changes, reconstruct the complete schema-valid object, then render Markdown. Do not rerun discovery or qualification unless explicitly asked.
 
-5. **Read capability and customer context.** Extract the SME's 1-3 supported capabilities, confidence, SBF scope assessment, overclaim caveats, and practical buyer routes. Read `input/existing_customers.md` when present and use it only when its SME name matches. Exclude named existing customers and obvious corporate-group aliases unless the user explicitly requests account expansion.
+5. **Read capability and customer context.** Extract the SME's supported capabilities, important limitations, and search directions from the Markdown profile. Read `input/existing_customers.md` when present and matching. Exclude named existing customers and obvious corporate-group aliases unless the user requests account expansion.
 
-6. **Audit and scan the prospect store.** Enumerate every `.md` file in the directory and read its JSON frontmatter. Stop and repair malformed records, mixed-SME records, or exact duplicate domains or identities before qualification. Use the structured frontmatter to inspect all candidate metadata without loading every full Markdown body.
+6. **Use the speed index first.** Read `02_prospects_index.tsv` and compare its `prospect_id` values with the prospect filenames. Use it only when the header is exact, IDs are unique, every row has seven fields, and the IDs and row count match the Markdown files. If it is missing, malformed, or stale, continue automatically by scanning all prospect JSON frontmatter. Do not ask the user to repair an index and do not treat index text as evidence.
 
 7. **Perform a lightweight metadata screen.** Compare all records on:
 
@@ -54,7 +54,7 @@ Use `schema_version: "1.2.0"` and `schema_name: "qualified_prospects"` for new J
 
    Remove candidates that are only generally large semiconductor organizations, clear competitors, named existing customers, or records with no plausible buyer or access route.
 
-8. **Select a focused reading set.** Choose the 10-20 most plausible records after the metadata screen, or fewer when the store is small. Read the complete Markdown only for this set. Do not load 50-60 full files merely because they exist.
+8. **Select a focused reading set.** Choose the 10-15 most plausible records after the metadata screen, or fewer when the store is small. Read the complete Markdown only for this set. If the index was used, verify the selected records against their canonical frontmatter before qualification. Do not load 50-60 full files merely because they exist.
 
 9. **Preserve discovery provenance.** From each selected record capture company, role, cluster, route, matched capabilities, buying triggers, why it may fit, queries, evidence, and caveats. Search terms and candidate records do not prove that the SME has a capability absent from Skill 1.
 
@@ -105,9 +105,7 @@ Use `schema_version: "1.2.0"` and `schema_name: "qualified_prospects"` for new J
 
 19. **Self-check and render.** Read `schema/qualified-prospects.schema.json` and compare the completed JSON against its required fields, controlled values, item limits, evidence requirements, and version-specific source field. Re-read the written JSON to ensure it is complete and parseable. Fix every mismatch. Render the Markdown report only from the self-checked JSON.
 
-20. **Update workflow state.** Preserve `capability_json`, `prospect_directory`, and `search_log`; add the qualified JSON path and final next-step message. For a legacy workflow, preserve the legacy prospect path instead.
-
-21. **Confirm briefly.** Report the number of prospect records screened, full records read, candidates verified, and finalists produced. Point to the qualified Markdown and JSON. End with use, revise, or stop choices.
+20. **Confirm briefly.** Report the number of prospect records screened, full records read, candidates verified, and finalists produced. Point to the qualified Markdown and JSON. End with use, revise, or stop choices.
 
 ## Output Contract
 
@@ -118,7 +116,7 @@ Use `schema_version: "1.2.0"` and `schema_name: "qualified_prospects"` for new J
   "sme_name": "[SME name]",
   "safe_sme_name": "<safe_sme_name>",
   "generated_at": "[ISO 8601 timestamp]",
-  "source_capability_profile_path": "output/<safe_sme_name>_capabilities.json",
+  "source_capability_profile_path": "output/<safe_sme_name>/01_capability_profile.md",
   "source_prospect_directory": "output/<safe_sme_name>/prospects",
   "qualification_scope": "[scope used]",
   "qualification_logic": {
@@ -197,30 +195,11 @@ Render these sections:
 
 Do not introduce claims, scores, or recommendations absent from the self-checked JSON.
 
-## New workflow state
-
-```json
-{
-  "schema_version": "1.2.0",
-  "schema_name": "workflow_state",
-  "sme_name": "[SME name]",
-  "safe_sme_name": "<safe_sme_name>",
-  "current_step_completed": "Step 3 - Qualify US Prospects",
-  "capability_json": "output/<safe_sme_name>_capabilities.json",
-  "prospect_directory": "output/<safe_sme_name>/prospects",
-  "search_log": "output/<safe_sme_name>/search_log.md",
-  "qualified_json": "output/<safe_sme_name>_qualified_prospects.json",
-  "next_recommended_command": "Final review complete; use, revise, or stop"
-}
-```
-
-Render `output/_latest_workflow.md` with the same SME name, current step, capability JSON, prospect directory, search log, qualified JSON, and next command. Do not introduce a path that is absent from the JSON state.
-
 ## Quality bar
 
 - Read the capability profile and the Skill 2 prospect store.
-- Scan every prospect header before selecting full records.
-- Read full files only for the focused 10-20 candidate set.
+- Screen every prospect through the index or, on fallback, its frontmatter.
+- Read full files only for the focused 10-15 candidate set.
 - Produce 5-8 finalists, never more than 10, without padding.
 - Give every finalist a specific buyer path, one verification question, and one concrete SBF action.
 - Meet classification-specific evidence coverage.

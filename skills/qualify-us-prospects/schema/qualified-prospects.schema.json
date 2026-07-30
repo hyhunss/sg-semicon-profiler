@@ -41,7 +41,7 @@
     },
     "source_capability_profile_path": {
       "type": "string",
-      "pattern": "^output/[a-z0-9]+(?:_[a-z0-9]+)*_capabilities\\.(json|md)$"
+      "pattern": "^output/[a-z0-9]+(?:_[a-z0-9]+)*/01_capability_profile\\.md$"
     },
     "source_prospect_discovery_path": {
       "type": "string",

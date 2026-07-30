@@ -12,7 +12,7 @@ The plugin produces evidence-backed decision support. It does not replace commer
 
 For each SME, the plugin produces:
 
-- A concise capability profile showing what the company can credibly offer, supporting evidence, confidence levels, and important information gaps.
+- A concise Markdown capability profile showing what the company can credibly offer, supporting evidence, and important limitations.
 - A persistent prospect library that grows across repeated search cycles, with one readable Markdown record per possible US commercial prospect, market-entry partner, or ecosystem connector.
 - A focused shortlist, normally 5-8 candidates, showing capability fit, timing, buyer route, accessibility, evidence strength, the next question to verify, and a recommended SBF action.
 
@@ -26,7 +26,7 @@ The workflow is designed for:
 - Singapore SME executives evaluating potential US customers, partners, projects, and entry routes.
 - Sector partners helping SMEs prepare for introductions, missions, market validation, establishment, or localization.
 
-The project focuses on Singapore-owned SMEs with at least 30% Singapore citizen or permanent-resident equity, less than SGD 100 million in revenue, and fewer than 200 employees. When public information does not establish ownership or size, the plugin marks it as `Unknown` instead of guessing.
+The broader project focuses on Singapore-owned SMEs with at least 30% Singapore citizen or permanent-resident equity, less than SGD 100 million in revenue, and fewer than 200 employees. Skill 1 does not burden capability mapping with a detailed eligibility assessment; SBF can verify missing eligibility facts separately.
 
 Relevant supporting activities include semiconductor equipment and services, precision engineering, testing, assembly, advanced packaging, factory software, cleanroom and facility services, tool installation and relocation, logistics, materials, and systems integration. Direct semiconductor manufacturing is not the target SME segment.
 
@@ -39,6 +39,7 @@ This plugin is designed for business users:
 - You do not need a database or spreadsheet system.
 - Put optional user-provided information in the `input/` folder.
 - Find every generated report and working record in the `output/` folder.
+- Each SME has one self-contained folder under `output/`.
 - Open and review the Markdown (`.md`) files like ordinary documents.
 
 The workflow uses simple folders and readable Markdown files so users can understand what was provided, what the plugin found, and what to review next.
@@ -74,13 +75,11 @@ Use $map-sme-capability for https://www.example.com.sg
 The plugin reviews the source material and identifies:
 
 - Up to three core technical capabilities.
-- Evidence and confidence for each capability.
-- Important claims that should not be overstated.
-- Fit with the SBF project scope.
-- The most appropriate initial SBF support stage.
-- Search terms that could reveal relevant US demand.
+- Direct website evidence.
+- Partner-supplied products and important limitations.
+- Simple search directions for Skill 2.
 
-If the website does not provide useful customer information, Step 1 asks whether the user wants to update `input/existing_customers.md` or continue without it.
+Customer information is optional and never blocks Step 1. When it is absent, the plugin still creates the capability profile; users may add customer context before Step 2 if it would help exclude existing accounts or guide analogous-buyer searches.
 
 Review the capability report before proceeding. Correcting weak assumptions here prevents them from affecting the later prospect search.
 
@@ -88,14 +87,9 @@ Review the capability report before proceeding. Correcting weak assumptions here
 
 After approving Step 1, click **Step 2 - Discover US Prospects** or type `$us-prospect-discovery`.
 
-Before searching, the plugin displays the exact technical and buyer-signal terms it plans to use. The user can:
+The plugin immediately runs a short adaptive search cycle of up to five searches using the approved capability profile and default US scope. It does not require another confirmation after the user continues from Step 1. Users can still revise capabilities, buyer routes, timing signals, or geography whenever they choose.
 
-- Continue with the proposed terms.
-- Add missing technical terms such as a specific process, packaging method, system, or service.
-- Remove irrelevant terms.
-- Replace inaccurate terminology.
-
-The plugin then runs a short adaptive search cycle of up to five searches. It saves one Markdown record per possible prospect and keeps a search log showing the exact queries, results, reflections, and next direction. Running Step 2 again resumes from the accumulated library instead of overwriting the previous search.
+The plugin saves one Markdown record per possible prospect and keeps a search log showing the exact queries, results, reflections, and next direction. It also rebuilds a small TSV index after each search so later runs can scan a large library quickly. Running Step 2 again resumes from the accumulated library instead of overwriting the previous search.
 
 When a known company appears again, the plugin updates its existing record with new evidence. It creates a new file only for a genuinely new buying organization. The cycle stops early after three searches produce no new prospects, but there is no fixed 20-company limit across repeated runs.
 
@@ -111,7 +105,7 @@ Review the newly created or updated records after each cycle. Users can continue
 
 After approving Step 2, click **Step 3 - Qualify US Prospects** or type `$qualify-us-prospects`.
 
-The plugin first scans the structured headers of every accumulated prospect record. It then opens the full content only for the strongest 10-20 candidates, performs targeted verification, and filters them into the final shortlist. It considers:
+The plugin first reads the lightweight prospect index, then opens the full Markdown only for the strongest 10-15 candidates, performs targeted verification, and filters them into the final shortlist. If the index is missing or damaged, the plugin automatically falls back to the prospect Markdown files. It considers:
 
 - Capability fit.
 - Timing and urgency.
@@ -177,11 +171,16 @@ The company-level outputs support the broader SBF US semiconductor playbook. The
 Users do not need to copy file paths between steps. The plugin automatically continues from the latest reviewed company record.
 
 - `input/existing_customers.md` is optional user input.
-- `output/*_capabilities.md` is the Step 1 review report.
-- `output/<safe_sme_name>/search_log.md` records Step 2 searches and reflections.
+- `output/<safe_sme_name>/01_capability_profile.md` is the Step 1 profile.
+- `output/<safe_sme_name>/02_search_log.md` records Step 2 searches and reflections.
+- `output/<safe_sme_name>/02_prospects_index.tsv` is a compact, automatically rebuilt speed index.
 - `output/<safe_sme_name>/prospects/*.md` contains one canonical Step 2 record per possible prospect.
-- `output/*_qualified_prospects.md` is the Step 3 decision-support shortlist.
-- Step 1 and Step 3 JSON files support reliable handoff and consistency checks. Step 2 uses structured JSON frontmatter inside each readable Markdown prospect record.
+- `output/<safe_sme_name>/03_qualified_shortlist.md` is the Step 3 decision-support report.
+- `output/<safe_sme_name>/03_qualified_shortlist.json` is the matching structured archive.
+
+The numbered filenames appear in workflow order in Mac Finder and Windows File Explorer. To share or archive one SME's work, copy or zip that SME's single folder.
+
+Prospect Markdown files are the source of truth. The TSV file is only a fast index and can always be rebuilt, so a damaged index cannot erase prospect research.
 
 ## Install the Plugin
 
