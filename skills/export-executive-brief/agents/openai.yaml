@@ -1,4 +1,4 @@
 interface:
   display_name: "Step 4 - Export Executive Brief"
-  short_description: "Create executive HTML and Excel-ready CSV."
-  default_prompt: "Use $export-executive-brief to create the executive dashboard and Excel-ready CSV."
+  short_description: "Create an interactive HTML executive dashboard."
+  default_prompt: "Use $export-executive-brief to create the executive dashboard."

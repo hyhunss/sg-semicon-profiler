@@ -1,6 +1,6 @@
 {
   "name": "sg-semicon-expansion-plugin",
-  "version": "0.3.0",
+  "version": "0.3.0+codex.20260803142312",
   "description": "Independent MBA capstone research for Singapore semiconductor-supply-chain SME market entry with four review-gated skills and executive exports.",
   "author": {
     "name": "Hanyang Hu",
@@ -15,15 +15,14 @@
     "market-entry",
     "SBF",
     "executive-dashboard",
-    "excel-export",
     "Central-Texas",
     "Arizona",
     "New-York"
   ],
   "interface": {
     "displayName": "SG Semicon US Expansion",
-    "shortDescription": "Map US entry routes and create executive exports.",
-    "longDescription": "An independent MBA capstone workflow for Singapore semiconductor-supply-chain SMEs: assess capabilities, grow a deduplicated US prospect library, qualify the strongest candidates, and export the canonical shortlist as an offline executive HTML dashboard and Excel-compatible CSV.",
+    "shortDescription": "Map US entry routes and create an executive dashboard.",
+    "longDescription": "An independent MBA capstone workflow for Singapore semiconductor-supply-chain SMEs: assess capabilities, grow a deduplicated US prospect library, qualify the strongest candidates, and render the canonical shortlist as an offline executive HTML dashboard.",
     "developerName": "Hanyang Hu",
     "category": "Productivity",
     "capabilities": [
