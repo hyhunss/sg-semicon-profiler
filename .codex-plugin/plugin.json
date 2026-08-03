@@ -1,7 +1,7 @@
 {
   "name": "sg-semicon-expansion-plugin",
-  "version": "0.3.0+codex.20260803174241",
-  "description": "Independent MBA capstone research for Singapore semiconductor-supply-chain SME market entry with four review-gated skills and executive exports.",
+  "version": "0.3.0+codex.20260803184331",
+  "description": "Independent UCLA Anderson EMBA capstone project providing market-entry decision support and executive briefing tools for Singapore semiconductor SMEs.",
   "author": {
     "name": "Hanyang Hu",
     "email": "hanyang.hu.2026@anderson.ucla.edu"
@@ -22,7 +22,7 @@
   "interface": {
     "displayName": "SG Semicon US Expansion",
     "shortDescription": "Map US entry routes and create an executive dashboard.",
-    "longDescription": "An independent MBA capstone workflow for Singapore semiconductor-supply-chain SMEs: assess capabilities, grow a deduplicated US prospect library, qualify the strongest candidates, and render the canonical shortlist as an offline executive HTML dashboard.",
+    "longDescription": "An independent market-entry decision-support workflow for Singapore semiconductor SMEs: map core capabilities, grow a deduplicated US prospect library, evaluate targets using a transparent 20-point rubric, and export offline executive brief dashboards.",
     "developerName": "Hanyang Hu",
     "category": "Productivity",
     "capabilities": [
