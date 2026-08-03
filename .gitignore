@@ -1,7 +1,4 @@
 .DS_Store
-.codex-marketplace-install.json
-*.tmp
-*.bak
 output/
 repomix-output*.xml
 tmp/

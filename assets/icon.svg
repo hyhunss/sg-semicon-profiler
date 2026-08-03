@@ -1,49 +1,49 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
   <defs>
-    <!-- 深色背景渐变 -->
+    <!-- Dark background gradient -->
     <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#080C14" />
       <stop offset="100%" stop-color="#0F172A" />
     </linearGradient>
 
-    <!-- 芯片 Die 主体渐变 -->
+    <!-- Main chip die gradient -->
     <linearGradient id="chip-grad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#1E293B" />
       <stop offset="100%" stop-color="#0F172A" />
     </linearGradient>
 
-    <!-- 新加坡红 (SG Glow) -->
+    <!-- Singapore red glow -->
     <linearGradient id="sg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#FF3B30" />
       <stop offset="100%" stop-color="#E0002B" />
     </linearGradient>
 
-    <!-- 美国科技蓝 (US Tech Blue) -->
+    <!-- US technology blue -->
     <linearGradient id="us-grad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#00F0FF" />
       <stop offset="100%" stop-color="#0072FF" />
     </linearGradient>
 
-    <!-- 跨国跃迁弧线渐变 -->
+    <!-- Cross-border expansion arc gradient -->
     <linearGradient id="bridge-grad" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#FF3B30" />
       <stop offset="50%" stop-color="#C084FC" />
       <stop offset="100%" stop-color="#00F0FF" />
     </linearGradient>
 
-    <!-- 强发光滤镜 -->
+    <!-- Strong glow filter -->
     <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
       <feGaussianBlur stdDeviation="12" result="blur" />
       <feComposite in="SourceGraphic" in2="blur" operator="over" />
     </filter>
   </defs>
 
-  <!-- 1. 外框底板 -->
+  <!-- 1. Outer background panel -->
   <rect width="512" height="512" rx="108" fill="url(#bg-grad)" stroke="#1E293B" stroke-width="6"/>
 
-  <!-- 2. 芯片加粗引脚 (Pins) -->
+  <!-- 2. Heavy chip pins -->
   <g stroke="#475569" stroke-width="10" stroke-linecap="round">
-    <!-- 顶/底引脚 -->
+    <!-- Top and bottom pins -->
     <line x1="156" y1="45" x2="156" y2="96" /><line x1="206" y1="45" x2="206" y2="96" />
     <line x1="256" y1="45" x2="256" y2="96" />
     <line x1="306" y1="45" x2="306" y2="96" /><line x1="356" y1="45" x2="356" y2="96" />
@@ -52,7 +52,7 @@
     <line x1="256" y1="416" x2="256" y2="467" />
     <line x1="306" y1="416" x2="306" y2="467" /><line x1="356" y1="416" x2="356" y2="467" />
 
-    <!-- 左/右引脚 -->
+    <!-- Left and right pins -->
     <line x1="45" y1="156" x2="96" y2="156" /><line x1="45" y1="206" x2="96" y2="206" />
     <line x1="45" y1="256" x2="96" y2="256" />
     <line x1="45" y1="306" x2="96" y2="306" /><line x1="45" y1="356" x2="96" y2="356" />
@@ -62,10 +62,10 @@
     <line x1="416" y1="306" x2="467" y2="306" /><line x1="416" y1="356" x2="467" y2="356" />
   </g>
 
-  <!-- 3. 超大核心芯片 Die (占据中心 320x320 区域) -->
+  <!-- 3. Large central chip die (320 by 320 area) -->
   <rect x="96" y="96" width="320" height="320" rx="44" fill="url(#chip-grad)" stroke="#64748B" stroke-width="6"/>
 
-  <!-- 4. 晶圆电路细节 (Circuit Details) -->
+  <!-- 4. Wafer circuit details -->
   <g fill="none" stroke="#334155" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
     <path d="M 140,140 L 200,140 L 240,180" />
     <path d="M 372,372 L 312,372 L 272,332" />
@@ -74,20 +74,20 @@
     <circle cx="272" cy="332" r="5" fill="#334155" />
   </g>
 
-  <!-- 5. 跨国出海巨型发光弧线 (Expansion Bridge Arc) -->
+  <!-- 5. Glowing international expansion bridge arc -->
   <path d="M 50,340 C 140,80 372,80 462,340" 
         fill="none" stroke="url(#bridge-grad)" stroke-width="16" stroke-linecap="round" filter="url(#glow)"/>
 
-  <!-- 出海箭头 -->
+  <!-- Expansion arrow -->
   <path d="M 436,310 L 466,342 L 472,302" 
         fill="none" stroke="#00F0FF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
 
-  <!-- 6. SG 节点与 US 节点 (放大强发光) -->
-  <!-- 新加坡 (左) -->
+  <!-- 6. Enlarged glowing SG and US nodes -->
+  <!-- Singapore (left) -->
   <circle cx="50" cy="340" r="26" fill="url(#sg-grad)" filter="url(#glow)"/>
   <circle cx="50" cy="340" r="10" fill="#FFFFFF"/>
 
-  <!-- 美国 (右) -->
+  <!-- United States (right) -->
   <circle cx="462" cy="340" r="26" fill="url(#us-grad)" filter="url(#glow)"/>
   <circle cx="462" cy="340" r="10" fill="#FFFFFF"/>
 </svg>

@@ -2,9 +2,11 @@
 
 <img src="assets/icon.svg" align="right" width="120" alt="SG Semicon Logo" />
 
-> **SBF-Aligned US Market-Entry Prospecting & Decision Support for Singapore Semiconductor SMEs**
+> **Independent US Market-Entry Prospecting & Decision Support for Singapore Semiconductor SMEs**
 
-This Codex plugin helps Singapore Business Federation (SBF) leaders and Singapore semiconductor-supply-chain SMEs answer three practical questions:
+**This is an independent academic capstone project, not an official SBF product.**
+
+This Codex plugin is designed to help Singapore Business Federation (SBF) leaders and Singapore semiconductor-supply-chain SMEs answer three practical questions:
 
 1. **What can this SME credibly offer the US semiconductor market?**
 2. **Which US companies, projects, and market-entry routes may be relevant?**
