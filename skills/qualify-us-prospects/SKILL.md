@@ -43,7 +43,9 @@ Use `schema_version: "1.3.0"` and `schema_name: "qualified_prospects"` for new J
 
 6. **Use the speed index first.** Read `02_prospects_index.tsv` and compare its `prospect_id` values with the prospect filenames. Use it only when the header is exact, IDs are unique, every row has seven fields, and the IDs and row count match the Markdown files. If it is missing, malformed, or stale, continue automatically by scanning all prospect JSON frontmatter. Do not ask the user to repair an index and do not treat index text as evidence.
 
-7. **Perform a lightweight metadata screen.** Compare all records on:
+7. **Count the complete screening pool.** Count the exact number of distinct prospect records that will be screened from the validated index or, when the index is unavailable, from the canonical prospect directory. Store this integer as `total_prospects_screened`. Count each canonical prospect record once, include every record considered in the lightweight metadata screen whether shortlisted or excluded, and verify that the count is at least the number of finalists. Do not use the 10-15 focused-reading count or grouped exclusion count as a substitute.
+
+8. **Perform a lightweight metadata screen.** Compare all records on:
 
    - supported capability match;
    - visible timing or buying context;
@@ -54,11 +56,11 @@ Use `schema_version: "1.3.0"` and `schema_name: "qualified_prospects"` for new J
 
    Remove candidates that are only generally large semiconductor organizations, clear competitors, named existing customers, or records with no plausible buyer or access route.
 
-8. **Select a focused reading set.** Choose the 10-15 most plausible records after the metadata screen, or fewer when the store is small. Read the complete Markdown only for this set. If the index was used, verify the selected records against their canonical frontmatter before qualification. Do not load 50-60 full files merely because they exist.
+9. **Select a focused reading set.** Choose the 10-15 most plausible records after the metadata screen, or fewer when the store is small. Read the complete Markdown only for this set. If the index was used, verify the selected records against their canonical frontmatter before qualification. Do not load 50-60 full files merely because they exist.
 
-9. **Preserve discovery provenance.** From each selected record capture company, role, cluster, route, matched capabilities, buying triggers, why it may fit, queries, evidence, and caveats. Search terms and candidate records do not prove that the SME has a capability absent from Skill 1.
+10. **Preserve discovery provenance.** From each selected record capture company, role, cluster, route, matched capabilities, buying triggers, why it may fit, queries, evidence, and caveats. Search terms and candidate records do not prove that the SME has a capability absent from Skill 1.
 
-10. **Run targeted verification only.** Search narrowly when one current fact could change a likely finalist's rank: project timing, buyer path, procurement route, facility phase, hiring, contractor relationship, or access route. Do not run broad prospect searches or target `site:linkedin.com` or other private social networks.
+11. **Run targeted verification only.** Search narrowly when one current fact could change a likely finalist's rank: project timing, buyer path, procurement route, facility phase, hiring, contractor relationship, or access route. Do not run broad prospect searches or target `site:linkedin.com` or other private social networks.
 
     - For `timing_signal`, check recent first-party career pages or public Greenhouse/Lever postings, CHIPS.gov notices, and state or regional EDO grant and expansion announcements.
     - For `best_buyer_path`, check named EPC/GC project announcements, contractor portfolios, SAM.gov notices, CHIPS.gov releases, and state EDO announcements.
@@ -67,7 +69,7 @@ Use `schema_version: "1.3.0"` and `schema_name: "qualified_prospects"` for new J
 
     A job posting proves only the stated hiring activity; it does not by itself prove construction, procurement need, or expansion. A grant or award proves a buyer, contractor, or tier relationship only when the notice explicitly names that relationship. Treat HN stories and comments as `Other` sources and normally as risk/caveat or discovery evidence, not direct proof. An HN discussion alone cannot establish `timing_signal`, `best_buyer_path`, a commercial relationship, or `Priority` status. Corroborate material claims with a primary or high-quality source; otherwise label the connection as inference or leave it out.
 
-11. **Structure every new fact.** Any fact introduced during qualification must appear in `key_evidence` with:
+12. **Structure every new fact.** Any fact introduced during qualification must appear in `key_evidence` with:
 
     - evidence role;
     - source focus;
@@ -80,9 +82,9 @@ Use `schema_version: "1.3.0"` and `schema_name: "qualified_prospects"` for new J
 
     Label unsupported possibilities as inference or leave them out.
 
-12. **Use runtime-derived time values.** At the start of qualification and immediately before the final write, read the current local time from the Codex runtime or system clock. Use the final exact ISO 8601 timestamp returned by the environment as `generated_at` and its calendar date as `accessed_on` for every source actually opened during this run. Never estimate or manually generate either value. Preserve an older access date only when carrying forward evidence without reopening its URL. This is an internal Codex operation: never create a helper script or ask the SME user to run a command. If the runtime clock is unavailable, stop before writing rather than inventing a timestamp.
+13. **Use runtime-derived time values.** At the start of qualification and immediately before the final write, read the current local time from the Codex runtime or system clock. Use the final exact ISO 8601 timestamp returned by the environment as `generated_at` and its calendar date as `accessed_on` for every source actually opened during this run. Never estimate or manually generate either value. Preserve an older access date only when carrying forward evidence without reopening its URL. This is an internal Codex operation: never create a helper script or ask the SME user to run a command. If the runtime clock is unavailable, stop before writing rather than inventing a timestamp.
 
-13. **Apply and expose the 20-point rubric.**
+14. **Apply and expose the 20-point rubric.**
 
     - Capability fit: 0-5
     - Timing or urgency: 0-4
@@ -93,7 +95,7 @@ Use `schema_version: "1.3.0"` and `schema_name: "qualified_prospects"` for new J
 
     Store all six component scores in `score_breakdown`. Set `score` to their arithmetic sum and verify the sum exactly before writing. Do not assign a total independently.
 
-14. **Classify finalists.**
+15. **Classify finalists.**
 
     - `Priority`: strong fit, timely, and a specific route worth investigating now.
     - `Strategic`: important but likely long-cycle or partner-led.
@@ -101,7 +103,7 @@ Use `schema_version: "1.3.0"` and `schema_name: "qualified_prospects"` for new J
 
     Classification expresses actionability and route maturity; it is not mechanically determined by the total score. State this once in the leadership brief so a lower-scoring `Priority` and a higher-scoring `Strategic` candidate do not appear contradictory.
 
-15. **Enforce evidence coverage.**
+16. **Enforce evidence coverage.**
 
     - `Priority`: timing, capability fit, and buyer-path or accessibility evidence; at least two distinct URLs; at least one project/timing-specific source.
     - `Strategic`: timing, capability fit, and buyer-path or risk evidence.
@@ -109,13 +111,13 @@ Use `schema_version: "1.3.0"` and `schema_name: "qualified_prospects"` for new J
 
     A generic company page alone cannot support `Priority`.
 
-16. **Recommend one SBF intervention per finalist.** Assign `Learn`, `Lead Generation`, `Land`, or `Localize` and one concrete action, such as a cluster briefing, procurement-route validation, warm introduction, mission meeting, local partner search, incentive navigation, or supplier-localization support.
+17. **Recommend one SBF intervention per finalist.** Assign `Learn`, `Lead Generation`, `Land`, or `Localize` and one concrete action, such as a cluster briefing, procurement-route validation, warm introduction, mission meeting, local partner search, incentive navigation, or supplier-localization support.
 
-17. **Prefer realistic routes.** Compare direct-owner outreach with EPC, contractor, OEM, channel, integrator, and ecosystem routes. Do not rank a megafab owner highly without a specific route to investigate. Apply Central Texas, Arizona, and New York as tie-breakers, not absolute rules.
+18. **Prefer realistic routes.** Compare direct-owner outreach with EPC, contractor, OEM, channel, integrator, and ecosystem routes. Do not rank a megafab owner highly without a specific route to investigate. Apply Central Texas, Arizona, and New York as tie-breakers, not absolute rules.
 
-18. **Filter aggressively.** Produce 5-8 finalists and never more than 10. Return fewer than five when fewer are credible. Group non-finalists by concise exclusion reason rather than listing every weak record.
+19. **Filter aggressively.** Produce 5-8 finalists and never more than 10. Return fewer than five when fewer are credible. Group non-finalists by concise exclusion reason rather than listing every weak record.
 
-19. **Build a one-page leadership brief.** Before the detailed shortlist, create `executive_summary` with:
+20. **Build a one-page leadership brief.** Before the detailed shortlist, create `executive_summary` with:
 
     - one decision headline;
     - no more than four `action_now` items, each naming the prospect, why it matters now, and the next SBF action;
@@ -124,11 +126,11 @@ Use `schema_version: "1.3.0"` and `schema_name: "qualified_prospects"` for new J
 
     Treat `executive_summary.action_now` as the sole contract for immediate SBF actions. It may include a `Priority`, `Strategic`, or `Watchlist` finalist when an immediate learning, route-validation, or commercial action is justified; never derive it mechanically from classification. Match prospect names using a trimmed, case-insensitive key. Reject empty keys, normalized duplicates, and normalized collisions; do not silently merge distinct organizations. Every named organization must match exactly one `qualified_shortlist` prospect under that rule. Keep the rendered section concise enough to fit roughly one page. Do not repeat full evidence citations there; the detailed sections remain the audit trail.
 
-20. **Write canonical JSON first.** Use the Output Contract below. Set `source_prospect_directory` to the Skill 2 directory. When using a legacy input, use the legacy `source_prospect_discovery_path` field and its compatible schema version instead.
+21. **Write canonical JSON first.** Use the Output Contract below. Set `source_prospect_directory` to the Skill 2 directory. When using a legacy input, use the legacy `source_prospect_discovery_path` field and its compatible schema version instead.
 
-21. **Self-check and render.** Read `schema/qualified-prospects.schema.json` and validate the completed JSON with the JSON Schema capability available in the Codex runtime. Independently recompute every total from the six score components; verify that every `action_now` and `strategic_routes` prospect matches exactly one `qualified_shortlist` prospect using the trimmed, case-insensitive key rule; reject normalized collisions; and compare `generated_at` with a fresh runtime-clock reading. Fix every mismatch before rendering Markdown. Do not create a validation script and do not ask the SME user to run technical checks.
+22. **Self-check and render.** Read `schema/qualified-prospects.schema.json` and validate the completed JSON with the JSON Schema capability available in the Codex runtime. Verify that `total_prospects_screened` equals the exact count established before the metadata screen and is at least the number of finalists. Independently recompute every total from the six score components; verify that every `action_now` and `strategic_routes` prospect matches exactly one `qualified_shortlist` prospect using the trimmed, case-insensitive key rule; reject normalized collisions; and compare `generated_at` with a fresh runtime-clock reading. Fix every mismatch before rendering Markdown. Do not create a validation script and do not ask the SME user to run technical checks.
 
-22. **Confirm briefly.** Report the number of prospect records screened, full records read, candidates verified, and finalists produced. Point to the qualified Markdown and JSON. End with:
+23. **Confirm briefly.** Report the number of prospect records screened, full records read, candidates verified, and finalists produced. Point to the qualified Markdown and JSON. End with:
     - Export the executive dashboard with `$export-executive-brief`.
     - Revise the qualified shortlist.
     - Stop.
@@ -144,6 +146,7 @@ Use `schema_version: "1.3.0"` and `schema_name: "qualified_prospects"` for new J
   "generated_at": "[ISO 8601 timestamp]",
   "source_capability_profile_path": "output/<safe_sme_name>/01_capability_profile.md",
   "source_prospect_directory": "output/<safe_sme_name>/prospects",
+  "total_prospects_screened": 18,
   "qualification_scope": "[scope used]",
   "qualification_logic": {
     "sme_capabilities_used": ["[Capability]"],
@@ -241,7 +244,7 @@ Use `schema_version: "1.3.0"` and `schema_name: "qualified_prospects"` for new J
 Render these sections:
 
 1. Executive decision brief
-2. Inputs and number of prospect records screened
+2. Inputs, total prospect records screened, and shortlisted finalists
 3. Qualification logic, including the distinction between score and actionability class
 4. Qualified shortlist table with compact component-score breakdowns
 5. Structured evidence by finalist
@@ -254,6 +257,7 @@ Do not introduce claims, scores, or recommendations absent from the self-checked
 
 - Read the capability profile and the Skill 2 prospect store.
 - Screen every prospect through the index or, on fallback, its frontmatter.
+- Record the exact full-pool count in `total_prospects_screened` and verify that it is at least the number of finalists.
 - Read full files only for the focused 10-15 candidate set.
 - Produce 5-8 finalists, never more than 10, without padding.
 - Give every finalist a specific buyer path, one verification question, and one concrete SBF action.

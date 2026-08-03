@@ -11,6 +11,7 @@
     "safe_sme_name",
     "generated_at",
     "source_capability_profile_path",
+    "total_prospects_screened",
     "qualification_scope",
     "qualification_logic",
     "qualified_shortlist",
@@ -50,6 +51,11 @@
     "source_prospect_directory": {
       "type": "string",
       "pattern": "^output/[a-z0-9]+(?:_[a-z0-9]+)*/prospects$"
+    },
+    "total_prospects_screened": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Total number of candidate prospect records screened from the Skill 2 library during qualification."
     },
     "qualification_scope": {
       "type": "string",
