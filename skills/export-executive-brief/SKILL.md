@@ -28,11 +28,13 @@ Transform canonical qualification JSON artifacts into a zero-friction, board-rea
 
 3. **Treat Step 3 JSON as canonical.** Read the complete file and require `sme_name`, `generated_at`, `executive_summary`, and `qualified_shortlist`. Treat `executive_summary.action_now` as the sole immediate-action list. Match every `action_now` and `strategic_routes` prospect to exactly one `qualified_shortlist` prospect using a trimmed, case-insensitive key. Reject empty keys, normalized duplicates, and normalized collisions; never silently merge distinct organizations. If a match is missing or ambiguous, identify it and stop so Step 3 can be corrected. Preserve all source names, classifications, roles, clusters, stages, actions, paths, timing signals, evidence descriptions, scores, and verification questions exactly. Do not browse, rescore, reinterpret, derive immediate actions from classification, or introduce new commercial claims. If required data is missing or malformed, identify the field and stop so Step 3 can be corrected.
 
-4. **Use the stable dashboard template.** Use `assets/executive-dashboard-template.html` as the complete presentation layer. Do not redesign, restyle, or reconstruct the dashboard, and do not load the files under `references/` during a normal export. Require the template to contain exactly one `__QUALIFIED_SHORTLIST_JSON__` marker.
+4. **Check whether Step 3 may be stale.** Set a `step3_may_be_stale` flag to `false`. If `output/<safe_sme_name>/02_search_log.md` exists, parse `generated_at` from the Step 3 JSON and compare it with every valid ISO 8601 timestamp recorded in the search log's `Timestamp` table cells and `## Scope update: <timestamp>` headings. Compare timezone-aware instants, not timestamp strings. If any recorded Step 2 timestamp is later than `generated_at`, set the flag to `true` and retain the latest such timestamp for the conversation handoff. This check is advisory: continue exporting the canonical Step 3 snapshot without changing it. Do not use file modification times or dates elsewhere in the log as substitutes. If a relevant timestamp cannot be parsed, do not guess; continue the export and report that staleness could not be fully evaluated.
 
-5. **Embed canonical JSON only.** Serialize the complete Step 3 object without changing field values or array order. Before embedding, replace `<`, `>`, `&`, U+2028, and U+2029 with their JSON Unicode escapes so the payload is safe inside the template's `application/json` script element. Replace the single marker with that escaped JSON and write the result to `output/<safe_sme_name>/04_executive_dashboard.html`. Do not modify any other template text.
+5. **Use the stable dashboard template.** Use `assets/executive-dashboard-template.html` as the complete presentation layer. Do not redesign, restyle, or reconstruct the dashboard, and do not load the files under `references/` during a normal export. Require the template to contain exactly one `__QUALIFIED_SHORTLIST_JSON__` marker.
 
-6. **Check the rendered artifact contract.** Confirm that the marker is gone, the embedded JSON parses back to an object deeply equal to the Step 3 source, and the output contains no external dependency or network-request code. Confirm that the template's immediate-action KPI and cards use `executive_summary.action_now`, not classification. Do not add browser, screenshot, or visual-review steps.
+6. **Embed canonical JSON only.** Serialize the complete Step 3 object without changing field values or array order. Before embedding, replace `<`, `>`, `&`, U+2028, and U+2029 with their JSON Unicode escapes so the payload is safe inside the template's `application/json` script element. Replace the single marker with that escaped JSON and write the result to `output/<safe_sme_name>/04_executive_dashboard.html`. Do not modify any other template text.
+
+7. **Check the rendered artifact contract.** Confirm that the marker is gone, the embedded JSON parses back to an object deeply equal to the Step 3 source, and the output contains no external dependency or network-request code. Confirm that the template's immediate-action KPI and cards use `executive_summary.action_now`, not classification. Do not add browser, screenshot, or visual-review steps.
 
 ## Stable template contract
 
@@ -44,8 +46,10 @@ After the HTML is written and checked:
 
 1. Verify that the HTML contains no external dependency or network-request references and includes every required section.
 2. Render a compact Markdown table for every `executive_summary.action_now` item in source order with prospect, classification, US cluster, recommended SBF stage, and `next_sbf_action`. If the array is empty, state that Step 3 recorded no immediate-action targets.
-3. Provide a clickable absolute local path to `04_executive_dashboard.html`.
-4. End with these choices:
+3. If `step3_may_be_stale` is `true`, include this note before the final options: *💡 **Note:** Additional discovery searches were logged in Step 2 after your last qualification. If you want these newly discovered prospects included in your dashboard, please run `$qualify-us-prospects` first before exporting.*
+4. If staleness could not be fully evaluated because a relevant search-log timestamp was malformed, state that briefly without claiming that Step 3 is current or stale.
+5. Provide a clickable absolute local path to `04_executive_dashboard.html`.
+6. End with these choices:
    - Double-click `04_executive_dashboard.html` to open it in a browser.
    - Press `Ctrl+P` or `Cmd+P` in the browser to save it as a PDF report.
    - Stop.

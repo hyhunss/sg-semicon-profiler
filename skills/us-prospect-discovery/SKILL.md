@@ -203,7 +203,7 @@ Each normal invocation is one search cycle:
 
     - Continue discovery with another cycle.
     - Revise the search scope.
-    - Run `$qualify-us-prospects`.
+    - **Run `$qualify-us-prospects` (required to re-score the library and reflect newly discovered prospects in your shortlist and dashboard).**
     - Stop.
 
 ## Scope Revision Template

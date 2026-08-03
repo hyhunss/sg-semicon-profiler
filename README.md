@@ -26,6 +26,14 @@ The plugin produces evidence-backed decision support. It does not replace commer
 | **Step 3** | `$qualify-us-prospects` | Score & rank top candidates using 20-pt rubric | `output/<sme>/03_qualified_shortlist.md` |
 | **Step 4** | `$export-executive-brief` | Render the canonical shortlist for executive review | `output/<sme>/04_executive_dashboard.html` |
 
+> ⚠️ **Important Note on Data Cascade & Dependencies:**
+> Steps 3 and 4 operate on static snapshots created by prior steps:
+>
+> - **Step 3 (`$qualify-us-prospects`)** scores and qualifies the active candidate pool in `prospects/`.
+> - **Step 4 (`$export-executive-brief`)** renders the canonical shortlist from Step 3.
+>
+> **If you rerun Step 2 (`$us-prospect-discovery`) to add new prospects, you must rerun Step 3** to re-score the expanded library, followed by **Step 4** to refresh your HTML dashboard. Existing reports do not update automatically.
+
 ---
 
 ## Installation
