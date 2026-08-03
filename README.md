@@ -6,11 +6,12 @@
 
 **This is an independent academic capstone project, not an official SBF product.**
 
-This Codex plugin is designed to help Singapore Business Federation (SBF) leaders and Singapore semiconductor-supply-chain SMEs answer three practical questions:
+This Codex plugin is designed to help Singapore Business Federation (SBF) leaders and Singapore semiconductor-supply-chain SMEs answer four practical questions:
 
 1. **What can this SME credibly offer the US semiconductor market?**
 2. **Which US companies, projects, and market-entry routes may be relevant?**
 3. **Which opportunities deserve priority, and how can SBF help?**
+4. **How can the approved shortlist be shared in executive-ready formats?**
 
 The plugin produces evidence-backed decision support. It does not replace commercial due diligence or guarantee that a company will become a customer.
 
@@ -23,6 +24,7 @@ The plugin produces evidence-backed decision support. It does not replace commer
 | **Step 1** | `$map-sme-capability <URL / File>` | Map SME core capabilities, evidence & limitations | `output/<sme>/01_capability_profile.md` |
 | **Step 2** | `$us-prospect-discovery` | Discover relevant US prospects across target clusters | `output/<sme>/prospects/*.md` |
 | **Step 3** | `$qualify-us-prospects` | Score & rank top candidates using 20-pt rubric | `output/<sme>/03_qualified_shortlist.md` |
+| **Step 4** | `$export-executive-brief` | Export the canonical shortlist for executive review | `output/<sme>/04_executive_dashboard.html` and `03_qualified_shortlist.csv` |
 
 ---
 
@@ -42,6 +44,8 @@ For each SME, the workflow generates:
 - **Capability Profile (`01_capability_profile.md`)**: A structured summary of core technical offerings, website evidence, and operational limits.
 - **Prospect Library (`prospects/*.md`)**: A persistent collection of individual Markdown records for screened US prospects, market-entry partners, and ecosystem connectors.
 - **Qualified Executive Shortlist (`03_qualified_shortlist.md`)**: A prioritized 5–8 candidate decision report featuring component scores, buyer routes, next verification questions, and recommended SBF actions.
+- **Executive Dashboard (`04_executive_dashboard.html`)**: A self-contained, offline dashboard with executive KPIs, action priorities, evidence details, and print-ready styling.
+- **Excel-Compatible Shortlist (`03_qualified_shortlist.csv`)**: A UTF-8 BOM CSV that opens cleanly in Microsoft Excel.
 
 ---
 
@@ -72,7 +76,10 @@ flowchart LR
     B -->|Review & Approve| C[Step 2: $us-prospect-discovery]
     C -->|Adaptive Discovery| D[Prospect Library]
     D -->|Review & Approve| E[Step 3: $qualify-us-prospects]
-    E -->|20-Pt Scoring Rubric| F[Executive Shortlist]
+    E -->|20-Pt Scoring Rubric| F[Canonical Executive Shortlist]
+    F -->|Review & Approve| G[Step 4: $export-executive-brief]
+    G --> H[Offline HTML Dashboard]
+    G --> I[Excel-Compatible CSV]
 ```
 
 ### 1. Capability Mapping (`$map-sme-capability`)
@@ -86,6 +93,9 @@ Runs adaptive search cycles across priority US clusters using public signals (CH
 
 ### 3. Prospect Qualification (`$qualify-us-prospects`)
 Screens the prospect library against a 20-point rubric assessing capability fit, timing signals, buyer accessibility, and evidence strength. Recommends specific SBF engagement stages (**Learn**, **Lead Generation**, **Land**, **Localize**).
+
+### 4. Executive Export (`$export-executive-brief`)
+Transforms the reviewed Step 3 JSON into a self-contained HTML dashboard and an Excel-compatible CSV. This presentation-only step preserves the canonical shortlist without rescoring candidates or adding claims.
 
 ---
 
@@ -138,6 +148,8 @@ All outputs are saved in self-contained folders under `output/<sme_name>/`:
 - `prospects/*.md`: Detailed records for each discovered prospect.
 - `03_qualified_shortlist.md`: Final qualified executive report.
 - `03_qualified_shortlist.json`: Structured archive of shortlisted candidates.
+- `03_qualified_shortlist.csv`: Excel-compatible shortlist export.
+- `04_executive_dashboard.html`: Offline executive dashboard and print-to-PDF view.
 
 ---
 
