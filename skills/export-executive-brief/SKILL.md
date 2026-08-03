@@ -24,83 +24,26 @@ Transform canonical qualification JSON artifacts into a zero-friction, board-rea
 
 1. **Accept selected-prompt invocations.** If the message body is blank but selected text contains an instruction for this skill, use the selected text.
 
-2. **Resolve the input.** Use a user-supplied Step 3 JSON path when given. Otherwise locate the most recently modified `output/*/03_qualified_shortlist.json`. If multiple files remain genuinely ambiguous, ask the user to choose. If none exists, tell the user to run `$qualify-us-prospects` first and stop without creating outputs.
+2. **Resolve Input Matching.** Use a user-supplied Step 3 JSON path when given. Otherwise locate the most recently modified `output/*/03_qualified_shortlist.json`. If multiple files remain genuinely ambiguous, ask the user to choose. If none exists, notify the user: "No Step 3 qualified shortlist found. Please run `$qualify-us-prospects` first." and stop without creating outputs.
 
-3. **Treat Step 3 JSON as canonical.** Read the complete file and require `sme_name`, `generated_at`, `executive_summary`, and `qualified_shortlist`. Preserve all names, classifications, roles, clusters, stages, actions, paths, timing signals, evidence descriptions, scores, and verification questions exactly. Do not browse, rescore, reinterpret, or introduce new commercial claims. If required data is missing or malformed, identify the field and stop so Step 3 can be corrected.
+3. **Treat Step 3 JSON as canonical.** Read the complete file and require `sme_name`, `generated_at`, `executive_summary`, and `qualified_shortlist`. Treat `executive_summary.action_now` as the sole immediate-action list. Match every `action_now` and `strategic_routes` prospect to exactly one `qualified_shortlist` prospect using a trimmed, case-insensitive key. Reject empty keys, normalized duplicates, and normalized collisions; never silently merge distinct organizations. If a match is missing or ambiguous, identify it and stop so Step 3 can be corrected. Preserve all source names, classifications, roles, clusters, stages, actions, paths, timing signals, evidence descriptions, scores, and verification questions exactly. Do not browse, rescore, reinterpret, derive immediate actions from classification, or introduce new commercial claims. If required data is missing or malformed, identify the field and stop so Step 3 can be corrected.
 
-4. **Load visualization foundations.** Read these bundled reference files completely before rendering: `references/theory-and-principles.md`, `references/task-abstraction-and-chart-selection.md`, `references/layout-hierarchy-and-self-explanatory-ux.md`, `references/interaction-models-and-progressive-disclosure.md`, `references/perception-color-and-encoding.md`, `references/mobile-first-responsive-visualization.md`, `references/editorial-infographic-system.md`, `references/storytelling-annotation-and-critique.md`, and `references/embedded-visualization-self-use.md`. Apply progressive disclosure, semantic color encoding, visual hierarchy, direct labeling, meaningful annotation, accessibility, responsive layout, embedded-layer QA, and `@media print` rules within this skill.
+4. **Use the stable dashboard template.** Use `assets/executive-dashboard-template.html` as the complete presentation layer. Do not redesign, restyle, or reconstruct the dashboard, and do not load the files under `references/` during a normal export. Require the template to contain exactly one `__QUALIFIED_SHORTLIST_JSON__` marker.
 
-5. **Generate the standalone HTML dashboard.** Write one complete, highly polished HTML5 document to `04_executive_dashboard.html`. Embed all CSS and light inline interaction JavaScript directly in the file. Escape all JSON-derived text before inserting it into HTML.
-   - **Zero external dependencies:** Do not use CDN scripts, external web fonts, framework libraries, network requests, or remote images. The file must work completely offline when opened directly in Chrome, Edge, or Safari.
+5. **Embed canonical JSON only.** Serialize the complete Step 3 object without changing field values or array order. Before embedding, replace `<`, `>`, `&`, U+2028, and U+2029 with their JSON Unicode escapes so the payload is safe inside the template's `application/json` script element. Replace the single marker with that escaped JSON and write the result to `output/<safe_sme_name>/04_executive_dashboard.html`. Do not modify any other template text.
 
-## HTML design
+6. **Check the rendered artifact contract.** Confirm that the marker is gone, the embedded JSON parses back to an object deeply equal to the Step 3 source, and the output contains no external dependency or network-request code. Confirm that the template's immediate-action KPI and cards use `executive_summary.action_now`, not classification. Do not add browser, screenshot, or visual-review steps.
 
-### Typography and base setup
+## Stable template contract
 
-- System font stack: `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`.
-- Page background `#F8FAFC`; body text `#0F172A`.
-- Centered container with `max-width: 1140px` and responsive padding.
-
-### Semantic color palette
-
-- Primary navy: `#0F172A` and `#1E293B`; accent blue: `#0072FF`.
-- Priority badge: background `#ECFDF5`, text `#047857`, border `#A7F3D0`.
-- Strategic badge: background `#EFF6FF`, text `#1D4ED8`, border `#BFDBFE`.
-- Watchlist badge: background `#F1F5F9`, text `#475569`, border `#CBD5E1`.
-
-Use semantic headings, accessible color contrast, visible keyboard focus, responsive tables or cards, and no decorative clutter.
-
-### Required layout sections
-
-1. **Header banner**
-   - Title: `SG Semicon US Expansion Briefing`.
-   - Display `sme_name` and `generated_at` exactly as stored.
-   - Feature `executive_summary.headline` prominently.
-
-2. **KPI metrics row**
-   - Total Shortlisted Targets: length of `qualified_shortlist`.
-   - Immediate Action Targets: count whose `classification` is exactly `Priority`.
-   - Key US Clusters Covered: count of unique, non-empty `us_cluster` values.
-
-3. **Executive action board — Action Now**
-   - Show every `Priority` candidate in source order in emerald-accented cards.
-   - Display prospect, US cluster, best buyer path, recommended SBF stage, and recommended SBF action.
-   - If none exists, state that the canonical shortlist contains no Priority candidates.
-
-4. **Full shortlist score visualizer**
-   - Show every candidate in source order on one aligned `0–20` total-score scale using pure inline CSS progress bars.
-   - Print the exact total score and classification beside each mark.
-   - Keep classification visually distinct from score and state that classification reflects actionability rather than a mechanical score band.
-
-5. **Strategic and long-term routes**
-   - Show `Strategic` and `Watchlist` candidates in source order.
-   - Use native `<details><summary>` disclosures for score breakdown, key evidence, and the next verification question.
-   - Show every score component and total exactly as stored. For each evidence item, preserve its source title, supported claim, evidence excerpt, source date, accessed date, and URL. Make valid URLs clickable without fetching them.
-
-6. **Critical unknowns and SBF next steps**
-   - Render `executive_summary.critical_unknowns` as concise bullets.
-   - Render `recommended_next_steps` as a separate action list.
-   - Preserve source order and wording. If either array is empty, state that none were recorded in Step 3.
-
-## Print and PDF behavior
-
-Include `@media print` styles that:
-
-- switch to a white background and high-contrast dark text;
-- remove shadows, decorative borders, hover effects, and controls without print value;
-- expand `<details>` content for printing;
-- prevent cards, table rows, and evidence blocks from splitting where practical;
-- avoid horizontal scrollbars and clipped content;
-- preserve sensible multi-page spacing and headings.
-
-Do not claim that browser PDF pagination will be identical across operating systems or browsers.
+The bundled template owns typography, colors, responsive layout, accessibility, progressive disclosure, score bars, evidence rendering, and print behavior. Its runtime validates Step 3 cross-field matches before rendering. Update the template asset itself when the dashboard design changes; never generate one-off HTML structure in an export run.
 
 ## Conversation handoff
 
 After the HTML is written and checked:
 
 1. Verify that the HTML contains no external dependency or network-request references and includes every required section.
-2. Render a compact Markdown table for Priority candidates with prospect, US cluster, recommended SBF stage, and next SBF action. If there are no Priority candidates, state that plainly.
+2. Render a compact Markdown table for every `executive_summary.action_now` item in source order with prospect, classification, US cluster, recommended SBF stage, and `next_sbf_action`. If the array is empty, state that Step 3 recorded no immediate-action targets.
 3. Provide a clickable absolute local path to `04_executive_dashboard.html`.
 4. End with these choices:
    - Double-click `04_executive_dashboard.html` to open it in a browser.
@@ -110,6 +53,7 @@ After the HTML is written and checked:
 ## Quality bar
 
 - Keep the HTML fully self-contained and offline-capable.
+- Use `executive_summary.action_now` as the single source for the immediate-action KPI, dashboard cards, and conversation table; never rebuild that list from classification.
 - Match all scores, claims, and URLs in the canonical JSON exactly; do not add, omit, or alter decision content.
 - Keep the interface clean, responsive, printable, highly readable, and executive-ready.
 - Keep Step 4 presentation-only. Return analytical corrections to Step 3 rather than silently repairing them here.

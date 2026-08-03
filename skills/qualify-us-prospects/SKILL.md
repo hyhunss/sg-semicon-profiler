@@ -122,13 +122,16 @@ Use `schema_version: "1.3.0"` and `schema_name: "qualified_prospects"` for new J
     - no more than three `strategic_routes` items for longer-cycle or partner-led options;
     - up to three portfolio-level critical unknowns.
 
-    Keep the rendered section concise enough to fit roughly one page. Every named organization must also appear in `qualified_shortlist`. Do not repeat full evidence citations there; the detailed sections remain the audit trail.
+    Treat `executive_summary.action_now` as the sole contract for immediate SBF actions. It may include a `Priority`, `Strategic`, or `Watchlist` finalist when an immediate learning, route-validation, or commercial action is justified; never derive it mechanically from classification. Match prospect names using a trimmed, case-insensitive key. Reject empty keys, normalized duplicates, and normalized collisions; do not silently merge distinct organizations. Every named organization must match exactly one `qualified_shortlist` prospect under that rule. Keep the rendered section concise enough to fit roughly one page. Do not repeat full evidence citations there; the detailed sections remain the audit trail.
 
 20. **Write canonical JSON first.** Use the Output Contract below. Set `source_prospect_directory` to the Skill 2 directory. When using a legacy input, use the legacy `source_prospect_discovery_path` field and its compatible schema version instead.
 
-21. **Self-check and render.** Read `schema/qualified-prospects.schema.json` and validate the completed JSON with the JSON Schema capability available in the Codex runtime. Independently recompute every total from the six score components and compare `generated_at` with a fresh runtime-clock reading. Fix every mismatch before rendering Markdown. Do not create a validation script and do not ask the SME user to run technical checks.
+21. **Self-check and render.** Read `schema/qualified-prospects.schema.json` and validate the completed JSON with the JSON Schema capability available in the Codex runtime. Independently recompute every total from the six score components; verify that every `action_now` and `strategic_routes` prospect matches exactly one `qualified_shortlist` prospect using the trimmed, case-insensitive key rule; reject normalized collisions; and compare `generated_at` with a fresh runtime-clock reading. Fix every mismatch before rendering Markdown. Do not create a validation script and do not ask the SME user to run technical checks.
 
-22. **Confirm briefly.** Report the number of prospect records screened, full records read, candidates verified, and finalists produced. Point to the qualified Markdown and JSON. End with use, revise, or stop choices.
+22. **Confirm briefly.** Report the number of prospect records screened, full records read, candidates verified, and finalists produced. Point to the qualified Markdown and JSON. End with:
+    - Export the executive dashboard with `$export-executive-brief`.
+    - Revise the qualified shortlist.
+    - Stop.
 
 ## Output Contract
 
