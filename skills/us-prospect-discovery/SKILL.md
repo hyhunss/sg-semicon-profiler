@@ -7,6 +7,8 @@ description: Second skill in the SG Semicon US Expansion workflow. Use after the
 
 Build a rich, persistent library of plausible US prospects through short, repeatable search cycles. Search broadly and save capability-relevant candidates while filtering obvious noise. Do not score or deeply qualify candidates.
 
+**Division of labor:** Skill 2 is the high-recall stage: collect as many plausibly relevant US prospects as the evidence supports. Skill 3 is the high-precision stage: perform strict qualification, 20-point scoring, and filtering. Do not apply Skill 3's strict qualification during discovery. If an organization has demonstrable capability relevance, save it even when current timing or a direct buyer route is unverified; tag each missing signal as `To be verified in Step 3 / human review`.
+
 This is step 2 of a review-gated workflow:
 
 ```text
@@ -78,6 +80,8 @@ Each normal invocation is one search cycle:
 
    Lead with capability and buyer or route relevance. Add a timing signal when it improves precision, but do not make timing a mandatory query dimension. Use precise semiconductor process, equipment, packaging, software, facility, logistics, and service language. Default geography is Central Texas, Arizona, and New York. Deprioritize but do not prohibit California. Use Other US when fit or timing is materially stronger.
 
+   In every normal cycle, allow at least one query to begin slightly broader with a supported capability plus general US contractor, OEM, integrator, supplier, or buyer terms before adding a strict state or cluster filter. Use this nationwide pass to surface organizations that operate across Central Texas, Arizona, New York, or other US clusters even when their headquarters or source page is elsewhere. It still counts toward the same five-search limit.
+
 7. **Choose an uncovered direction.** Read `02_search_log.md` before every cycle. Do not repeat an exact query unless the user requests a freshness rerun. Prefer combinations or result types not adequately covered. Include direct buyers and realistic access routes such as EPC/EPCM firms, cleanroom contractors, systems integrators, equipment OEMs, approved-supplier routes, EDOs, chambers, associations, universities, and consortia.
 
 8. **Search and adapt one query at a time.** Run a live web search. Prefer primary or high-quality current sources: company pages, press releases, government and CHIPS releases, procurement pages, contractor project pages, university or consortium pages, EDO pages, and credible trade press. Use open tech-discussion APIs such as Hacker News via Algolia only as secondary discovery or caveat signals. After each query, assess:
@@ -132,7 +136,9 @@ Each normal invocation is one search cycle:
 
 9. **Apply high-recall candidate admission.** Create a canonical prospect Markdown record for any candidate organization that satisfies `Capability relevance`: a named process, facility, service, equipment category, or program has a direct relationship to one of the SME's supported capabilities. The evidence must support a plausible demand-side use or route-side role—for example, the candidate buys, uses, integrates, specifies, distributes, or can connect the capability to semiconductor work. A company merely advertising the same capability is normally a competitor, not a prospect. Generic semiconductor activity or company size alone does not qualify.
 
-   Do not require `Current timing` or `Access route` for initial admission. When current public evidence supports either signal, add it to `admission_basis` and capture the supporting source. When either signal is missing or unverified, add a concise caveat stating `Current timing: To be verified in Step 3 / human review` or `Access route: To be verified in Step 3 / human review`, and still save the record.
+   Do not require `Current timing` or `Access route` for initial admission, and do not discard a capability-relevant organization merely because it would not yet pass Skill 3's qualification or scoring threshold. When current public evidence supports either signal, add it to `admission_basis` and capture the supporting source. When either signal is missing or unverified, add a concise caveat stating `Current timing: To be verified in Step 3 / human review` or `Access route: To be verified in Step 3 / human review`, and still save the record.
+
+   **Multi-Entity List Rule:** When one search result is a high-quality directory, EDO supplier list, or contractor round-up, extract up to two or three directly relevant organizations from that page into separate prospect Markdown records. Admit each organization independently under the same capability-relevance rule, retain the list page as valid supporting evidence, and add an official organization source when needed to establish identity or the claimed role. Do not convert every name on a broad list into a prospect.
 
    Exclude only obvious noise: direct competitors, recruiters, generic non-semiconductor entities, generic consultants without a semiconductor route, non-US entities without a clear US operational route, named existing customers, and results supported solely by general company size. Count excluded results in the search log and explain material exclusion patterns in the reflection.
 
