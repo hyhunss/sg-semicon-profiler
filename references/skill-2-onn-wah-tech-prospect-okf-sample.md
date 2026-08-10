@@ -51,3 +51,7 @@ Amkor's Arizona advanced-packaging expansion is a plausible demand context for p
 
 - Access route: To be verified in Step 3 / human review
 - The public sources do not identify Amkor's approved tooling suppliers or specific purchase packages.
+
+[^amkor-announcement]: Amkor Announces US Advanced Packaging and Test Facility
+[^amkor-campus]: Amkor breaks ground on Arizona advanced packaging campus
+[^azcommerce-announcement]: Amkor Announces US Advanced Packaging and Test Facility in Peoria

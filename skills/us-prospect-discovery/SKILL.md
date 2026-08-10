@@ -269,7 +269,7 @@ caveats:
 ---
 ```
 
-For every source, create one stable lowercase-hyphenated source ID such as `example-project` and preserve it when the same URL is carried forward. Keep source entries to `id` and `resource`; write source names and claims only in the body beside their keyed footnotes. Set `generated.by` to the actual Codex agent/model identifier in the actor convention, for example `codex/gpt-5`, never a skill name or invented version. Set `generated.at` from the runtime immediately before the final write. Do not add optional metadata unless the user asks for it.
+For every source, create one stable lowercase-hyphenated source ID such as `example-project` and preserve it when the same URL is carried forward. Keep source entries to `id` and `resource`; write source names and claims only in the body beside their keyed footnotes. Every cited `[^source-id]` must have one matching Markdown definition, `[^source-id]: [Source title]`, at the end of the body. Set `generated.by` to the actual Codex agent/model identifier in the actor convention, for example `codex/gpt-5`, never a skill name or invented version. Set `generated.at` from the runtime immediately before the final write. Do not add optional metadata unless the user asks for it.
 
 Required controlled values:
 
@@ -370,7 +370,7 @@ Do not enumerate individual prospects at the root; the `prospects/` link is the 
 ## Quality bar
 
 - Every prospect has exactly one canonical Markdown file, a non-empty OKF `type`, and at least one evidence URL.
-- Every prospect file has one YAML frontmatter block at its start, the minimal fields in the Prospect Record Contract, and `sources` whose keyed footnotes attribute the body claims.
+- Every prospect file has one YAML frontmatter block at its start, the minimal fields in the Prospect Record Contract, and `sources` whose keyed Markdown footnotes, including definitions, attribute the body claims.
 - The root and prospect-directory `index.md` files provide a complete two-level discovery path without adding commercial claims.
 - Every prospect has direct capability relevance to the SME, stated in a sourced body explanation rather than a separate admission field.
 - Timing and buyer access are captured when available; missing signals are explicitly deferred to Step 3 / human review rather than blocking admission.

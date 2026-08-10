@@ -39,7 +39,7 @@ Use these OKF rules:
 - Use the plugin's minimal metadata set: `type`, `description`, `resource`, `generated`, and `sources`. Do not add `title`, `tags`, `status`, `stale_after`, or `verified` unless the user explicitly needs that optional metadata.
 - Set `generated.by` to the actual Codex agent/model identifier in the actor convention, for example `codex/gpt-5`. Do not use the skill name or invent a version. Set `generated.at` to the exact runtime-derived ISO 8601 timestamp. Never estimate either value.
 - Use one `sources` item for every distinct URL cited in the body. Each source needs a stable, lowercase hyphenated `id`, `resource`, and `title`. Add `last_modified` only when the source itself states a reliable date.
-- Use the source ID as the footnote label, for example `[^services]`. A claim must not cite an unlisted URL.
+- Use the source ID as a complete Markdown footnote: cite it beside the claim, for example `[^services]`, and define it once in the body as `[^services]: [Page title]`. A claim must not cite an unlisted URL.
 - Set `description` to one plain-language sentence and `resource` to the SME's main website URL. Use a descriptive, self-explanatory value for `type`.
 - A limitation based on missing public evidence must say that the reviewed public sources do not establish the fact; do not state or imply that the fact is false.
 
@@ -116,7 +116,7 @@ Before completion, verify that:
 
 1. `index.md` has only `okf_version: "0.2"` frontmatter and links to the capability profile.
 2. The profile has one parseable YAML frontmatter block at its start and a non-empty `type`.
-3. Every body footnote label matches exactly one `sources[].id`, and every cited URL appears only through that source entry.
+3. Every body footnote reference and definition matches exactly one `sources[].id`, and every cited URL appears only through that source entry.
 4. `generated` is present and identifies the actual producer; do not add optional metadata unless the user requested it.
 5. No capability or limitation overstates what the reviewed sources establish.
 

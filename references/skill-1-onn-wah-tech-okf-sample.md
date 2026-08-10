@@ -53,3 +53,9 @@ This is a format sample. Refresh the public sources before using it for a curren
 - BGA ball-attach, test, and saw-rework tooling + US OSAT or semiconductor back-end packaging line + capacity expansion or equipment conversion
 - Precision-machined semiconductor packaging tooling + US packaging-equipment OEM or automation integrator + supplier or subcontract machining need
 - Flux tooling cleaner or wafer cassette inverter + US advanced-packaging facility + line upgrade, maintenance, or contamination-control project
+
+[^company-homepage]: Welcome to Onn Wah Tech
+[^about-us]: About Us
+[^bga-tooling]: Ball Mount (BGA) Tooling
+[^precision-machining]: Precision Machining Solutions
+[^semi-automation]: Customized Semi Automation
