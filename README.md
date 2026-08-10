@@ -1,168 +1,128 @@
 # Singapore Semiconductor US Expansion
 
-> **AI-Powered Market-Entry Decision Support for Singapore Semiconductor SMEs & SBF Leaders**
+> Evidence-backed market-entry decision support for Singapore semiconductor SMEs and the advisors who support them.
 
----
+## The decision this plugin supports
 
-## Overview
+Entering the U.S. semiconductor ecosystem is not a question of finding the largest fabs. It is a question of choosing a credible first route: **which organizations matter, why the SME fits, how accessible the route is, and what to verify before committing resources.**
+
+This Codex plugin turns public evidence into a reviewable decision path. It maps what an SME can credibly offer, builds a persistent library of relevant U.S. buyers and access routes, narrows that library through a transparent rubric, and produces an executive-ready brief.
+
+### Built into Codex
+
+The workflow is available as one focused Codex plugin, ready to begin from an SME website or capability profile.
+
+![SG Semicon US Expansion in Codex Plugins](assets/overview.png)
+
+### From evidence to an executive brief
 
 ![Executive Dashboard Preview](assets/dashboard-preview.png)
 
-In the era of the U.S. CHIPS Act, Singapore semiconductor-supply-chain SMEs entering the U.S. market face significant research costs and unfamiliar supply-chain structures.
+## What leaders receive
 
-This Codex plugin provides a structured, 4-step decision-support workflow designed for Singapore Business Federation (SBF) advisors and SME executives. Instead of generic industry overviews, it identifies candidate organizations across target U.S. semiconductor clusters (**Central Texas, Arizona, and New York**), evaluates their fit against a transparent 20-point rubric, and generates print-ready executive brief dashboards.
+| Decision artifact | Leadership use | What it contains |
+|---|---|---|
+| **Capability profile** | Establish the market-entry premise | Supported capabilities, evidence boundaries, limitations, and search directions |
+| **Prospect library** | Build a broad, reusable option set | Individual OKF v0.2 records for buyers, route partners, and ecosystem connectors |
+| **Qualified shortlist** | Decide where to focus | 5–8 targets, transparent 20-point scores, practical buyer paths, and critical unknowns |
+| **Executive dashboard** | Align action and review | A self-contained, print-ready brief of priorities, evidence, and next actions |
 
-### Key Value Pillars
-* **Pragmatic Channel Targeting**: Bypasses the high entry barriers of Tier-1 megasites by focusing on accessible secondary channels—cleanroom/EPC contractors, equipment OEMs, system integrators, and regional EDOs.
-* **Evidence-Backed Qualification**: Every candidate score is tied directly to verifiable source links, access timestamps, and specific supported claims.
-* **Zero-Friction Executive Briefing**: Generates single-file offline HTML dashboards that convert instantly into clean, McKinsey-formatted PDF briefs via standard print controls (`Ctrl+P` / `Cmd+P`).
+The output is decision support—not a claim that a target will buy, a substitute for customer conversations, or a regulatory assessment.
 
----
-
-## Quick Reference
-
-| Stage | Command / Trigger | Primary Action | Output |
-| :--- | :--- | :--- | :--- |
-| **Step 1** | `$map-sme-capability <URL / File>` | Map SME core capabilities, evidence & limitations | `output/<sme>/01_capability_profile.md` |
-| **Step 2** | `$us-prospect-discovery` | Discover relevant US prospects across target clusters | `output/<sme>/prospects/*.md` |
-| **Step 3** | `$qualify-us-prospects` | Score & rank top candidates using 20-pt rubric | `output/<sme>/03_qualified_shortlist.md` |
-| **Step 4** | `$export-executive-brief` | Render the canonical shortlist for executive review | `output/<sme>/04_executive_dashboard.html` |
-
-> ⚠️ **Important Note on Data Cascade & Dependencies:**
-> Steps 3 and 4 operate on static snapshots created by prior steps:
->
-> - **Step 3 (`$qualify-us-prospects`)** scores and qualifies the active candidate pool in `prospects/`.
-> - **Step 4 (`$export-executive-brief`)** renders the canonical shortlist from Step 3.
->
-> **If you rerun Step 2 (`$us-prospect-discovery`) to add new prospects, you must rerun Step 3** to re-score the expanded library, followed by **Step 4** to refresh your HTML dashboard. Existing reports do not update automatically.
-
----
-
-## Installation
-
-1. Open **Plugins** in Codex.
-2. Select **Add more** from the marketplace dropdown.
-3. Add the plugin folder or repository URL.
-4. Start a new Codex task after installation.
-
----
-
-## Deliverables
-
-For each SME, the workflow generates:
-
-- **Capability Profile (`01_capability_profile.md`)**: A minimal OKF v0.2 concept with core technical offerings, source-linked evidence, and operational limits.
-- **Prospect Library (`prospects/*.md`)**: A persistent collection of minimal OKF v0.2 concepts for screened US prospects, market-entry partners, and ecosystem connectors; their business evidence and caveats remain in the Markdown body.
-- **Qualified Executive Shortlist (`03_qualified_shortlist.md`)**: A prioritized 5–8 candidate decision report featuring component scores, buyer routes, next verification questions, and recommended SBF actions.
-- **Executive Dashboard (`04_executive_dashboard.html`)**: A self-contained, offline dashboard with executive KPIs, action priorities, evidence details, and print-ready styling.
-
----
-
-## Target Segment & Scope
-
-### Designed For
-- **SBF Leaders & Advisors**: Evaluating strategic support initiatives for Singapore SMEs entering the US semiconductor ecosystem.
-- **Singapore SME Executives**: Assessing potential US customers, partners, and expansion routes.
-- **Industry Partners**: Guiding SMEs through market validation, missions, and establishment.
-
-### Eligible Sector Focus
-Target SMEs should be Singapore-owned (≥30% local equity, revenue < SGD 100M, <200 employees). Relevant activities include:
-
-- Semiconductor equipment & precision engineering
-- Testing, assembly & advanced packaging
-- Cleanroom, facility services & tool relocation
-- Factory software, logistics & systems integration
-
-*Note: Direct semiconductor manufacturing (Fab operations) is out of scope.*
-
----
-
-## Workflow Architecture
+## How it works
 
 ```mermaid
 flowchart LR
-    A[SME Website / Input] -->|Step 1: $map-sme-capability| B[Capability Profile]
-    B -->|Review & Approve| C[Step 2: $us-prospect-discovery]
-    C -->|Adaptive Discovery| D[Prospect Library]
-    D -->|Review & Approve| E[Step 3: $qualify-us-prospects]
-    E -->|20-Pt Scoring Rubric| F[Canonical Executive Shortlist]
-    F -->|Review & Approve| G[Step 4: $export-executive-brief]
-    G --> H[Offline HTML Dashboard]
+    A[SME website or profile] --> B[1. Capability profile]
+    B --> C[Review the evidence boundary]
+    C --> D[2. Persistent prospect library]
+    D --> E[Review the option set]
+    E --> F[3. Qualified shortlist]
+    F --> G[4. Executive dashboard]
 ```
 
-### 1. Capability Mapping (`$map-sme-capability`)
-Analyzes the SME’s website or company presentation to identify up to three core capabilities, supporting evidence, and search keywords for US discovery.
+| Step | Command | Decision purpose |
+|---|---|---|
+| 1. Map | `$map-sme-capability <website or profile>` | Define only the capabilities public evidence supports. |
+| 2. Discover | `$us-prospect-discovery` | Build and extend a capability-relevant U.S. prospect library. |
+| 3. Qualify | `$qualify-us-prospects` | Compare candidates on fit, timing, route, accessibility, cluster, and evidence. |
+| 4. Brief | `$export-executive-brief` | Prepare the approved shortlist for executive review. |
 
-### 2. Prospect Discovery (`$us-prospect-discovery`)
-Runs adaptive search cycles across priority US clusters using public signals (CHIPS Act awards, state EDO announcements, company career portals, contractor listings). Generates individual prospect records categorized as:
-- **Commercial Prospect**: Potential buyers or end-customer projects.
-- **Route-to-Market Partner**: OEMs, EPCM contractors, integrators providing buyer access.
-- **Ecosystem Connector**: EDOs, industry chambers, research consortia.
+The workflow is intentionally review-gated. If discovery adds candidates, rerun qualification and then export so the brief reflects the current library.
 
-### 3. Prospect Qualification (`$qualify-us-prospects`)
-Screens the prospect library against a 20-point rubric assessing capability fit, timing signals, buyer accessibility, and evidence strength. Recommends specific SBF engagement stages (**Learn**, **Lead Generation**, **Land**, **Localize**).
+## What makes the approach different
 
-### 4. Executive Export (`$export-executive-brief`)
-Transforms the reviewed Step 3 JSON into one self-contained, print-to-PDF-ready HTML dashboard. This presentation-only step preserves the canonical shortlist without rescoring candidates or adding claims.
+- **Route before scale.** It considers direct owners alongside equipment OEMs, EPC and cleanroom routes, integrators, universities, consortia, and economic-development connectors.
+- **Evidence before narrative.** Each capability profile and prospect is an OKF v0.2 Markdown concept with source-linked claims and explicit caveats.
+- **High recall, then high precision.** Discovery preserves plausible options; qualification owns filtering, scoring, and action recommendations.
+- **Business intelligence, not schema theatre.** Metadata stays minimal. The useful information—why a target matters, what the source establishes, and what remains unknown—stays in readable Markdown.
 
----
+## Intended users and scope
 
-## Optional Inputs
+Designed for:
 
-Users can supply context in `input/existing_customers.md` to exclude current accounts or guide analogous-buyer searches:
+- Singapore semiconductor-supply-chain SMEs assessing a U.S. market-entry route.
+- SBF advisors and programme leaders deciding where to focus market-development support.
+- Partners supporting validation, introductions, missions, or localization.
+
+The workflow is most useful for equipment and precision engineering, test, assembly and advanced packaging, cleanroom and facility services, tool relocation, factory software, logistics, and systems integration. It does not perform export-control, legal, tax, or customer qualification due diligence; those decisions require appropriate professional and commercial validation.
+
+Default discovery emphasizes Central Texas, Arizona, and New York, while admitting stronger evidence from other U.S. regions.
+
+## Before you start
+
+Provide one reliable SME source: a website, capability deck, or company profile. The first step will distinguish demonstrated capabilities from partner offerings and unverified claims.
+
+Optionally add `input/existing_customers.md` to exclude named accounts or prevent unwanted group-level duplicates during discovery.
 
 ```markdown
 # Existing Customers - [SME Name]
 
 - Customer A (US - Texas)
-- Customer B (Singapore / SEA Subsidiary)
+- Customer B (Singapore / SEA subsidiary)
 
 Exclusions:
 - Exclude direct outreach to existing Tier-1 fab accounts in Taiwan.
 ```
 
----
+## Output and governance
 
-## Geographic Focus
-
-Default priority US semiconductor clusters:
-1. **Central Texas** (Austin, Taylor, Round Rock)
-2. **Arizona** (Phoenix, Chandler)
-3. **New York** (Albany, Marcy, Fishkill)
-
-Other US regions are evaluated when capability fit or timing signals are exceptionally strong.
-
----
-
-## Human Review & Natural Language Feedback
-
-The workflow stops for review after every step. Users can revise assumptions or scope in plain English:
+Each SME has a self-contained workspace under `output/<sme_name>/`:
 
 ```text
-- "Add flip-chip packaging as a user-specified search term."
-- "Focus search on Arizona partners rather than fab owners."
-- "Move Candidate X to Watchlist due to unclear buyer route."
+01_capability_profile.md       Evidence-bounded capability premise
+index.md                       OKF entry point
+prospects/                     Canonical OKF prospect records and their index
+02_search_log.md               Reproducible discovery history
+02_prospects_index.tsv         Rebuildable screening index
+03_qualified_shortlist.md      Leadership decision brief
+03_qualified_shortlist.json    Canonical structured shortlist
+04_executive_dashboard.html    Offline executive dashboard
 ```
 
----
+The capability profile and prospect records follow OKF v0.2. Search logs and TSV indexes support workflow execution; they do not replace the canonical evidence-bearing records.
 
-## Working Files
+## Installation
 
-All outputs are saved in self-contained folders under `output/<sme_name>/`:
+### Install through chat
 
-- `01_capability_profile.md`: Step 1 capability summary.
-- `index.md`: Entry point linking the capability profile and prospect library.
-- `02_search_log.md`: Log of discovery queries and reflections.
-- `02_prospects_index.tsv`: Lightweight speed index.
-- `prospects/index.md`: Progressive-disclosure listing of the prospect concepts.
-- `prospects/*.md`: Detailed, source-linked records for each discovered prospect.
-- `03_qualified_shortlist.md`: Final qualified executive report.
-- `03_qualified_shortlist.json`: Structured archive of shortlisted candidates.
-- `04_executive_dashboard.html`: Offline executive dashboard and print-to-PDF view.
+Open a Codex chat and paste:
 
----
+```text
+Install this plugin from https://github.com/hyhunss/sg-semicon-us-expansion-plugin
+```
 
-## Limitations & Disclaimers
+Confirm the installation, then start a new task and invoke `$map-sme-capability` with an SME website or profile.
 
-- **Public Data Dependency**: Prospect discovery is built strictly on open, publicly accessible web signals and public announcements. It does not access private databases or non-public procurement registries.
-- **Export Control Disclaimer**: The plugin does not perform compliance reviews under US Export Administration Regulations (EAR) or ITAR. Users must independently verify regulatory compliance before commercial outreach.
+![Install through chat](assets/installation_via_chat.png)
+
+### Alternative: install from the Plugins menu
+
+Open **Plugins** in Codex, select **Add more**, and add this local folder or repository URL.
+
+## Evidence boundaries
+
+- Discovery uses open, public sources. It does not access private procurement systems or non-public databases.
+- A project announcement is not proof of a purchase requirement or supplier approval.
+- A target's inclusion is a hypothesis worth validating, not a commercial recommendation or endorsement.
+- Verify export controls, sanctions, data handling, procurement rules, and commercial eligibility independently before outreach or commitment.
