@@ -1,6 +1,6 @@
 ---
 name: us-prospect-discovery
-description: Second skill in the SG Semicon US Expansion workflow. Use after the user reviews a map-sme-capability output to run repeatable, adaptive US prospect-search cycles and build a persistent, high-recall prospect library. Create or update a Markdown record for any candidate with direct capability relevance while preventing duplicates, and leave deep qualification to Skill 3.
+description: Second skill in the SG Semicon US Expansion workflow. Use after the user reviews a map-sme-capability output to run repeatable, adaptive US prospect-search cycles and build a persistent, high-recall prospect library. Create or update one OKF v0.2 Markdown concept per capability-relevant candidate while preventing duplicates, and leave deep qualification to Skill 3.
 ---
 
 # Skill: us-prospect-discovery
@@ -8,6 +8,10 @@ description: Second skill in the SG Semicon US Expansion workflow. Use after the
 Build a rich, persistent library of plausible US prospects through short, repeatable search cycles. Search broadly and save capability-relevant candidates while filtering obvious noise. Do not score or deeply qualify candidates.
 
 **Division of labor:** Skill 2 is the high-recall stage: collect as many plausibly relevant US prospects as the evidence supports. Skill 3 is the high-precision stage: perform strict qualification, 20-point scoring, and filtering. Do not apply Skill 3's strict qualification during discovery. If an organization has demonstrable capability relevance, save it even when current timing or a direct buyer route is unverified; tag each missing signal as `To be verified in Step 3 / human review`.
+
+## OKF authority
+
+`references/OKF_SPEC_v0.2.md` is the authoritative specification for every prospect record. When uncertain about an OKF field, source attribution, trust, lifecycle, cross-link, reserved filename, or conformance rule, read the relevant section before writing or revising a record. If the question is how to apply a compliant prospect-record field or body shape, then also read `references/skill-2-onn-wah-tech-prospect-okf-sample.md`. Follow the local specification over remembered conventions, examples, or guesses. Do not invent OKF requirements or fields.
 
 This is step 2 of a review-gated workflow:
 
@@ -25,19 +29,21 @@ map-sme-capability -> review -> repeated discovery cycles -> review -> qualify-u
 
 ```text
 output/<safe_sme_name>/
+├── index.md
 ├── 01_capability_profile.md
 ├── 02_search_log.md
 ├── 02_prospects_index.tsv
 └── prospects/
+    ├── index.md
     ├── <prospect_id>.md
     └── ...
 ```
 
-- Treat each prospect Markdown file as the canonical record for one buying organization, route partner, project, or connector.
+- Treat each prospect Markdown file as the canonical OKF v0.2 concept for one buying organization, route partner, project, or connector.
+- Treat the root `index.md` and `prospects/index.md` as the progressive-disclosure path into the capability profile and prospect library. They are navigation only, never evidence.
 - Treat `02_search_log.md` as the canonical record of approved scope, exact queries, results, reflections, and next search direction.
 - Treat `02_prospects_index.tsv` as a disposable speed index derived from the prospect Markdown files. It is never evidence and never the canonical record.
 - Do not create or maintain a consolidated prospect JSON or prospect report.
-- Preserve old `output/<safe_sme_name>_prospects.json` and `.md` files as legacy artifacts; do not overwrite or delete them.
 
 ## Core loop
 
@@ -68,7 +74,7 @@ Each normal invocation is one search cycle:
    - `output/<safe_sme_name>/02_prospects_index.tsv`
    - `output/<safe_sme_name>/prospects/`
 
-   Use a valid index for the fast identity scan. If the index is absent, malformed, or does not match the prospect filenames, rebuild it silently from all prospect frontmatter before searching. Open likely matching Markdown records whenever a domain, name, or alias may duplicate a candidate. An absent directory on the first run is valid.
+   Use a valid TSV for the fast identity scan. If the TSV or either OKF navigation index is absent, malformed, or does not match the prospect filenames, rebuild it silently from all prospect frontmatter before searching. Open likely matching Markdown records whenever a domain, name, or alias may duplicate a candidate. An absent directory on the first run is valid.
 
 5. **Start immediately on normal invocation.** Invoking this skill, or selecting Continue after Skill 1, authorizes the first search cycle using the supported capability profile and default geography. Do not add another confirmation checkpoint merely because no search log exists. Show the Scope Revision Template and stop only when the user explicitly asks to preview or change scope, when the active SME or capability profile is ambiguous, or when a proposed discovery term would materially extend beyond the supported capabilities. Existing search logs resume automatically unless the user requests a scope change.
 
@@ -129,14 +135,14 @@ Each normal invocation is one search cycle:
    2. Process each completed query separately in a deterministic order.
    3. Run the identity check and upsert canonical `prospects/<prospect_id>.md` records.
    4. Log every exact query with its own counts and reflection.
-   5. Rebuild `02_prospects_index.tsv` from the canonical Markdown records.
+   5. Rebuild `02_prospects_index.tsv` and both OKF navigation indexes from the canonical Markdown records.
    6. Use any remaining search slots adaptively after reviewing the combined results.
 
    If multi-agent tools are unavailable, the thread limit is reached, or delegation fails, continue the same uncovered searches sequentially without asking the user to configure anything. The primary agent remains responsible for all writes, deduplication, logging, validation, and final reporting.
 
 9. **Apply high-recall candidate admission.** Create a canonical prospect Markdown record for any candidate organization that satisfies `Capability relevance`: a named process, facility, service, equipment category, or program has a direct relationship to one of the SME's supported capabilities. The evidence must support a plausible demand-side use or route-side role—for example, the candidate buys, uses, integrates, specifies, distributes, or can connect the capability to semiconductor work. A company merely advertising the same capability is normally a competitor, not a prospect. Generic semiconductor activity or company size alone does not qualify.
 
-   Do not require `Current timing` or `Access route` for initial admission, and do not discard a capability-relevant organization merely because it would not yet pass Skill 3's qualification or scoring threshold. When current public evidence supports either signal, add it to `admission_basis` and capture the supporting source. When either signal is missing or unverified, add a concise caveat stating `Current timing: To be verified in Step 3 / human review` or `Access route: To be verified in Step 3 / human review`, and still save the record.
+   Do not require current timing or a direct access route for initial admission, and do not discard a capability-relevant organization merely because it would not yet pass Skill 3's qualification or scoring threshold. Capture supported commercial context in the sourced body explanation. When timing or access is missing, add a concise caveat for Step 3 / human review and still save the record.
 
    **Multi-Entity List Rule:** When one search result is a high-quality directory, EDO supplier list, or contractor round-up, extract up to two or three directly relevant organizations from that page into separate prospect Markdown records. Admit each organization independently under the same capability-relevance rule, retain the list page as valid supporting evidence, and add an official organization source when needed to establish identity or the claimed role. Do not convert every name on a broad list into a prospect.
 
@@ -144,13 +150,11 @@ Each normal invocation is one search cycle:
 
    Across repeated cycles, aim to build a rich library of 15-30+ distinct records spanning buyers, route partners, and ecosystem connectors so SME team members can browse candidates directly and Skill 3 has a broad pool to screen. Do not pad a cycle with irrelevant records merely to reach that range.
 
-   Do not delete legacy records that predate this rule. On a later discovery appearance, update a legacy record only when the new evidence is material; add at least `Capability relevance` to `admission_basis` and migrate it to prospect schema `1.1.0` when direct capability relevance is supported.
+10. **Build one candidate record.** For each admitted candidate, prepare a minimal record matching the Prospect Record Contract below. Use the normalized official company domain as the filename when available: lowercase it and remove the protocol, path, trailing slash, and leading `www.`. If there is no official domain, use a stable lowercase hyphenated organization or project name. Include at least one source URL, then state the supported claim in the sourced body.
 
-10. **Build one candidate record.** For each admitted candidate, prepare a complete record matching the Prospect Record Contract below. Use the normalized official company domain as `prospect_id` when available: lowercase it and remove the protocol, path, trailing slash, and leading `www.`. If there is no official domain, use a stable lowercase hyphenated organization or project name. Include the exact query that found the candidate, one to three supported `admission_basis` values, and at least one evidence URL.
+    Use `Watchlist` as `route_type` when the candidate is capability-relevant but no buyer or access route is yet visible. Do not invent timing or access text merely to fill a field; preserve the missing signal in `caveats` for Step 3 / human review. The exact query belongs only in `02_search_log.md`, not in a prospect record.
 
-    Use an empty `buying_triggers` array when no timing signal is verified. Use `Watchlist` as `route_type` when the candidate is capability-relevant but no buyer or access route is yet visible. Do not invent timing or access text merely to fill a field; preserve the missing signal in `caveats` for Step 3 / human review.
-
-    For a lead found through the Hacker News Algolia API, use the official project or company domain as `prospect_id`, never `hn.algolia.com` or `news.ycombinator.com`. Preserve the specific discussion URL as `https://news.ycombinator.com/item?id=[story_id_or_objectID]` and the original linked article URL when available. Limit the HN-supported claim to what the thread actually states and retain any uncertainty as a caveat.
+    For a lead found through the Hacker News Algolia API, use the official project or company domain as the filename, never `hn.algolia.com` or `news.ycombinator.com`. Preserve the specific discussion URL as `https://news.ycombinator.com/item?id=[story_id_or_objectID]` and the original linked article URL when available. Limit the sourced body claim to what the thread actually states and retain any uncertainty as a caveat.
 
 11. **Run the identity check before every write.** Compare the candidate against every existing prospect record in this order:
 
@@ -166,18 +170,17 @@ Each normal invocation is one search cycle:
 
     - New identity: create `output/<safe_sme_name>/prospects/<prospect_id>.md`.
     - Existing identity: rewrite the same file with the merged record.
-    - Preserve `first_seen`; update `last_seen`.
-    - Merge aliases, matched capabilities, buying triggers, queries, and caveats without repeated entries.
-    - Merge evidence by normalized URL; do not repeat the same URL.
-    - Give every newly accessed evidence item an `accessed_on` value from the runtime clock. Preserve an older `accessed_on` value unless the URL was reopened in the current run.
-    - Prefer the most specific current company name, website, role, cluster, route, fit explanation, and evidence claim.
-    - Rewrite both the complete JSON frontmatter and the human-readable body. Never append evidence only to the body.
+    - Merge matched capabilities, sources, and caveats without repeated entries.
+    - Merge sources by normalized URL; do not repeat the same URL.
+    - Prefer the most specific current company name, role, cluster, route, and evidence prose.
+    - Rewrite both the complete YAML frontmatter and the human-readable body. Never append evidence only to the body.
+    - Use only the fields in the minimal Prospect Record Contract. Do not create `verified` unless a real human or deterministic process completed that verification.
 
-13. **Use runtime-derived time values.** Immediately before writing each search-log row or scope update, read the current local time from the Codex runtime or system clock. Use the exact ISO 8601 timestamp returned by the environment and its calendar date for new `first_seen`, `last_seen`, and evidence `accessed_on` values. Never estimate, interpolate, round, sequence, or manually generate a time value. Read the clock again for each later log row. This is an internal Codex operation: never create a helper script or ask the SME user to run a command. If the runtime clock is unavailable, omit the write and report the clock failure instead of inventing a timestamp.
+13. **Use runtime-derived time values.** Immediately before writing each prospect record, search-log row, or scope update, read the current local time from the Codex runtime or system clock. Use its exact ISO 8601 timestamp for `generated.at` and search-log timestamps. Never estimate, interpolate, round, sequence, or manually generate a time value. Read the clock again for each later write. This is an internal Codex operation: never create a helper script or ask the SME user to run a command. If the runtime clock is unavailable, omit the write and report the clock failure instead of inventing a timestamp.
 
 14. **Log every exact query and scope change.** Before searching, compare the planned query with every query already in `02_search_log.md`. Do not rerun an exact query unless the user explicitly requests a freshness rerun. After processing the query, create the log on the first search or append one row using the Search Log Contract below. Record the exact query, counts of new, updated, and ignored results, and the reflection that explains the next mutation. When the user confirms a materially revised scope, append a runtime-dated `Scope update` section before the next query row; do not replace the earlier scope. Treat the most recent confirmed scope section as active on later runs.
 
-15. **Rebuild the speed index after each search.** Re-enumerate all prospect Markdown files and replace `02_prospects_index.tsv` from their JSON frontmatter. Never append blindly. Use the exact header and rules in the Index Contract below. If rebuilding fails, continue using the Markdown records and report the index issue; never lose or rewrite a valid prospect record to satisfy the index.
+15. **Rebuild the indexes after each search.** Re-enumerate all prospect Markdown files and replace `02_prospects_index.tsv`, `prospects/index.md`, and the prospect-library entry in the root `index.md`. Never append blindly. Use the exact contracts below. If rebuilding fails, continue using the Markdown records and report the index issue; never lose or rewrite a valid prospect record to satisfy an index.
 
 16. **Protect diversity.** If results concentrate on one category, deliberately change the next buyer or route dimension:
 
@@ -194,14 +197,15 @@ Each normal invocation is one search cycle:
     - one file per distinct identity;
     - no repeated normalized domain;
     - no repeated normalized company name or alias without an explained separate buying organization;
-    - valid JSON frontmatter and controlled values;
-    - matching SME name and safe name;
-    - at least one exact query and evidence URL per record;
-    - every new schema `1.1.0` record has one to three unique `admission_basis` values, always including `Capability relevance`, and an `accessed_on` date for each evidence item;
-    - records without verified `Current timing` or `Access route` include the corresponding Step 3 / human-review caveat;
+    - one parseable YAML frontmatter block beginning at the file start, with a non-empty OKF `type` and controlled prospect values;
+    - at least one source URL and supported claim per record;
+    - only the fields in the minimal Prospect Record Contract;
+    - records without visible timing or an access route include the corresponding Step 3 / human-review caveat;
     - no search-log or scope timestamp is later than a fresh runtime-clock reading;
-    - no claims in the body that are absent from the frontmatter;
-    - a valid index with one row per prospect file and no extra rows.
+    - every body footnote label maps to exactly one `sources[].id`, and every material body claim has a matching source footnote;
+    - a valid TSV speed index with one row per prospect file and no extra rows;
+    - a valid `prospects/index.md` with one link per prospect file and no extra entries;
+    - a root `index.md` that links both `01_capability_profile.md` and `prospects/`.
 
     Fix every issue before completion.
 
@@ -241,68 +245,49 @@ D. Replace: [old] with [new]
 
 ## Prospect Record Contract
 
-Use JSON inside the Markdown frontmatter so later skill runs can compare records consistently:
+Each `prospects/<filename>.md` file is an OKF concept. Use one YAML frontmatter block at the file start. The filename supplies the stable identity; frontmatter keeps only the route, capability match, source links, and caveats needed for a fast screen. The search log preserves query history; the Markdown body preserves all business intelligence and evidence.
 
 ```markdown
 ---
-{
-  "schema_version": "1.1.0",
-  "schema_name": "prospect_record",
-  "sme_name": "Example SME",
-  "safe_sme_name": "example_sme",
-  "prospect_id": "example.com",
-  "company": "Example Company",
-  "website": "https://www.example.com",
-  "aliases": ["Example"],
-  "prospect_type": "EPC",
-  "engagement_role": "Route-to-market partner",
-  "us_cluster": "Arizona",
-  "route_type": "Channel-EPC",
-  "matched_capabilities": ["Tool installation"],
-  "admission_basis": ["Capability relevance"],
-  "buying_triggers": ["New fab construction"],
-  "why_this_may_fit": "The company manages semiconductor construction packages that may require specialist tool-install support.",
-  "first_seen": "2026-07-28",
-  "last_seen": "2026-07-28",
-  "discovered_by_queries": ["semiconductor tool installation EPC Arizona"],
-  "evidence": [
-    {
-      "title": "Example project page",
-      "url": "https://www.example.com/project",
-      "supported_claim": "The company manages an Arizona semiconductor project.",
-      "accessed_on": "2026-07-28"
-    }
-  ],
-  "caveats": ["Current timing: To be verified in Step 3 / human review", "Access route: To be verified in Step 3 / human review"]
-}
+type: US Market-Entry Prospect
+description: "Potential Arizona route-to-market partner for the SME's tool-installation capability."
+resource: "https://www.example.com"
+generated:
+  by: codex/gpt-5
+  at: "[runtime-derived ISO 8601 timestamp]"
+company: "Example Company"
+engagement_role: Route-to-market partner
+us_cluster: Arizona
+route_type: Channel-EPC
+matched_capabilities: [Tool installation]
+sources:
+  - id: example-project
+    resource: "https://www.example.com/project"
+caveats:
+  - "Current timing: To be verified in Step 3 / human review"
+  - "Access route: To be verified in Step 3 / human review"
 ---
 ```
+
+For every source, create one stable lowercase-hyphenated source ID such as `example-project` and preserve it when the same URL is carried forward. Keep source entries to `id` and `resource`; write source names and claims only in the body beside their keyed footnotes. Set `generated.by` to the actual Codex agent/model identifier in the actor convention, for example `codex/gpt-5`, never a skill name or invented version. Set `generated.at` from the runtime immediately before the final write. Do not add optional metadata unless the user asks for it.
 
 Required controlled values:
 
 - `engagement_role`: `Commercial prospect`, `Route-to-market partner`, or `Ecosystem connector`
 - `us_cluster`: `Central Texas`, `Arizona`, `New York`, `California`, or `Other US`
 - `route_type`: `Direct owner`, `Channel-EPC`, `Partner ecosystem`, or `Watchlist`
-- `admission_basis`: one to three unique values from `Capability relevance`, `Current timing`, and `Access route`; every new record must include `Capability relevance`
-- `buying_triggers`: use an empty array when no current timing signal is verified
+- Use a missing timing or access route only as a caveat; neither requires a metadata field.
 
-Missing `Current timing` and `Access route` values are optional and never block creation. When a signal is missing, use the required Step 3 / human-review caveat instead of adding an unsupported `admission_basis` value.
-
-Treat schema `1.0.0` prospect records without `admission_basis` or `accessed_on` as readable legacy records. Do not backfill an access date unless the source was actually reopened.
-
-Render the human-readable body from the structured frontmatter. Do not add claims to the body that are absent from the structured record.
+Render the human-readable body from the structured frontmatter and researched evidence. Every material body claim must carry a footnote that maps to a `sources[].id`; do not add unsupported claims.
 
 Use this body structure:
 
 ```markdown
 # [Company]
 
-* Website: [URL or Not found]
 * Role: [engagement role]
 * US cluster: [cluster]
 * Route: [route type]
-* First seen: [date]
-* Last seen: [date]
 
 ## Why this may fit
 [Concise explanation]
@@ -310,20 +295,13 @@ Use this body structure:
 ## Matched capabilities
 - [Capability]
 
-## Buying triggers or context
-- [Trigger, or `None verified; see caveats.`]
-
-## Admission basis
-- [Capability relevance, Current timing, or Access route]
-
-## Found through
-- `[Exact query]`
-
 ## Evidence
-- [Source title](URL), accessed [YYYY-MM-DD]: [Supported claim]
+- [Source title].[^source-id] [Supported claim]
 
 ## Caveats
 - [Caveat or None recorded]
+
+[^source-id]: [Source title]
 ```
 
 ## Search Log Contract
@@ -360,43 +338,49 @@ For a later scope change, append:
 Write UTF-8 tab-separated text with this exact header:
 
 ```tsv
-prospect_id	company	engagement_role	us_cluster	route_type	matched_capability	last_seen
+prospect_id	company	engagement_role	us_cluster	route_type	matched_capability
 ```
 
 Write one row per prospect Markdown file, sorted by `prospect_id`. Join multiple matched capabilities with `; `. Replace tabs and line breaks inside values with spaces. Require unique `prospect_id` values and an exact match between index IDs and prospect filenames without `.md`.
 
+## OKF Navigation Index Contract
+
+Keep the navigation indexes short and derived; they must not introduce claims beyond the canonical concept documents.
+
+`prospects/index.md` is a reserved OKF directory listing with no frontmatter. Replace it after every search with:
+
+```markdown
+# Prospect Library
+
+* [Example Company](example.com.md) - Potential Arizona route-to-market partner for the SME's tool-installation capability.
+```
+
+Write one entry per prospect file, sorted by filename. Use the `company` value as link text and the one-sentence `description` as the entry description. Do not list `index.md` itself.
+
+The root `index.md` is also a reserved directory listing. Preserve its `okf_version: "0.2"` frontmatter and its Capability Profile entry. Ensure its body also contains:
+
+```markdown
+# Prospect Library
+
+* [Prospects](prospects/) - Capability-relevant US prospects, route partners, and ecosystem connectors.
+```
+
+Do not enumerate individual prospects at the root; the `prospects/` link is the progressive-disclosure boundary.
+
 ## Quality bar
 
-- Every prospect has exactly one canonical Markdown file and at least one evidence URL.
-- Every prospect has direct capability relevance to the SME and records `Capability relevance` in `admission_basis`.
+- Every prospect has exactly one canonical Markdown file, a non-empty OKF `type`, and at least one evidence URL.
+- Every prospect file has one YAML frontmatter block at its start, the minimal fields in the Prospect Record Contract, and `sources` whose keyed footnotes attribute the body claims.
+- The root and prospect-directory `index.md` files provide a complete two-level discovery path without adding commercial claims.
+- Every prospect has direct capability relevance to the SME, stated in a sourced body explanation rather than a separate admission field.
 - Timing and buyer access are captured when available; missing signals are explicitly deferred to Step 3 / human review rather than blocking admission.
 - Obvious competitors, recruiters, unrelated organizations, and other defined noise remain excluded.
 - Repeated cycles build a broad 15-30+ candidate pool without padding individual cycles.
 - Every exact query is recorded in the search log.
-- Every new timestamp and evidence access date comes directly from the Codex runtime or system clock, never model generation.
+- Every `generated.at` and search-log timestamp comes directly from the Codex runtime or system clock, never model generation.
 - Repeated appearances update an existing record instead of creating another file.
 - Parent and subsidiary records remain separate only when they are distinct buying organizations.
 - Current projects, funding, facilities, hiring, and cluster programs come from live sources.
 - AI- or user-added search terms are not presented as verified SME capabilities.
 - Named existing customers and obvious group aliases are excluded unless account expansion is requested.
 - Discovery remains broad and unscored; Skill 3 owns qualification.
-
-
-## Pandoc conversion to PDF
-Later on, the Markdown file will be converted to PDF using pandoc manually. The PDF will be delivered to SME leadership team. Therefore, you must put the following in the top section of the generated Markdown file.
-
-```
----
-mainfont: "Helvetica"              
-fontsize: 11pt                
-geometry:
-  - left=1.2cm
-  - right=1.2cm
-  - top=2cm
-  - bottom=2cm
-colorlinks: true
-urlcolor: blue
-linkcolor: blue
-pdf-engine: xelatex
----
-```

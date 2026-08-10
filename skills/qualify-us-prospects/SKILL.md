@@ -41,7 +41,7 @@ Use `schema_version: "1.3.0"` and `schema_name: "qualified_prospects"` for new J
 
 5. **Read capability and customer context.** Extract the SME's supported capabilities, important limitations, and search directions from the Markdown profile. Read `input/existing_customers.md` when present and matching. Exclude named existing customers and obvious corporate-group aliases unless the user requests account expansion.
 
-6. **Use the speed index first.** Read `02_prospects_index.tsv` and compare its `prospect_id` values with the prospect filenames. Use it only when the header is exact, IDs are unique, every row has seven fields, and the IDs and row count match the Markdown files. If it is missing, malformed, or stale, continue automatically by scanning all prospect JSON frontmatter. Do not ask the user to repair an index and do not treat index text as evidence.
+6. **Use the speed index first.** Read `02_prospects_index.tsv` and compare its `prospect_id` values with the prospect filenames. Use it only when the header is exact, IDs are unique, every row has six fields, and the IDs and row count match the Markdown files. If it is missing, malformed, or stale, continue automatically by scanning all prospect YAML frontmatter. Do not ask the user to repair an index and do not treat index text as evidence.
 
 7. **Count the complete screening pool.** Count the exact number of distinct prospect records that will be screened from the validated index or, when the index is unavailable, from the canonical prospect directory. Store this integer as `total_prospects_screened`. Count each canonical prospect record once, include every record considered in the lightweight metadata screen whether shortlisted or excluded, and verify that the count is at least the number of finalists. Do not use the 10-15 focused-reading count or grouped exclusion count as a substitute.
 
@@ -58,7 +58,7 @@ Use `schema_version: "1.3.0"` and `schema_name: "qualified_prospects"` for new J
 
 9. **Select a focused reading set.** Choose the 10-15 most plausible records after the metadata screen, or fewer when the store is small. Read the complete Markdown only for this set. If the index was used, verify the selected records against their canonical frontmatter before qualification. Do not load 50-60 full files merely because they exist.
 
-10. **Preserve discovery provenance.** From each selected record capture company, role, cluster, route, matched capabilities, buying triggers, why it may fit, queries, evidence, and caveats. Search terms and candidate records do not prove that the SME has a capability absent from Skill 1.
+10. **Preserve discovery provenance.** From each selected record capture company, role, cluster, route, matched capabilities, sourced body evidence, and caveats. Search terms remain in the search log and do not prove that the SME has a capability absent from Skill 1.
 
 11. **Run targeted verification only.** Search narrowly when one current fact could change a likely finalist's rank: project timing, buyer path, procurement route, facility phase, hiring, contractor relationship, or access route. Do not run broad prospect searches or target `site:linkedin.com` or other private social networks.
 

@@ -51,8 +51,8 @@ This Codex plugin provides a structured, 4-step decision-support workflow design
 
 For each SME, the workflow generates:
 
-- **Capability Profile (`01_capability_profile.md`)**: A structured summary of core technical offerings, website evidence, and operational limits.
-- **Prospect Library (`prospects/*.md`)**: A persistent collection of individual Markdown records for screened US prospects, market-entry partners, and ecosystem connectors.
+- **Capability Profile (`01_capability_profile.md`)**: A minimal OKF v0.2 concept with core technical offerings, source-linked evidence, and operational limits.
+- **Prospect Library (`prospects/*.md`)**: A persistent collection of minimal OKF v0.2 concepts for screened US prospects, market-entry partners, and ecosystem connectors; their business evidence and caveats remain in the Markdown body.
 - **Qualified Executive Shortlist (`03_qualified_shortlist.md`)**: A prioritized 5–8 candidate decision report featuring component scores, buyer routes, next verification questions, and recommended SBF actions.
 - **Executive Dashboard (`04_executive_dashboard.html`)**: A self-contained, offline dashboard with executive KPIs, action priorities, evidence details, and print-ready styling.
 
@@ -151,9 +151,11 @@ The workflow stops for review after every step. Users can revise assumptions or 
 All outputs are saved in self-contained folders under `output/<sme_name>/`:
 
 - `01_capability_profile.md`: Step 1 capability summary.
+- `index.md`: Entry point linking the capability profile and prospect library.
 - `02_search_log.md`: Log of discovery queries and reflections.
 - `02_prospects_index.tsv`: Lightweight speed index.
-- `prospects/*.md`: Detailed records for each discovered prospect.
+- `prospects/index.md`: Progressive-disclosure listing of the prospect concepts.
+- `prospects/*.md`: Detailed, source-linked records for each discovered prospect.
 - `03_qualified_shortlist.md`: Final qualified executive report.
 - `03_qualified_shortlist.json`: Structured archive of shortlisted candidates.
 - `04_executive_dashboard.html`: Offline executive dashboard and print-to-PDF view.
