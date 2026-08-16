@@ -27,7 +27,7 @@ capability profile + prospect directory -> metadata screen -> focused reading
 - `output/<safe_sme_name>/03_qualified_shortlist.json`
 - `output/<safe_sme_name>/03_qualified_shortlist.md`
 
-Use `schema_version: "1.3.0"` and `schema_name: "qualified_prospects"` for new JSON output. Treat `schema/qualified-prospects.schema.json` as the field contract and self-check the completed object against it. Continue to accept valid legacy 1.0.0-1.2.0 outputs when revising or reading older work.
+Use `schema_version: "1.4.0"` and `schema_name: "qualified_prospects"` for new JSON output. Treat `schema/qualified-prospects.schema.json` as the field contract and self-check the completed object against it. Continue to accept valid legacy 1.0.0-1.3.0 outputs when revising or reading older work.
 
 ## Instructions
 
@@ -80,32 +80,39 @@ Use `schema_version: "1.3.0"` and `schema_name: "qualified_prospects"` for new J
     - supported claim;
     - short excerpt or tight paraphrase.
 
-    Label unsupported possibilities as inference or leave them out.
+    Use each normalized URL only once per finalist. A source can support more than one conclusion, but do not create one `key_evidence` item per role from the same page. Select its principal evidence role, then combine the tightly related supported conclusions and caveat in that one item's `supported_claim` and `evidence_excerpt`. Obtain a distinct source when a coverage rule requires another role. Normalize URLs for this check by trimming whitespace, lowercasing the scheme and host, removing a trailing slash from a non-root path, and preserving the path and query. Label unsupported possibilities as inference or leave them out.
 
 13. **Use runtime-derived time values.** At the start of qualification and immediately before the final write, read the current local time from the Codex runtime or system clock. Use the final exact ISO 8601 timestamp returned by the environment as `generated_at` and its calendar date as `accessed_on` for every source actually opened during this run. Never estimate or manually generate either value. Preserve an older access date only when carrying forward evidence without reopening its URL. This is an internal Codex operation: never create a helper script or ask the SME user to run a command. If the runtime clock is unavailable, stop before writing rather than inventing a timestamp.
 
-14. **Apply and expose the 20-point rubric.**
+14. **Apply and expose the 20-point rubric.** The total is exactly **20 points**. Use every whole number from zero through the criterion maximum. The anchors below guide judgement; they do not prohibit intermediate scores.
 
-    - Capability fit: 0-5
-    - Timing or urgency: 0-4
-    - Buyer-path clarity: 0-4
-    - Accessibility and practical SBF route: 0-4
-    - Priority-cluster fit: 0-1
-    - Evidence strength: 0-2
+    | Criterion | Max | Weight | Score range | Award the maximum when |
+    |---|---:|---:|---|---|
+    | Capability fit | 5 | 25% | 0-5 | The SME's documented capability addresses a specific prospect need, process step, facility package, or operating problem. |
+    | Timing or urgency | 4 | 20% | 0-4 | A current expansion, ramp, qualification window, operating problem, or supplier-localisation trigger is sourced. |
+    | Buyer-path clarity | 4 | 20% | 0-4 | A buyer function, sponsor, OEM, EPC, integrator, distributor, or another credible route is specifically evidenced. |
+    | Accessibility and practical SBF route | 4 | 20% | 0-4 | The SME has a realistic path to reach, qualify for, and serve the prospect through a direct or partner route. |
+    | Priority-cluster fit | 1 | 5% | 0-1 | The relevant site, project, or route is in Central Texas, Arizona, or New York, or clearly supports the SME's delivery model. |
+    | Evidence strength | 2 | 10% | 0-2 | Two distinct, dated sources corroborate the match, including a project, operating, or route-specific signal. |
 
-    Store all six component scores in `score_breakdown`. Set `score` to their arithmetic sum and verify the sum exactly before writing. Do not assign a total independently.
+    A zero means no credible evidence or a clear mismatch. A score near the midpoint means the match is plausible but still inferred, indirect, older, or blocked by an unanswered question. Use the full scale: for example, assign 1 when only a weak signal exists, 2 when the case is plausible but unverified, 3 when support is material but incomplete, 4 when the evidence is strong with a minor gap, and the maximum only when the stated full-score condition is met. Capability fit is weighted highest because a current project is not useful if the SME cannot credibly solve its problem. Cluster fit is only a tie-breaker: it cannot compensate for missing timing, buyer route, or access.
 
-15. **Classify finalists.**
+    Store all six component scores in `score_breakdown`. Set `score` to their arithmetic sum and verify the sum exactly before writing. Do not assign a total independently. In the Markdown shortlist, display every finalist as `capability + timing + buyer path + access + cluster + evidence = total/20`, for example `5 + 4 + 2 + 2 + 1 + 2 = 16/20`.
 
-    - `Priority`: strong fit, timely, and a specific route worth investigating now.
-    - `Strategic`: important but likely long-cycle or partner-led.
-    - `Watchlist`: relevant but timing, access, or evidence is not ready.
+15. **Classify finalists and order the work.** Use the total to order candidates within a class, then apply the gates and route maturity to determine the class.
 
-    Classification expresses actionability and route maturity; it is not mechanically determined by the total score. State this once in the leadership brief so a lower-scoring `Priority` and a higher-scoring `Strategic` candidate do not appear contradictory.
+    | Class | Normal score range | Required condition | SBF use |
+    |---|---:|---|---|
+    | `Priority` | 16-20 | All four decision conditions pass: specific need, credible capability proof, named buyer/partner route, and practical commitment or delivery path | Validate the named route now and decide whether to support an introduction or a defined market-entry action. |
+    | `Strategic` | 13-15 | Strong fit, but longer-cycle, partner-led, or blocked by one clearly identified conversion requirement | Build the route, proof, or local-delivery plan before treating it as a near-term lead. |
+    | `Watchlist` | 9-12 | Relevant, but timing, route, access, or evidence remains insufficient | Refresh the missing signal; do not allocate mission or outreach effort yet. |
+    | Exclude or deprioritize | 0-8 | Weak fit or no credible route | Record the reason and stop work unless material new evidence appears. |
+
+    A score cannot override a failed condition. If a candidate falls outside its normal range, keep it only when the leadership brief explicitly states why its immediate action is still justified; for example, a low-scoring `Watchlist` may merit one inexpensive route-validation question. Do not call a candidate `Priority` without current timing, a named route, and the evidence coverage in step 16.
 
 16. **Enforce evidence coverage.**
 
-    - `Priority`: timing, capability fit, and buyer-path or accessibility evidence; at least two distinct URLs; at least one project/timing-specific source.
+    - `Priority`: timing, capability fit, and buyer-path or accessibility evidence; at least three evidence items with distinct normalized URLs; at least one project/timing-specific source.
     - `Strategic`: timing, capability fit, and buyer-path or risk evidence.
     - `Watchlist`: capability fit and risk/caveat evidence.
 
@@ -126,11 +133,19 @@ Use `schema_version: "1.3.0"` and `schema_name: "qualified_prospects"` for new J
 
     Treat `executive_summary.action_now` as the sole contract for immediate SBF actions. It may include a `Priority`, `Strategic`, or `Watchlist` finalist when an immediate learning, route-validation, or commercial action is justified; never derive it mechanically from classification. Match prospect names using a trimmed, case-insensitive key. Reject empty keys, normalized duplicates, and normalized collisions; do not silently merge distinct organizations. Every named organization must match exactly one `qualified_shortlist` prospect under that rule. Keep the rendered section concise enough to fit roughly one page. Do not repeat full evidence citations there; the detailed sections remain the audit trail.
 
-21. **Write canonical JSON first.** Use the Output Contract below. Set `source_prospect_directory` to the Skill 2 directory. When using a legacy input, use the legacy `source_prospect_discovery_path` field and its compatible schema version instead.
+21. **Make the SME-level SBF engagement recommendation.** Before writing the shortlist, answer the question an SME executive will see in the dashboard: **Should this company contact SBF now, and if so, which stage should it request?** Write one `sbf_engagement_recommendation` for the entire SME case. Do not derive it mechanically from the number of Priority prospects or from individual finalist stages.
 
-22. **Self-check and render.** Read `schema/qualified-prospects.schema.json` and validate the completed JSON with the JSON Schema capability available in the Codex runtime. Verify that `total_prospects_screened` equals the exact count established before the metadata screen and is at least the number of finalists. Independently recompute every total from the six score components; verify that every `action_now` and `strategic_routes` prospect matches exactly one `qualified_shortlist` prospect using the trimmed, case-insensitive key rule; reject normalized collisions; and compare `generated_at` with a fresh runtime-clock reading. Fix every mismatch before rendering Markdown. Do not create a validation script and do not ask the SME user to run technical checks.
+    - `Contact SBF now`: the SME has a defined, evidenced need for SBF support now. Select the one primary stage that SBF should activate first: `Learn`, `Lead Generation`, `Land`, or `Localize`.
+    - `Contact SBF after preparation`: SBF engagement is likely useful, but the SME must first close the stated readiness, proof, ownership, or delivery gap. Select the stage to request after that preparation is complete.
+    - `Do not contact SBF yet`: the current evidence does not justify an SBF intervention. State the next internal preparation required and the condition that would make future engagement appropriate.
 
-23. **Confirm briefly.** Report the number of prospect records screened, full records read, candidates verified, and finalists produced. Point to the qualified Markdown and JSON. End with:
+    Apply the stages consistently: `Learn` clarifies market relevance, readiness, or an opportunity hypothesis; `Lead Generation` validates buyer or partner routes and appropriate introductions; `Land` supports an initial U.S. customer, partner, or operating foothold; `Localize` supports customer-backed local delivery, partnerships, or operations. `specific_request_to_sbf` must name the support the SME should request, not promise that SBF can secure a meeting or introduction. For a `Do not contact SBF yet` decision, state that no request should be made now and direct the SME to the preparation list.
+
+22. **Write canonical JSON first.** Use the Output Contract below. Set `source_prospect_directory` to the Skill 2 directory. When using a legacy input, use the legacy `source_prospect_discovery_path` field and its compatible schema version instead.
+
+23. **Self-check and render.** Read `schema/qualified-prospects.schema.json` and validate the completed JSON with the JSON Schema capability available in the Codex runtime. Verify that `total_prospects_screened` equals the exact count established before the metadata screen and is at least the number of finalists. Verify that `sbf_engagement_recommendation` gives exactly one allowed contact decision and one allowed primary stage, has a concrete rationale and request, and lists only preparation that the SME can act on. Independently recompute every total from the six score components; verify that every finalist's `key_evidence` URLs are unique under the normalization rule in step 12; verify that every `action_now` and `strategic_routes` prospect matches exactly one `qualified_shortlist` prospect using the trimmed, case-insensitive key rule; reject normalized collisions; and compare `generated_at` with a fresh runtime-clock reading. Fix every mismatch before rendering Markdown. Do not create a validation script and do not ask the SME user to run technical checks.
+
+24. **Confirm briefly.** Report the number of prospect records screened, full records read, candidates verified, finalists produced, and the SME-level SBF engagement recommendation. Point to the qualified Markdown and JSON. End with:
     - Export the executive dashboard with `$export-executive-brief`.
     - Revise the qualified shortlist.
     - Stop.
@@ -139,7 +154,7 @@ Use `schema_version: "1.3.0"` and `schema_name: "qualified_prospects"` for new J
 
 ```json
 {
-  "schema_version": "1.3.0",
+  "schema_version": "1.4.0",
   "schema_name": "qualified_prospects",
   "sme_name": "[SME name]",
   "safe_sme_name": "<safe_sme_name>",
@@ -152,6 +167,13 @@ Use `schema_version: "1.3.0"` and `schema_name: "qualified_prospects"` for new J
     "sme_capabilities_used": ["[Capability]"],
     "must_not_overclaim_caveats": ["[Caveat]"],
     "best_buyer_paths": ["[Route]"]
+  },
+  "sbf_engagement_recommendation": {
+    "contact_sbf": "Contact SBF now",
+    "primary_stage": "Lead Generation",
+    "decision_rationale": "[Why the SME should seek this support now, based on the case-level evidence and gap]",
+    "specific_request_to_sbf": "[The focused support the SME should ask SBF to provide]",
+    "sme_preparation_required": ["[Preparation the SME must complete before or alongside the engagement]"]
   },
   "executive_summary": {
     "headline": "[Decision-oriented portfolio conclusion]",
@@ -212,7 +234,7 @@ Use `schema_version: "1.3.0"` and `schema_name: "qualified_prospects"` for new J
           "source_type": "Company page",
           "source_date": "Not stated",
           "accessed_on": "2026-07-30",
-          "url": "https://example.com/capability-source",
+          "url": "https://example.com/buyer-route-source",
           "supported_claim": "[Specific buyer or access route]",
           "evidence_excerpt": "[Short excerpt or tight paraphrase]"
         }
@@ -243,13 +265,14 @@ Use `schema_version: "1.3.0"` and `schema_name: "qualified_prospects"` for new J
 
 Render these sections:
 
-1. Executive decision brief
-2. Inputs, total prospect records screened, and shortlisted finalists
-3. Qualification logic, including the distinction between score and actionability class
-4. Qualified shortlist table with compact component-score breakdowns
-5. Structured evidence by finalist
-6. Grouped exclusions
-7. Recommended next actions
+1. Your SBF next step: whether to contact SBF now, the one stage to request, the rationale, the specific request, and SME preparation
+2. Executive decision brief
+3. Inputs, total prospect records screened, and shortlisted finalists
+4. Qualification logic, including the distinction between score and actionability class
+5. Qualified shortlist table with the full component-score breakdown in this order: capability, timing, buyer path, access, cluster, evidence, then total `/20`
+6. Structured evidence by finalist
+7. Grouped exclusions
+8. Recommended next actions
 
 Do not introduce claims, scores, or recommendations absent from the self-checked JSON.
 
