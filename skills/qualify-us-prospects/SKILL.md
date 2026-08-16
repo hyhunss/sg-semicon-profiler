@@ -9,7 +9,7 @@ Reduce the accumulated Skill 2 prospect library into a small, evidence-backed sh
 
 ```text
 capability profile + prospect directory -> metadata screen -> focused reading
--> targeted verification -> top 5-8
+-> Fast-Fail gates -> targeted verification and scoring of survivors -> top 5-8
 ```
 
 ## Inputs
@@ -60,7 +60,14 @@ Use `schema_version: "1.4.0"` and `schema_name: "qualified_prospects"` for new J
 
 10. **Preserve discovery provenance.** From each selected record capture company, role, cluster, route, matched capabilities, sourced body evidence, and caveats. Search terms remain in the search log and do not prove that the SME has a capability absent from Skill 1.
 
-11. **Run targeted verification only.** Search narrowly when one current fact could change a likely finalist's rank: project timing, buyer path, procurement route, facility phase, hiring, contractor relationship, or access route. Do not run broad prospect searches or target `site:linkedin.com` or other private social networks.
+11. **Apply the Fast-Fail Screening Phase before qualification.** Evaluate every focused-read candidate using only its canonical discovery record and the already-read source-backed claims. Do not run a web search to rescue a candidate that fails either gate.
+
+    - **Gate 1 — Capability Match:** Immediately abandon a candidate when the SME's documented capability profile does not address a named operating process, facility package, manufacturing problem, or credible complementary partner role. A generic semiconductor expansion, adjacency, possible future fit, or unsupported inference is a hard failure. Record it in `deprioritized_or_excluded` with `Hard Fail: Capability Gap` followed by a short, specific reason.
+    - **Gate 2 — Timing Urgency:** Immediately abandon a candidate when its record lacks an active, verifiable timing trigger within the next 12–18 months. Qualifying triggers include active construction or commissioning, a current CHIPS Act grant/award tied to the relevant project, a tool-hookup or other current RFP, or an immediate hiring/ramp signal. Historical expansion, undated corporate activity, and a long-range plan without an active near-term trigger are hard failures. Record it in `deprioritized_or_excluded` with `Hard Fail: Cold Timing` followed by a short, specific reason.
+
+    A candidate must pass both gates before it may receive targeted verification, a `score_breakdown`, a classification, a finalist position, or an SBF action. Do not create evidence items, run the 20-point rubric, or perform deep web searches for abandoned candidates. They remain in `total_prospects_screened` and the persistent Skill 2 library, but not in `qualified_shortlist`.
+
+12. **Run targeted verification only for Fast-Fail survivors.** Search narrowly when one current fact could change a surviving candidate's rank: project timing, buyer path, procurement route, facility phase, hiring, contractor relationship, or access route. Do not run broad prospect searches or target `site:linkedin.com` or other private social networks.
 
     - For `timing_signal`, check recent first-party career pages or public Greenhouse/Lever postings, CHIPS.gov notices, and state or regional EDO grant and expansion announcements.
     - For `best_buyer_path`, check named EPC/GC project announcements, contractor portfolios, SAM.gov notices, CHIPS.gov releases, and state EDO announcements.
@@ -69,7 +76,7 @@ Use `schema_version: "1.4.0"` and `schema_name: "qualified_prospects"` for new J
 
     A job posting proves only the stated hiring activity; it does not by itself prove construction, procurement need, or expansion. A grant or award proves a buyer, contractor, or tier relationship only when the notice explicitly names that relationship. Treat HN stories and comments as `Other` sources and normally as risk/caveat or discovery evidence, not direct proof. An HN discussion alone cannot establish `timing_signal`, `best_buyer_path`, a commercial relationship, or `Priority` status. Corroborate material claims with a primary or high-quality source; otherwise label the connection as inference or leave it out.
 
-12. **Structure every new fact.** Any fact introduced during qualification must appear in `key_evidence` with:
+13. **Structure every new fact.** Any fact introduced during qualification must appear in `key_evidence` with:
 
     - evidence role;
     - source focus;
@@ -82,9 +89,9 @@ Use `schema_version: "1.4.0"` and `schema_name: "qualified_prospects"` for new J
 
     Use each normalized URL only once per finalist. A source can support more than one conclusion, but do not create one `key_evidence` item per role from the same page. Select its principal evidence role, then combine the tightly related supported conclusions and caveat in that one item's `supported_claim` and `evidence_excerpt`. Obtain a distinct source when a coverage rule requires another role. Normalize URLs for this check by trimming whitespace, lowercasing the scheme and host, removing a trailing slash from a non-root path, and preserving the path and query. Label unsupported possibilities as inference or leave them out.
 
-13. **Use runtime-derived time values.** At the start of qualification and immediately before the final write, read the current local time from the Codex runtime or system clock. Use the final exact ISO 8601 timestamp returned by the environment as `generated_at` and its calendar date as `accessed_on` for every source actually opened during this run. Never estimate or manually generate either value. Preserve an older access date only when carrying forward evidence without reopening its URL. This is an internal Codex operation: never create a helper script or ask the SME user to run a command. If the runtime clock is unavailable, stop before writing rather than inventing a timestamp.
+14. **Use runtime-derived time values.** At the start of qualification and immediately before the final write, read the current local time from the Codex runtime or system clock. Use the final exact ISO 8601 timestamp returned by the environment as `generated_at` and its calendar date as `accessed_on` for every source actually opened during this run. Never estimate or manually generate either value. Preserve an older access date only when carrying forward evidence without reopening its URL. This is an internal Codex operation: never create a helper script or ask the SME user to run a command. If the runtime clock is unavailable, stop before writing rather than inventing a timestamp.
 
-14. **Apply and expose the 20-point rubric.** The total is exactly **20 points**. Use every whole number from zero through the criterion maximum. The anchors below guide judgement; they do not prohibit intermediate scores.
+15. **Apply and expose the 20-point rubric to Fast-Fail survivors only.** The total is exactly **20 points**. Use every whole number from zero through the criterion maximum. The anchors below guide judgement; they do not prohibit intermediate scores.
 
     | Criterion | Max | Weight | Score range | Award the maximum when |
     |---|---:|---:|---|---|
@@ -99,7 +106,7 @@ Use `schema_version: "1.4.0"` and `schema_name: "qualified_prospects"` for new J
 
     Store all six component scores in `score_breakdown`. Set `score` to their arithmetic sum and verify the sum exactly before writing. Do not assign a total independently. In the Markdown shortlist, display every finalist as `capability + timing + buyer path + access + cluster + evidence = total/20`, for example `5 + 4 + 2 + 2 + 1 + 2 = 16/20`.
 
-15. **Classify finalists and order the work.** Use the total to order candidates within a class, then apply the gates and route maturity to determine the class.
+16. **Classify Fast-Fail survivors and order the work.** Use the total to order candidates within a class, then apply the gates and route maturity to determine the class.
 
     | Class | Normal score range | Required condition | SBF use |
     |---|---:|---|---|
@@ -108,9 +115,9 @@ Use `schema_version: "1.4.0"` and `schema_name: "qualified_prospects"` for new J
     | `Watchlist` | 9-12 | Relevant, but timing, route, access, or evidence remains insufficient | Refresh the missing signal; do not allocate mission or outreach effort yet. |
     | Exclude or deprioritize | 0-8 | Weak fit or no credible route | Record the reason and stop work unless material new evidence appears. |
 
-    A score cannot override a failed condition. If a candidate falls outside its normal range, keep it only when the leadership brief explicitly states why its immediate action is still justified; for example, a low-scoring `Watchlist` may merit one inexpensive route-validation question. Do not call a candidate `Priority` without current timing, a named route, and the evidence coverage in step 16.
+    A score cannot override a failed condition. If a candidate falls outside its normal range, keep it only when the leadership brief explicitly states why its immediate action is still justified; for example, a low-scoring `Watchlist` may merit one inexpensive route-validation question. Do not call a candidate `Priority` without current timing, a named route, and the evidence coverage in step 17.
 
-16. **Enforce evidence coverage.**
+17. **Enforce evidence coverage for Fast-Fail survivors.**
 
     - `Priority`: timing, capability fit, and buyer-path or accessibility evidence; at least three evidence items with distinct normalized URLs; at least one project/timing-specific source.
     - `Strategic`: timing, capability fit, and buyer-path or risk evidence.
@@ -118,13 +125,13 @@ Use `schema_version: "1.4.0"` and `schema_name: "qualified_prospects"` for new J
 
     A generic company page alone cannot support `Priority`.
 
-17. **Recommend one SBF intervention per finalist.** Assign `Learn`, `Lead Generation`, `Land`, or `Localize` and one concrete action, such as a cluster briefing, procurement-route validation, warm introduction, mission meeting, local partner search, incentive navigation, or supplier-localization support.
+18. **Recommend one SBF intervention per finalist.** Assign `Learn`, `Lead Generation`, `Land`, or `Localize` and one concrete action, such as a cluster briefing, procurement-route validation, warm introduction, mission meeting, local partner search, incentive navigation, or supplier-localization support.
 
-18. **Prefer realistic routes.** Compare direct-owner outreach with EPC, contractor, OEM, channel, integrator, and ecosystem routes. Do not rank a megafab owner highly without a specific route to investigate. Apply Central Texas, Arizona, and New York as tie-breakers, not absolute rules.
+19. **Prefer realistic routes.** Compare direct-owner outreach with EPC, contractor, OEM, channel, integrator, and ecosystem routes. Do not rank a megafab owner highly without a specific route to investigate. Apply Central Texas, Arizona, and New York as tie-breakers, not absolute rules.
 
-19. **Filter aggressively.** Produce 5-8 finalists and never more than 10. Return fewer than five when fewer are credible. Group non-finalists by concise exclusion reason rather than listing every weak record.
+20. **Filter aggressively.** Produce 5-8 finalists and never more than 10. Return fewer than five when fewer are credible. Group non-finalists by concise exclusion reason rather than listing every weak record.
 
-20. **Build a one-page leadership brief.** Before the detailed shortlist, create `executive_summary` with:
+21. **Build a one-page leadership brief.** Before the detailed shortlist, create `executive_summary` with:
 
     - one decision headline;
     - no more than four `action_now` items, each naming the prospect, why it matters now, and the next SBF action;
@@ -133,7 +140,7 @@ Use `schema_version: "1.4.0"` and `schema_name: "qualified_prospects"` for new J
 
     Treat `executive_summary.action_now` as the sole contract for immediate SBF actions. It may include a `Priority`, `Strategic`, or `Watchlist` finalist when an immediate learning, route-validation, or commercial action is justified; never derive it mechanically from classification. Match prospect names using a trimmed, case-insensitive key. Reject empty keys, normalized duplicates, and normalized collisions; do not silently merge distinct organizations. Every named organization must match exactly one `qualified_shortlist` prospect under that rule. Keep the rendered section concise enough to fit roughly one page. Do not repeat full evidence citations there; the detailed sections remain the audit trail.
 
-21. **Make the SME-level SBF engagement recommendation.** Before writing the shortlist, answer the question an SME executive will see in the dashboard: **Should this company contact SBF now, and if so, which stage should it request?** Write one `sbf_engagement_recommendation` for the entire SME case. Do not derive it mechanically from the number of Priority prospects or from individual finalist stages.
+22. **Make the SME-level SBF engagement recommendation.** Before writing the shortlist, answer the question an SME executive will see in the dashboard: **Should this company contact SBF now, and if so, which stage should it request?** Write one `sbf_engagement_recommendation` for the entire SME case. Do not derive it mechanically from the number of Priority prospects or from individual finalist stages.
 
     - `Contact SBF now`: the SME has a defined, evidenced need for SBF support now. Select the one primary stage that SBF should activate first: `Learn`, `Lead Generation`, `Land`, or `Localize`.
     - `Contact SBF after preparation`: SBF engagement is likely useful, but the SME must first close the stated readiness, proof, ownership, or delivery gap. Select the stage to request after that preparation is complete.
@@ -141,11 +148,11 @@ Use `schema_version: "1.4.0"` and `schema_name: "qualified_prospects"` for new J
 
     Apply the stages consistently: `Learn` clarifies market relevance, readiness, or an opportunity hypothesis; `Lead Generation` validates buyer or partner routes and appropriate introductions; `Land` supports an initial U.S. customer, partner, or operating foothold; `Localize` supports customer-backed local delivery, partnerships, or operations. `specific_request_to_sbf` must name the support the SME should request, not promise that SBF can secure a meeting or introduction. For a `Do not contact SBF yet` decision, state that no request should be made now and direct the SME to the preparation list.
 
-22. **Write canonical JSON first.** Use the Output Contract below. Set `source_prospect_directory` to the Skill 2 directory. When using a legacy input, use the legacy `source_prospect_discovery_path` field and its compatible schema version instead.
+23. **Write canonical JSON first.** Use the Output Contract below. Set `source_prospect_directory` to the Skill 2 directory. When using a legacy input, use the legacy `source_prospect_discovery_path` field and its compatible schema version instead.
 
-23. **Self-check and render.** Read `schema/qualified-prospects.schema.json` and validate the completed JSON with the JSON Schema capability available in the Codex runtime. Verify that `total_prospects_screened` equals the exact count established before the metadata screen and is at least the number of finalists. Verify that `sbf_engagement_recommendation` gives exactly one allowed contact decision and one allowed primary stage, has a concrete rationale and request, and lists only preparation that the SME can act on. Independently recompute every total from the six score components; verify that every finalist's `key_evidence` URLs are unique under the normalization rule in step 12; verify that every `action_now` and `strategic_routes` prospect matches exactly one `qualified_shortlist` prospect using the trimmed, case-insensitive key rule; reject normalized collisions; and compare `generated_at` with a fresh runtime-clock reading. Fix every mismatch before rendering Markdown. Do not create a validation script and do not ask the SME user to run technical checks.
+24. **Self-check and render.** Read `schema/qualified-prospects.schema.json` and validate the completed JSON with the JSON Schema capability available in the Codex runtime. Verify that `total_prospects_screened` equals the exact count established before the metadata screen and is at least the number of finalists. Verify that every `Hard Fail:` exclusion has a specific reason and that no abandoned candidate appears in `qualified_shortlist`, an action list, a score breakdown, or an SBF action. Verify that `sbf_engagement_recommendation` gives exactly one allowed contact decision and one allowed primary stage, has a concrete rationale and request, and lists only preparation that the SME can act on. Independently recompute every total from the six score components; verify that every finalist's `key_evidence` URLs are unique under the normalization rule in step 13; verify that every `action_now` and `strategic_routes` prospect matches exactly one `qualified_shortlist` prospect using the trimmed, case-insensitive key rule; reject normalized collisions; and compare `generated_at` with a fresh runtime-clock reading. Fix every mismatch before rendering Markdown. Do not create a validation script and do not ask the SME user to run technical checks.
 
-24. **Confirm briefly.** Report the number of prospect records screened, full records read, candidates verified, finalists produced, and the SME-level SBF engagement recommendation. Point to the qualified Markdown and JSON. End with:
+25. **Confirm briefly.** Report the number of prospect records screened, Fast-Fail abandonments by gate, full records read, candidates verified, finalists produced, and the SME-level SBF engagement recommendation. Point to the qualified Markdown and JSON. End with:
     - Export the executive dashboard with `$export-executive-brief`.
     - Revise the qualified shortlist.
     - Stop.
@@ -268,7 +275,7 @@ Render these sections:
 1. Your SBF next step: whether to contact SBF now, the one stage to request, the rationale, the specific request, and SME preparation
 2. Executive decision brief
 3. Inputs, total prospect records screened, and shortlisted finalists
-4. Qualification logic, including the distinction between score and actionability class
+4. Qualification logic, including Fast-Fail results and the distinction between score and actionability class
 5. Qualified shortlist table with the full component-score breakdown in this order: capability, timing, buyer path, access, cluster, evidence, then total `/20`
 6. Structured evidence by finalist
 7. Grouped exclusions
@@ -282,6 +289,7 @@ Do not introduce claims, scores, or recommendations absent from the self-checked
 - Screen every prospect through the index or, on fallback, its frontmatter.
 - Record the exact full-pool count in `total_prospects_screened` and verify that it is at least the number of finalists.
 - Read full files only for the focused 10-15 candidate set.
+- Apply both Fast-Fail gates before verification or scoring; record each abandoned candidate with its specific `Hard Fail:` reason.
 - Produce 5-8 finalists, never more than 10, without padding.
 - Give every finalist a specific buyer path, one verification question, and one concrete SBF action.
 - Show all six score components and verify that they sum to the total.

@@ -49,7 +49,8 @@ output/<safe_sme_name>/
 
 ```text
 load state -> find an uncovered query direction -> search -> upsert prospects
--> reflect -> mutate the next query -> repeat -> stop and report
+-> update in-memory state -> reflect -> mutate the next query -> repeat
+-> rebuild derived indexes once -> audit -> stop and report
 ```
 
 Each normal invocation is one search cycle:
@@ -110,6 +111,36 @@ Each normal invocation is one search cycle:
      - Recent stories: `https://hn.algolia.com/api/v1/search_by_date?query=[capability]+[state]&tags=story&numericFilters=created_at_i%3E[TIMESTAMP_6_MONTHS_AGO]`
      - Recent comments: `https://hn.algolia.com/api/v1/search_by_date?query=%22[exact_company_or_project_phrase]%22+[specific_cluster]&tags=comment&numericFilters=created_at_i%3E[TIMESTAMP_6_MONTHS_AGO]`
 
+   - **Federal awards:** Treat each API request as one live search and retain the exact endpoint, non-secret filters, request date, and response URL or award identifier in the search log and prospect evidence. Start with the two target NAICS codes—`334413` (semiconductor and related device manufacturing) and `236210` (industrial building construction)—then filter by an approved cluster location. These are discovery signals, not proof of a current MES, procurement, subcontract, or buyer route.
+
+     **USASpending template (POST):** Before use, check the live official API documentation for the currently supported Award Search path and filter schema. Use `https://api.usaspending.gov/api/v2/search/awards/` when available; if the documented current equivalent is different, use that endpoint and log the actual path. Keep the query bounded by date and cluster.
+
+     ```http
+     POST https://api.usaspending.gov/api/v2/search/awards/
+     Content-Type: application/json
+
+     {
+       "filters": {
+         "time_period": [{"start_date": "[YYYY-MM-DD]", "end_date": "[YYYY-MM-DD]"}],
+         "naics_codes": ["334413", "236210"],
+         "place_of_performance_locations": [{"country": "USA", "state": "[AZ|TX|NY]"}]
+       },
+       "fields": ["Award ID", "Recipient Name", "Description", "Start Date", "End Date", "Award Amount", "Awarding Agency", "Place of Performance"],
+       "page": 1,
+       "limit": 100,
+       "sort": "Award Amount",
+       "order": "desc"
+     }
+     ```
+
+     **SAM.gov Contract Awards template (GET):** Use the current public Contract Awards API only with an authorized SAM.gov API key. Never place a key in a prospect file, search log, source URL, or conversation output. Query `https://api.sam.gov/contract-awards/v1/search` with `naicsCode=334413~236210`, a bounded approved/modified-date range, `placeOfPerformStateCode=[AZ|TX|NY]`, `limit=100`, and `includeSections=contractId,awardDetails,awardeeData`; add the API key only at runtime. Example request shape:
+
+     ```text
+     GET https://api.sam.gov/contract-awards/v1/search?naicsCode=334413~236210&placeOfPerformStateCode=AZ&approvedDate=[MM/DD/YYYY,MM/DD/YYYY]&limit=100&includeSections=contractId,awardDetails,awardeeData&api_key=[runtime secret]
+     ```
+
+   - **Municipal permits:** Use public permit/project portals to surface facility construction, hazardous-chemical, electrical, cleanroom, utility, or equipment/tool-hookup signals. Examples: `site:mygovernmentonline.org Taylor TX semiconductor permit`, `site:mygovernmentonline.org Taylor TX electrical permit`, and the City of Phoenix Development Services permit/project search with terms such as `semiconductor`, `fab`, `hazardous`, `electrical`, `tool install`, or a known project name. A permit proves only the stated record, location, work type, status, and date; corroborate company identity and commercial relevance with a first-party, government, contractor, or credible trade source before admitting a candidate. Do not access login-gated records, bypass portal controls, or infer a procurement need from permit language alone.
+
    Treat a job posting only as evidence of the stated role, location, function, and date. Do not claim that it proves construction, procurement demand, or an expansion unless the posting or a separate source says so. Likewise, do not infer a contractor or tier relationship from an award notice unless the source names it.
 
    Use an exact company or project phrase and a specific cluster for comment searches; never query a generic term such as `fab` alone. Use at most one Hacker News API query per cycle unless it produces a named, relevant company, project, or route worth following. Do not create a prospect from an HN mention alone; corroborate the identity and commercial relevance with an official company, project, government, contractor, or credible trade source.
@@ -135,7 +166,7 @@ Each normal invocation is one search cycle:
    2. Process each completed query separately in a deterministic order.
    3. Run the identity check and upsert canonical `prospects/<prospect_id>.md` records.
    4. Log every exact query with its own counts and reflection.
-   5. Rebuild `02_prospects_index.tsv` and both OKF navigation indexes from the canonical Markdown records.
+   5. Update the primary thread's in-memory identity and index state from the canonical Markdown upserts; do not rebuild derived index files during the batch.
    6. Use any remaining search slots adaptively after reviewing the combined results.
 
    If multi-agent tools are unavailable, the thread limit is reached, or delegation fails, continue the same uncovered searches sequentially without asking the user to configure anything. The primary agent remains responsible for all writes, deduplication, logging, validation, and final reporting.
@@ -144,7 +175,12 @@ Each normal invocation is one search cycle:
 
    Do not require current timing or a direct access route for initial admission, and do not discard a capability-relevant organization merely because it would not yet pass Skill 3's qualification or scoring threshold. Capture supported commercial context in the sourced body explanation. When timing or access is missing, add a concise caveat for Step 3 / human review and still save the record.
 
-   **Multi-Entity List Rule:** When one search result is a high-quality directory, EDO supplier list, or contractor round-up, extract up to two or three directly relevant organizations from that page into separate prospect Markdown records. Admit each organization independently under the same capability-relevance rule, retain the list page as valid supporting evidence, and add an official organization source when needed to establish identity or the claimed role. Do not convert every name on a broad list into a prospect.
+   **Multi-Entity List Rule:** Classify the source before setting the extraction limit.
+
+   - From a high-density, verified industry or public source—such as an official SEMI directory, a published CHIPS Act applicant/award list, or a state EDO roster—extract up to ten (normally five to ten) directly capability-relevant organizations into separate prospect Markdown records. The list must identify the organization and a semiconductor-relevant role, location, facility, program, or route; retain the list as supporting evidence and add an official organization source whenever identity or the claimed role is unclear.
+   - From an unverified general-web article, contractor round-up, blog, or broad listicle, retain the existing limit of up to two or three directly relevant organizations. Corroborate each with an official, government, contractor, or credible-trade source before admission when the article does not itself establish identity and capability relevance.
+
+   Admit every extracted organization independently under the same capability-relevance rule. Do not convert every name on a broad list into a prospect, treat list membership as a buyer route, or relax deduplication, timestamp, OKF frontmatter, source-footnote, or index requirements because the source is high-density.
 
    Exclude only obvious noise: direct competitors, recruiters, generic non-semiconductor entities, generic consultants without a semiconductor route, non-US entities without a clear US operational route, named existing customers, and results supported solely by general company size. Count excluded results in the search log and explain material exclusion patterns in the reflection.
 
@@ -180,7 +216,9 @@ Each normal invocation is one search cycle:
 
 14. **Log every exact query and scope change.** Before searching, compare the planned query with every query already in `02_search_log.md`. Do not rerun an exact query unless the user explicitly requests a freshness rerun. After processing the query, create the log on the first search or append one row using the Search Log Contract below. Record the exact query, counts of new, updated, and ignored results, and the reflection that explains the next mutation. When the user confirms a materially revised scope, append a runtime-dated `Scope update` section before the next query row; do not replace the earlier scope. Treat the most recent confirmed scope section as active on later runs.
 
-15. **Rebuild the indexes after each search.** Re-enumerate all prospect Markdown files and replace `02_prospects_index.tsv`, `prospects/index.md`, and the prospect-library entry in the root `index.md`. Never append blindly. Use the exact contracts below. If rebuilding fails, continue using the Markdown records and report the index issue; never lose or rewrite a valid prospect record to satisfy an index.
+15. **Defer derived-index rebuilding to the end of the search cycle.** During the one-to-five-search batch, maintain an in-memory identity and index list as each canonical prospect Markdown file is created or updated. Use that state for later identity checks, but do not rewrite `02_prospects_index.tsv`, `prospects/index.md`, or the prospect-library entry in the root `index.md` after individual searches.
+
+    After the fifth search, or immediately after the early-stop condition, run one rebuild pass: re-enumerate all canonical prospect Markdown files and replace all three derived indexes from disk. Never append blindly. Use the exact contracts below. If that final rebuild fails, retain the valid canonical Markdown records, report the index issue, and do not claim the derived indexes were refreshed.
 
 16. **Protect diversity.** If results concentrate on one category, deliberately change the next buyer or route dimension:
 
@@ -192,7 +230,7 @@ Each normal invocation is one search cycle:
 
 17. **Stop the cycle.** Stop after five searches or three consecutive searches with no new prospect files. Do not stop merely because the library has reached 20 prospects. Do not pad the library.
 
-18. **Audit the completed store.** Re-enumerate all prospect files and self-check:
+18. **Audit the completed store.** After the single end-of-cycle rebuild pass, re-enumerate all prospect files and self-check:
 
     - one file per distinct identity;
     - no repeated normalized domain;
@@ -347,7 +385,7 @@ Write one row per prospect Markdown file, sorted by `prospect_id`. Join multiple
 
 Keep the navigation indexes short and derived; they must not introduce claims beyond the canonical concept documents.
 
-`prospects/index.md` is a reserved OKF directory listing with no frontmatter. Replace it after every search with:
+`prospects/index.md` is a reserved OKF directory listing with no frontmatter. Replace it once at the end of every search cycle with:
 
 ```markdown
 # Prospect Library
