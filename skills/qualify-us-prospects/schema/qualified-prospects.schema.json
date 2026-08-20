@@ -11,9 +11,12 @@
     "safe_sme_name",
     "generated_at",
     "source_capability_profile_path",
+    "source_prospect_directory",
     "total_prospects_screened",
     "qualification_scope",
     "qualification_logic",
+    "sbf_engagement_recommendation",
+    "executive_summary",
     "qualified_shortlist",
     "deprioritized_or_excluded",
     "recommended_next_steps"
@@ -21,7 +24,7 @@
   "properties": {
     "schema_version": {
       "type": "string",
-      "enum": ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0"]
+      "const": "1.4.0"
     },
     "schema_name": {
       "type": "string",
@@ -43,10 +46,6 @@
     "source_capability_profile_path": {
       "type": "string",
       "pattern": "^output/[a-z0-9]+(?:_[a-z0-9]+)*/01_capability_profile\\.md$"
-    },
-    "source_prospect_discovery_path": {
-      "type": "string",
-      "pattern": "^output/[a-z0-9]+(?:_[a-z0-9]+)*_prospects\\.(json|md)$"
     },
     "source_prospect_directory": {
       "type": "string",
@@ -222,6 +221,7 @@
           "evidence_strength",
           "key_evidence",
           "score",
+          "score_breakdown",
           "what_to_verify_next"
         ],
         "properties": {
@@ -284,6 +284,7 @@
                 "source_title",
                 "source_type",
                 "source_date",
+                "accessed_on",
                 "url",
                 "supported_claim",
                 "evidence_excerpt"
@@ -343,7 +344,7 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 20,
-            "description": "Must equal the arithmetic sum of all six score_breakdown fields for schema version 1.3.0."
+            "description": "Must equal the arithmetic sum of all six score_breakdown fields."
           },
           "score_breakdown": {
             "type": "object",

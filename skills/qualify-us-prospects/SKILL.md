@@ -1,6 +1,6 @@
 ---
 name: qualify-us-prospects
-description: Third skill in the SG Semicon US Expansion workflow. Use after the user reviews the persistent prospect library created by us-prospect-discovery. Screen the lightweight prospect index, read only the strongest Markdown records, run targeted verification, and produce a 5-8 target decision-support shortlist with score breakdowns, a one-page leadership brief, and practical SBF actions. Fall back to prospect frontmatter automatically when the index is unavailable, and accept legacy consolidated Skill 2 files only when necessary.
+description: Third skill in the SG Semicon US Expansion workflow. Use after the user reviews the persistent prospect library created by us-prospect-discovery. Screen the lightweight prospect index, read only the strongest Markdown records, run targeted verification, and produce a 5-8 target decision-support shortlist with score breakdowns, a one-page leadership brief, and practical SBF actions. Fall back to prospect frontmatter automatically when the index is unavailable.
 ---
 
 # Skill: qualify-us-prospects
@@ -20,14 +20,13 @@ capability profile + prospect directory -> metadata screen -> focused reading
 - Skill 2 search log: `output/<safe_sme_name>/02_search_log.md`.
 - Optional `input/existing_customers.md`.
 - Optional qualification preference such as easiest first outreach, near-term timing, specific state, or buyer route.
-- Legacy fallback only: `output/<safe_sme_name>_prospects.json` or `.md`.
 
 ## Outputs
 
 - `output/<safe_sme_name>/03_qualified_shortlist.json`
 - `output/<safe_sme_name>/03_qualified_shortlist.md`
 
-Use `schema_version: "1.4.0"` and `schema_name: "qualified_prospects"` for new JSON output. Treat `schema/qualified-prospects.schema.json` as the field contract and self-check the completed object against it. Continue to accept valid legacy 1.0.0-1.3.0 outputs when revising or reading older work.
+Use `schema_version: "1.4.0"` and `schema_name: "qualified_prospects"` for output JSON. Treat `schema/qualified-prospects.schema.json` as the field contract and self-check the completed object against it.
 
 ## Instructions
 
@@ -35,7 +34,7 @@ Use `schema_version: "1.4.0"` and `schema_name: "qualified_prospects"` for new J
 
 2. **Resolve matching inputs.** If paths are not supplied, find the most recently modified `output/*/01_capability_profile.md` with a matching `prospects/` directory. If multiple SMEs remain genuinely ambiguous, ask the user to choose.
 
-3. **Use legacy discovery only as fallback.** If no new prospect directory exists, accept a matching old `output/<safe_sme_name>_prospects.json` or `.md`. Never combine legacy and directory records silently. State which source is being qualified.
+3. **Require the current Skill 2 library.** If the matching `prospects/` directory is absent, stop and tell the user to run `$us-prospect-discovery` first. Do not use consolidated prospect files.
 
 4. **Handle revisions narrowly.** For a requested revision to the qualified shortlist, read the current qualified JSON, apply the requested changes, reconstruct the complete schema-valid object, then render Markdown. Do not rerun discovery or qualification unless explicitly asked.
 
@@ -148,7 +147,7 @@ Use `schema_version: "1.4.0"` and `schema_name: "qualified_prospects"` for new J
 
     Apply the stages consistently: `Learn` clarifies market relevance, readiness, or an opportunity hypothesis; `Lead Generation` validates buyer or partner routes and appropriate introductions; `Land` supports an initial U.S. customer, partner, or operating foothold; `Localize` supports customer-backed local delivery, partnerships, or operations. `specific_request_to_sbf` must name the support the SME should request, not promise that SBF can secure a meeting or introduction. For a `Do not contact SBF yet` decision, state that no request should be made now and direct the SME to the preparation list.
 
-23. **Write canonical JSON first.** Use the Output Contract below. Set `source_prospect_directory` to the Skill 2 directory. When using a legacy input, use the legacy `source_prospect_discovery_path` field and its compatible schema version instead.
+23. **Write canonical JSON first.** Use the Output Contract below. Set `source_prospect_directory` to the Skill 2 directory.
 
 24. **Self-check and render.** Read `schema/qualified-prospects.schema.json` and validate the completed JSON with the JSON Schema capability available in the Codex runtime. Verify that `total_prospects_screened` equals the exact count established before the metadata screen and is at least the number of finalists. Verify that every `Hard Fail:` exclusion has a specific reason and that no abandoned candidate appears in `qualified_shortlist`, an action list, a score breakdown, or an SBF action. Verify that `sbf_engagement_recommendation` gives exactly one allowed contact decision and one allowed primary stage, has a concrete rationale and request, and lists only preparation that the SME can act on. Independently recompute every total from the six score components; verify that every finalist's `key_evidence` URLs are unique under the normalization rule in step 13; verify that every `action_now` and `strategic_routes` prospect matches exactly one `qualified_shortlist` prospect using the trimmed, case-insensitive key rule; reject normalized collisions; and compare `generated_at` with a fresh runtime-clock reading. Fix every mismatch before rendering Markdown. Do not create a validation script and do not ask the SME user to run technical checks.
 
