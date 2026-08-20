@@ -1,0 +1,23 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "sg-semicon-expansion-plugin",
+  "version": "0.4.0+codex.20260820045539",
+  "description": "Evidence-backed market-entry decision support for Singapore semiconductor SMEs.",
+  "author": {
+    "name": "Hanyang Hu",
+    "email": "hanyang.hu.2026@anderson.ucla.edu"
+  },
+  "homepage": "https://github.com/hyhunss/sg-semicon-us-expansion-plugin",
+  "repository": "https://github.com/hyhunss/sg-semicon-us-expansion-plugin",
+  "keywords": [
+    "semiconductor",
+    "prospecting",
+    "market-research",
+    "market-entry",
+    "SBF",
+    "executive-dashboard",
+    "Central-Texas",
+    "Arizona",
+    "New-York"
+  ]
+}

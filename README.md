@@ -8,6 +8,14 @@ Entering the U.S. semiconductor ecosystem is not a question of finding the large
 
 This Codex plugin turns public evidence into a reviewable decision path. It maps what an SME can credibly offer, builds a persistent library of relevant U.S. buyers and access routes, narrows that library through a transparent rubric, and produces an executive-ready brief.
 
+The repository supports the Agent Plugins v1.0.0 portable format for skills, while retaining its Codex-native manifest and installation flow.
+
+### Portable package layout
+
+The root [plugin.json](plugin.json) is the single portable Agent Plugins v1.0.0 manifest. Each workflow is an Agent Skill in `skills/<skill-name>/SKILL.md`, so compatible clients can discover the four skills from the standard fixed location. The plugin has no MCP server, so it intentionally does not include `mcp.json`.
+
+The `.codex-plugin/plugin.json` file is retained only for Codex-native distribution and does not replace the portable root manifest.
+
 ### Built into Codex
 
 The workflow is available as one focused Codex plugin, ready to begin from an SME website or capability profile.
