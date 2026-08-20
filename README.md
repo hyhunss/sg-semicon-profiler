@@ -30,7 +30,7 @@ The workflow is available as one focused Codex plugin, ready to begin from an SM
 
 | Decision artifact | Leadership use | What it contains |
 |---|---|---|
-| **Capability profile** | Establish the market-entry premise | Supported capabilities, evidence boundaries, limitations, and search directions |
+| **Capability profile** | Establish the market-entry premise | Core competencies, sourced evidence, and targeting vectors |
 | **Prospect library** | Build a broad, reusable option set | Individual OKF v0.2 records for buyers, route partners, and ecosystem connectors |
 | **Qualified shortlist** | Decide where to focus | 5–8 targets, transparent 20-point scores, practical buyer paths, and critical unknowns |
 | **Executive dashboard** | Align action and review | A self-contained, print-ready brief of priorities, evidence, and next actions |
@@ -79,7 +79,7 @@ Default discovery emphasizes Central Texas, Arizona, and New York, while admitti
 
 ## Before you start
 
-Provide one reliable SME source: a website, capability deck, or company profile. The first step will distinguish demonstrated capabilities from partner offerings and unverified claims.
+Provide one reliable SME source: a website, capability deck, or company profile. The first step will turn demonstrated capabilities and hard evidence into focused targeting vectors.
 
 Optionally add `input/existing_customers.md` to exclude named accounts or prevent unwanted group-level duplicates during discovery.
 

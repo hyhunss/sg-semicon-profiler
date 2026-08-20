@@ -1,6 +1,6 @@
 ---
 type: SME Capability Profile # required
-description: "Public-evidence-based map of Onn Wah Tech's supported capabilities, limitations, and US prospect-discovery directions." # required
+description: "Public-evidence-based capability profile for Onn Wah Tech." # required
 resource: "https://onnwahtech.com/" # required
 generated: # required
   by: codex/gpt-5
@@ -27,7 +27,7 @@ sources: # required
 
 This is a format sample. Refresh the public sources before using it for a current commercial decision.
 
-## What the company does
+## Core Competencies
 
 1. **Semiconductor back-end precision tooling**
    Onn Wah Tech describes itself as a one-stop supplier for precision tooling used in semiconductor back-end packaging and states that it provides design, fabrication, and setup for BGA tooling, plus test and saw-tooling rework kits.[^company-homepage][^about-us]
@@ -38,17 +38,12 @@ This is a format sample. Refresh the public sources before using it for a curren
 3. **Selected packaging-line support equipment**
    Its customized semi-automation page lists a flux tooling cleaner and a wafer cassette inverter.[^semi-automation]
 
-## Evidence
+## Sourced Evidence
 
 - The BGA tooling page describes ball-mount tooling as high-precision components used to place microscopic solder balls in the semiconductor back-end packaging process.[^bga-tooling]
 - The precision-machining page lists the published dimensional ranges and machine categories summarized above.[^precision-machining]
 
-## Important limitations
-
-- The reviewed public pages do not establish current US delivery authorization, named US customers, fab or OSAT qualification, current lead times, or available production capacity.
-- The reviewed public pages do not establish whether the separate pogo-pin and auto-lathe offering is manufactured by Onn Wah Tech, supplied through a partner, or resold. It is excluded from the core capability claims.
-
-## Search directions for Skill 2
+## Targeting Vectors
 
 - BGA ball-attach, test, and saw-rework tooling + US OSAT or semiconductor back-end packaging line + capacity expansion or equipment conversion
 - Precision-machined semiconductor packaging tooling + US packaging-equipment OEM or automation integrator + supplier or subcontract machining need

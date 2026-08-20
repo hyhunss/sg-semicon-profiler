@@ -67,7 +67,7 @@ Each normal invocation is one search cycle:
 
 2. **Resolve the active SME.** If no capability path is supplied, choose the most recently modified `output/*/01_capability_profile.md`. Ask only when multiple SMEs remain genuinely ambiguous.
 
-3. **Read the capability and customer context.** Extract the SME name, supported capabilities, limitations, and search directions from the Markdown profile. Derive `safe_sme_name` from its parent folder. Read `input/existing_customers.md` when present and matching. Exclude named existing customers and obvious group aliases unless the user requests account expansion.
+3. **Read the capability and customer context.** Extract the SME name, core competencies, sourced evidence, and targeting vectors from the Markdown profile. Derive `safe_sme_name` from its parent folder. Read `input/existing_customers.md` when present and matching. Exclude named existing customers and obvious group aliases unless the user requests account expansion.
 
 4. **Locate and audit persistent state.** Use:
 
